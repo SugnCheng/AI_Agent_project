@@ -1,0 +1,87 @@
+{
+  "schema_version": "0.2.0",
+  "task_id": "template-task",
+  "raw_request": {
+    "text": "Template raw request.",
+    "received_at": "2026-01-01T00:00:00Z",
+    "source_context": ""
+  },
+  "kernel_stage": "handoff_ready",
+  "status_flags": ["ready_for_handoff"],
+  "framed_objective": {
+    "surface_request": "Template surface request.",
+    "core_goal": "Template core goal.",
+    "success_criteria": ["Produce a valid kernel handoff object."],
+    "scope": [],
+    "non_goals": [],
+    "time_horizon": null,
+    "reframe_required": false,
+    "reframe_note": ""
+  },
+  "task_classification": {
+    "primary_type": "analysis",
+    "secondary_types": []
+  },
+  "risk_profile": {
+    "overall_level": "medium",
+    "categories": ["none_identified"],
+    "ambiguity_level": "medium",
+    "rationale": "Template risk profile for a non-production handoff object.",
+    "escalation_required": false,
+    "alignment_needed": false,
+    "confidence_ceiling": "medium",
+    "constraints": []
+  },
+  "triggered_habits": [
+    {
+      "habit_id": "H1",
+      "role": "primary",
+      "reason": "External claims or source evaluation may be required.",
+      "required": true
+    }
+  ],
+  "structural_decomposition": {
+    "facts": [],
+    "assumptions": [],
+    "inferences": [],
+    "unknowns": [],
+    "constraints": {
+      "hard": [],
+      "soft": []
+    },
+    "stakeholders": [],
+    "tradeoffs": []
+  },
+  "required_checks": {
+    "must_verify": [],
+    "must_challenge": [],
+    "must_disclose_uncertainty": [],
+    "must_align_with_user": []
+  },
+  "verification_plan": {
+    "required": true,
+    "methods": ["source_check"],
+    "freshness_requirement": "none",
+    "citation_requirement": "recommended",
+    "notes": ""
+  },
+  "challenge_loop": {
+    "performed": false,
+    "challenges": [],
+    "result": "proceed_with_constraints"
+  },
+  "downstream_recommendation": {
+    "agent_type": "macro-financial-intelligence",
+    "mode": "restricted_handoff",
+    "output_format": "research_brief",
+    "rationale": "Template route for validating kernel handoff structure.",
+    "restrictions": ["Do not produce direct trading advice."]
+  },
+  "handoff": {
+    "downstream_agent": "macro-financial-intelligence",
+    "handoff_ready": false,
+    "instructions": ["Use this object as a schema-compatible template."],
+    "expected_outputs": ["A source-aware research brief."],
+    "open_questions": []
+  }
+}

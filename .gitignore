@@ -1,0 +1,24 @@
+# Local/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Runtime/cache output
+tmp/
+cache/
+dist/
+build/
+reports/generated/
+archives/generated/
+
+# Sensitive local config
+.env
+.env.*
+*.key
+*.pem
+credentials.*
+
+# Data snapshots that should be intentionally curated before commit
+raw-news-cache/
+market-data-cache/
