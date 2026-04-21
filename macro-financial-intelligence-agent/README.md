@@ -186,6 +186,23 @@ The wrapper runs these existing validation layers in order:
 
 It is a local developer helper only. It does not add CI, fetch live sources, execute schedules, compose reports, migrate package layout, or replace the individual validation scripts.
 
+## Daily US Core Dry-Run
+
+Run the first governed local dry-run slice from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_dry_run.py'
+```
+
+This dry-run loads the governed source registry and run profiles, selects `daily_us_core`, resolves its whitelisted source IDs, constructs an in-memory no-new-items bundle-compatible artifact, and validates it against the ingestion bundle schema.
+
+Optional flags:
+
+- `--show-artifact` prints the in-memory dry-run bundle artifact.
+- `--run-local-checks` runs `validation/run_all_local_checks.py` after the dry-run.
+
+It does not fetch live sources, execute cron, compose reports, archive outputs, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
