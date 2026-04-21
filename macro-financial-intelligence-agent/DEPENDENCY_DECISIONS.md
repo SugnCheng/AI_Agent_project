@@ -4,7 +4,7 @@
 
 This document records conservative v0.1 decisions for dependencies and project structure before the next implementation stage.
 
-It is developer-facing. It does not introduce dependencies, runtime behavior, live fetching, scheduling, report composition, or kernel contract changes.
+It is developer-facing. PyYAML and jsonschema have been approved and declared in `requirements.txt`. This does not authorize live fetching, scheduling, report composition, package migration, CI, or kernel contract changes.
 
 ## Decision 1: YAML Parsing
 
@@ -15,7 +15,7 @@ The project uses YAML for:
 - `config/source_registry.yaml`
 - `scheduler/run_profiles.yaml`
 
-The current scaffold only reads registry text. Structured YAML parsing is intentionally deferred.
+The current scaffold can load governed YAML config files with PyYAML when dependencies are installed. Production config semantics remain intentionally limited.
 
 ### Options Considered
 
@@ -26,7 +26,7 @@ The current scaffold only reads registry text. Structured YAML parsing is intent
 
 ### Recommended Conservative Path for v0.1
 
-Use **PyYAML** when structured parsing becomes necessary.
+Use **PyYAML** for minimal structured loading of governed config files.
 
 Rationale:
 
@@ -34,13 +34,12 @@ Rationale:
 - The config files are simple mappings/lists and do not need round-trip formatting preservation.
 - It is sufficient for validation and controlled loading.
 
-Until dependency installation is explicitly approved, keep current text-based scaffold checks and do not pretend the project has production YAML validation.
+Do not expand this into production scheduling or source selection behavior.
 
 ### Explicitly Deferred
 
 - Adding `pyproject.toml` dependency declarations.
-- Installing PyYAML.
-- Implementing production config loading.
+- Implementing production source selection.
 - Supporting advanced YAML features.
 
 ## Decision 2: JSON Schema Validation
@@ -68,11 +67,10 @@ Rationale:
 - It is more appropriate than custom validation for schema correctness.
 - The current project benefits more from clarity than from validator speed.
 
-For the current scaffold state, keep the lightweight local checks as a dependency-free guard.
+For the current scaffold state, keep the lightweight local checks as a dependency-free guard while adding a minimal jsonschema-backed helper.
 
 ### Explicitly Deferred
 
-- Adding `jsonschema` as a dependency.
 - Enforcing full Draft 2020-12 validation in CI.
 - Replacing existing lightweight scaffold checks.
 - Writing a custom schema validator.
@@ -201,8 +199,8 @@ Rationale:
 
 | Topic | Recommendation |
 | --- | --- |
-| YAML parsing | Use PyYAML later, keep text-level scaffold checks now. |
-| JSON Schema validation | Use `jsonschema` later, keep lightweight local checks now. |
+| YAML parsing | PyYAML approved for minimal structured config loading. |
+| JSON Schema validation | `jsonschema` approved for ingestion bundle schema validation helper. |
 | YAML config schemas | Defer until structured config loading exists. |
 | Project layout | Keep flat scaffold layout now; consider `macro_financial_intelligence_agent` package later. |
 | CI | Keep manual checks now; revisit after dependencies and layout stabilize. |
@@ -211,8 +209,8 @@ Rationale:
 
 Before adding real runtime behavior, decide whether to approve:
 
-1. PyYAML for structured config loading.
-2. `jsonschema` for ingestion bundle validation.
-3. A small package layout migration.
+1. production source selection semantics,
+2. semantic validation rules beyond JSON Schema,
+3. a small package layout migration.
 
 Until then, implementation should remain scaffold-level and governed by the current contracts.

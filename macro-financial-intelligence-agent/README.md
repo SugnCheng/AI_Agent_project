@@ -18,6 +18,7 @@ Completed layers:
 - Config and contracts define approved sources, run profiles, ingestion bundle structure, and report templates.
 - Governed examples show valid daily, weekly, and no-new-items ingestion bundles.
 - Minimal scaffolds define raw item, normalization, dedup, tagging, triage, source registry loading, and bundle builder boundaries.
+- Approved dependencies are declared for minimal structured YAML loading and ingestion bundle schema validation.
 - Local scaffold contract checks cover selected contract expectations without running production behavior.
 
 Not implemented yet:
@@ -25,7 +26,7 @@ Not implemented yet:
 - live fetching,
 - open-web crawling,
 - real scheduler execution,
-- production YAML parsing,
+- production YAML parsing beyond minimal governed config loading,
 - full normalization / dedup / tagging / triage logic,
 - production ingestion bundle assembly,
 - report composition,
@@ -57,14 +58,31 @@ Operational macro-agent contracts:
 | File | Role |
 | --- | --- |
 | `acquisition/raw_item.py` | Raw source item shape and minimum field check. |
-| `acquisition/source_registry_loader.py` | Source registry loading boundary; structured YAML parsing is deferred. |
+| `acquisition/source_registry_loader.py` | Source registry loading boundary with minimal PyYAML-backed structured loading. |
+| `scheduler/run_profiles_loader.py` | Run profile loading boundary; does not run schedules. |
 | `preprocessing/normalize/normalizer.py` | Normalized item shape and normalization boundary. |
 | `preprocessing/dedup/deduper.py` | Dedup result shape and dedup boundary. |
 | `preprocessing/tagging/tagger.py` | Tag shape and tagging boundary. |
 | `preprocessing/triage/triage_scaffold.py` | Triage priority shape and preliminary triage boundary. |
 | `bundles/bundle_builder.py` | Bundle build request shape and enum guard. |
+| `bundles/bundle_schema_validator.py` | JSON Schema validation helper for ingestion bundle files. |
 
 These files are scaffolds. Most methods intentionally raise `NotImplementedError`.
+
+## Approved Dependencies
+
+Approved dependencies are declared in `requirements.txt`:
+
+- `PyYAML` for minimal structured loading of governed YAML config files.
+- `jsonschema` for validating ingestion bundle artifacts against `bundles/schemas/INGESTION_BUNDLE.schema.json`.
+
+Install only when dependency-backed validation or structured config loading is needed:
+
+```powershell
+python -m pip install -r 'macro-financial-intelligence-agent\requirements.txt'
+```
+
+Dependency approval does not authorize live fetching, scheduler runtime, report composition, CI setup, or package layout migration.
 
 ## Governed Examples
 
