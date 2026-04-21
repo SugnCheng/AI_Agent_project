@@ -164,6 +164,28 @@ This validates the currently in-scope cross-file semantic rules from `SEMANTIC_V
 
 It still does not validate deferred rules such as fetcher capability, cron semantics, tag vocabularies, triage scoring, or kernel handoff compatibility.
 
+## Unified Local Validation
+
+Run the consolidated local validation wrapper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\run_all_local_checks.py'
+```
+
+Expected final output:
+
+```text
+all-local-validation-checks-ok
+```
+
+The wrapper runs these existing validation layers in order:
+
+1. `validation/scaffold_contract_checks.py`
+2. `validation/dependency_backed_contract_checks.py`
+3. `validation/semantic_contract_checks.py`
+
+It is a local developer helper only. It does not add CI, fetch live sources, execute schedules, compose reports, migrate package layout, or replace the individual validation scripts.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
