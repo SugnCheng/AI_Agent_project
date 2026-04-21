@@ -196,6 +196,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This dry-run loads the governed source registry and run profiles, selects `daily_us_core`, resolves its whitelisted source IDs, constructs an in-memory no-new-items bundle-compatible artifact, and validates it against the ingestion bundle schema.
 
+Output fields are governed by `DRY_RUN_OUTPUT_CONTRACT.md`.
+
 Optional flags:
 
 - `--show-artifact` prints the in-memory dry-run bundle artifact.
