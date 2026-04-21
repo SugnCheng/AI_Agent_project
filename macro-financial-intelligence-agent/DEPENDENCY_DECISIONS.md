@@ -4,7 +4,7 @@
 
 This document records conservative v0.1 decisions for dependencies and project structure before the next implementation stage.
 
-It is developer-facing. PyYAML and jsonschema have been approved and declared in `requirements.txt`. This does not authorize live fetching, scheduling, report composition, package migration, CI, or kernel contract changes.
+It is developer-facing. PyYAML and jsonschema have been approved, declared in `requirements.txt`, and integrated into dependency-backed local validation. This does not authorize live fetching, scheduling, report composition, package migration, CI, or kernel contract changes.
 
 ## Decision 1: YAML Parsing
 
@@ -48,7 +48,7 @@ Do not expand this into production scheduling or source selection behavior.
 
 `bundles/schemas/INGESTION_BUNDLE.schema.json` is the operational ingestion bundle contract.
 
-Current local checks parse JSON and perform selected contract assertions with Python standard library only. They do not implement full JSON Schema Draft 2020-12 validation.
+Current local checks include both lightweight standard-library assertions and dependency-backed JSON Schema validation for governed example bundles.
 
 ### Options Considered
 
@@ -67,7 +67,7 @@ Rationale:
 - It is more appropriate than custom validation for schema correctness.
 - The current project benefits more from clarity than from validator speed.
 
-For the current scaffold state, keep the lightweight local checks as a dependency-free guard while adding a minimal jsonschema-backed helper.
+For the current scaffold state, keep the lightweight local checks as a dependency-free guard and use the minimal jsonschema-backed helper for dependency-backed validation.
 
 ### Explicitly Deferred
 
@@ -162,8 +162,9 @@ Rationale:
 Local scaffold checks live at:
 
 - `validation/scaffold_contract_checks.py`
+- `validation/dependency_backed_contract_checks.py`
 
-They run with Python standard library only and are documented in `README.md`.
+The first script runs with Python standard library only. The second script uses approved dependencies for structured YAML loading and bundle schema validation. Both are documented in `README.md`.
 
 ### Options Considered
 

@@ -20,6 +20,7 @@ Completed layers:
 - Minimal scaffolds define raw item, normalization, dedup, tagging, triage, source registry loading, and bundle builder boundaries.
 - Approved dependencies are declared for minimal structured YAML loading and ingestion bundle schema validation.
 - Local scaffold contract checks cover selected contract expectations without running production behavior.
+- Dependency-backed checks now validate structured config loading and example bundle JSON Schema compliance when dependencies are installed.
 
 Not implemented yet:
 
@@ -116,6 +117,34 @@ The check file uses Python standard library only. It validates:
 - governed example bundle alignment with source IDs, run modes, report targets, authority tiers, priority labels, and item fields.
 
 It does not validate full JSON Schema Draft 2020-12 behavior, YAML parsing, live data retrieval, scheduling, report generation, or kernel execution.
+
+## Dependency-Backed Contract Checks
+
+After installing approved dependencies:
+
+```powershell
+python -m pip install -r 'macro-financial-intelligence-agent\requirements.txt'
+```
+
+Run from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\dependency_backed_contract_checks.py'
+```
+
+Expected output:
+
+```text
+dependency-backed-contract-checks-ok
+```
+
+This validates:
+
+- PyYAML-backed loading for `config/source_registry.yaml`.
+- PyYAML-backed loading for `scheduler/run_profiles.yaml`.
+- jsonschema-backed validation of governed example bundles.
+
+It still does not fetch live sources, execute schedules, compose reports, add CI, migrate package layout, or execute ai-meta-kernel handoff.
 
 ## Development Rules
 
