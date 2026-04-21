@@ -233,6 +233,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses validated fixture `RawItem` objects and converts them into deterministic `NormalizedItem` objects with title trimming, URL/timestamp fallback, stable item IDs, and fixed-length raw excerpts.
 
+Output fields are governed by `FIXTURE_NORMALIZER_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-items` prints compact `NormalizedItem` summaries.
