@@ -1,0 +1,55 @@
+{
+  "fixture_set_id": "daily_us_core_raw_items_v0_1",
+  "profile_id": "daily_us_core",
+  "description": "Local fixture-only raw items for validating RawItem loading and governed source/region checks. Not fetched from live sources.",
+  "raw_items": [
+    {
+      "source_id": "fed_fomc",
+      "retrieved_at": "2026-04-23T07:10:00+08:00",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "title": "Federal Reserve policy communication fixture",
+      "raw_text": "Fixture text representing a Federal Reserve policy communication. This is local test data only.",
+      "content_type": "statement",
+      "region": "US",
+      "language": "en",
+      "published_at": "2026-04-22T18:00:00+00:00",
+      "canonical_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "metadata": {
+        "fixture_role": "central_bank_policy_item",
+        "fixture_only": true
+      }
+    },
+    {
+      "source_id": "bls",
+      "retrieved_at": "2026-04-23T07:11:00+08:00",
+      "source_url": "https://www.bls.gov/",
+      "title": "BLS economic release fixture",
+      "raw_text": "Fixture text representing an official labor-market or inflation-related statistical release. This is local test data only.",
+      "content_type": "economic_release",
+      "region": "US",
+      "language": "en",
+      "published_at": "2026-04-22T12:30:00+00:00",
+      "canonical_url": "https://www.bls.gov/",
+      "metadata": {
+        "fixture_role": "official_statistics_item",
+        "fixture_only": true
+      }
+    },
+    {
+      "source_id": "sec_press",
+      "retrieved_at": "2026-04-23T07:12:00+08:00",
+      "source_url": "https://www.sec.gov/news/pressreleases",
+      "title": "SEC regulatory communication fixture",
+      "raw_text": "Fixture text representing an SEC regulatory communication or enforcement-related release. This is local test data only.",
+      "content_type": "press_release",
+      "region": "US",
+      "language": "en",
+      "published_at": "2026-04-22T15:00:00+00:00",
+      "canonical_url": "https://www.sec.gov/news/pressreleases",
+      "metadata": {
+        "fixture_role": "regulatory_item",
+        "fixture_only": true
+      }
+    }
+  ]
+}

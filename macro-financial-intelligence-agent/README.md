@@ -205,6 +205,22 @@ Optional flags:
 
 It does not fetch live sources, execute cron, compose reports, archive outputs, or call ai-meta-kernel.
 
+## Daily US Core Raw Fixture Loader
+
+Run the first local fixture-bearing path from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_loader.py'
+```
+
+This loads `fixtures/daily_us_core_raw_items.fixture.json`, converts fixture records into `RawItem` objects, and validates minimum fields, selected source IDs, and profile region scope.
+
+Optional flag:
+
+- `--show-items` prints compact validated `RawItem` summaries.
+
+It does not normalize, deduplicate, tag, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
