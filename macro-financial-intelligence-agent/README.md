@@ -215,6 +215,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This loads `fixtures/daily_us_core_raw_items.fixture.json`, converts fixture records into `RawItem` objects, and validates minimum fields, selected source IDs, and profile region scope.
 
+Output fields are governed by `FIXTURE_LOADER_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-items` prints compact validated `RawItem` summaries.
