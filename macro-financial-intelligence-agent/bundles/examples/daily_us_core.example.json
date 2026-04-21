@@ -1,0 +1,91 @@
+{
+  "bundle_metadata": {
+    "bundle_id": "bundle_daily_us_core_2026_04_22_example",
+    "run_mode": "daily_brief_run",
+    "generated_at": "2026-04-22T07:05:00+08:00",
+    "date_range": {
+      "start": "2026-04-21T07:00:00+08:00",
+      "end": "2026-04-22T07:00:00+08:00"
+    },
+    "regions": [
+      "US"
+    ],
+    "source_count": 2,
+    "item_count_raw": 2,
+    "item_count_after_dedup": 2
+  },
+  "bundle_context": {
+    "report_target": "daily_brief",
+    "watchlist_topics": [
+      "monetary_policy",
+      "labor_market"
+    ],
+    "operator_notes": "Static governed example for daily_us_core profile alignment."
+  },
+  "items": [
+    {
+      "item_id": "item_daily_us_core_001",
+      "source_id": "fed_fomc",
+      "authority_tier": "TIER_1",
+      "region": "US",
+      "retrieved_at": "2026-04-22T07:01:00+08:00",
+      "published_at": "2026-04-21T22:00:00+08:00",
+      "title": "Example Federal Reserve policy communication",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "canonical_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "content_type": "statement",
+      "topic_tags": [
+        "monetary_policy"
+      ],
+      "market_tags": [
+        "rates",
+        "usd"
+      ],
+      "risk_tags": [
+        "policy_path"
+      ],
+      "preliminary_priority": "P1",
+      "summary_seed": "Official policy communication requires inclusion and kernel verification.",
+      "raw_excerpt": "Illustrative excerpt placeholder from an official Federal Reserve policy communication.",
+      "dedup_group_id": "dedup_fed_fomc_2026_04_21",
+      "language": "en",
+      "official_status": "official",
+      "priority_weight": 1.0,
+      "trust_score": 1.0,
+      "event_cluster_id": "cluster_us_monetary_policy_2026_04_22",
+      "notes": "Example item only; not actual fetched content."
+    },
+    {
+      "item_id": "item_daily_us_core_002",
+      "source_id": "bls",
+      "authority_tier": "TIER_1",
+      "region": "US",
+      "retrieved_at": "2026-04-22T07:02:00+08:00",
+      "published_at": "2026-04-21T20:30:00+08:00",
+      "title": "Example labor market release",
+      "source_url": "https://www.bls.gov/",
+      "canonical_url": "https://www.bls.gov/",
+      "content_type": "economic_release",
+      "topic_tags": [
+        "labor_market"
+      ],
+      "market_tags": [
+        "rates",
+        "equities"
+      ],
+      "risk_tags": [
+        "macro_data_surprise"
+      ],
+      "preliminary_priority": "P2",
+      "summary_seed": "Official labor market release may affect macro risk framing.",
+      "raw_excerpt": "Illustrative excerpt placeholder from an official BLS economic release.",
+      "dedup_group_id": "dedup_bls_labor_2026_04_21",
+      "language": "en",
+      "official_status": "official",
+      "priority_weight": 0.95,
+      "trust_score": 1.0,
+      "event_cluster_id": "cluster_us_labor_2026_04_22",
+      "notes": "Example item only; not actual fetched content."
+    }
+  ]
+}

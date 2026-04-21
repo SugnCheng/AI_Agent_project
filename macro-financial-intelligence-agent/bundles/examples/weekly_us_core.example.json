@@ -1,0 +1,125 @@
+{
+  "bundle_metadata": {
+    "bundle_id": "bundle_weekly_us_core_2026_w17_example",
+    "run_mode": "weekly_intelligence_run",
+    "generated_at": "2026-04-25T09:05:00+08:00",
+    "date_range": {
+      "start": "2026-04-18T09:00:00+08:00",
+      "end": "2026-04-25T09:00:00+08:00"
+    },
+    "regions": [
+      "US"
+    ],
+    "source_count": 3,
+    "item_count_raw": 4,
+    "item_count_after_dedup": 3
+  },
+  "bundle_context": {
+    "report_target": "weekly_intelligence_report",
+    "watchlist_topics": [
+      "monetary_policy",
+      "fiscal_policy",
+      "market_structure"
+    ],
+    "operator_notes": "Static governed example for weekly_us_core profile alignment."
+  },
+  "items": [
+    {
+      "item_id": "item_weekly_us_core_001",
+      "source_id": "fed_fomc",
+      "authority_tier": "TIER_1",
+      "region": "US",
+      "retrieved_at": "2026-04-25T09:01:00+08:00",
+      "published_at": "2026-04-20T22:00:00+08:00",
+      "title": "Example Federal Reserve weekly-relevant communication",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "canonical_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "content_type": "speech",
+      "topic_tags": [
+        "monetary_policy"
+      ],
+      "market_tags": [
+        "rates",
+        "usd"
+      ],
+      "risk_tags": [
+        "policy_path",
+        "communication_risk"
+      ],
+      "preliminary_priority": "P1",
+      "summary_seed": "Official central bank communication is a weekly synthesis candidate.",
+      "raw_excerpt": "Illustrative excerpt placeholder from an official Federal Reserve communication.",
+      "dedup_group_id": "dedup_fed_weekly_2026_w17",
+      "language": "en",
+      "official_status": "official",
+      "priority_weight": 1.0,
+      "trust_score": 1.0,
+      "event_cluster_id": "cluster_us_policy_week_2026_w17",
+      "notes": "Example item only; not actual fetched content."
+    },
+    {
+      "item_id": "item_weekly_us_core_002",
+      "source_id": "us_treasury",
+      "authority_tier": "TIER_1",
+      "region": "US",
+      "retrieved_at": "2026-04-25T09:02:00+08:00",
+      "published_at": "2026-04-22T21:00:00+08:00",
+      "title": "Example Treasury policy update",
+      "source_url": "https://home.treasury.gov/news",
+      "canonical_url": "https://home.treasury.gov/news",
+      "content_type": "policy_update",
+      "topic_tags": [
+        "fiscal_policy"
+      ],
+      "market_tags": [
+        "rates",
+        "credit"
+      ],
+      "risk_tags": [
+        "fiscal_transmission"
+      ],
+      "preliminary_priority": "P1",
+      "summary_seed": "Official Treasury update may affect weekly policy-risk framing.",
+      "raw_excerpt": "Illustrative excerpt placeholder from an official Treasury update.",
+      "dedup_group_id": "dedup_treasury_weekly_2026_w17",
+      "language": "en",
+      "official_status": "official",
+      "priority_weight": 0.95,
+      "trust_score": 1.0,
+      "event_cluster_id": "cluster_us_fiscal_week_2026_w17",
+      "notes": "Example item only; not actual fetched content."
+    },
+    {
+      "item_id": "item_weekly_us_core_003",
+      "source_id": "sec_press",
+      "authority_tier": "TIER_1",
+      "region": "US",
+      "retrieved_at": "2026-04-25T09:03:00+08:00",
+      "published_at": "2026-04-23T23:00:00+08:00",
+      "title": "Example SEC market structure release",
+      "source_url": "https://www.sec.gov/news/pressreleases",
+      "canonical_url": "https://www.sec.gov/news/pressreleases",
+      "content_type": "rule",
+      "topic_tags": [
+        "market_structure"
+      ],
+      "market_tags": [
+        "equities",
+        "credit"
+      ],
+      "risk_tags": [
+        "regulatory_change"
+      ],
+      "preliminary_priority": "P2",
+      "summary_seed": "Official regulator release should be preserved for weekly synthesis.",
+      "raw_excerpt": "Illustrative excerpt placeholder from an official SEC release.",
+      "dedup_group_id": "dedup_sec_weekly_2026_w17",
+      "language": "en",
+      "official_status": "official",
+      "priority_weight": 0.85,
+      "trust_score": 1.0,
+      "event_cluster_id": "cluster_us_regulatory_week_2026_w17",
+      "notes": "Example item only; not actual fetched content."
+    }
+  ]
+}
