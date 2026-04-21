@@ -223,6 +223,22 @@ Optional flag:
 
 It does not normalize, deduplicate, tag, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
 
+## Daily US Core Fixture Normalizer
+
+Run the first fixture-driven normalization helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_normalizer.py'
+```
+
+This reuses validated fixture `RawItem` objects and converts them into deterministic `NormalizedItem` objects with title trimming, URL/timestamp fallback, stable item IDs, and fixed-length raw excerpts.
+
+Optional flag:
+
+- `--show-items` prints compact `NormalizedItem` summaries.
+
+It does not deduplicate, tag, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
