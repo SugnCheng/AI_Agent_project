@@ -3,6 +3,8 @@
 Thumbs.db
 .vscode/
 .idea/
+__pycache__/
+*.py[cod]
 
 # Runtime/cache output
 tmp/
