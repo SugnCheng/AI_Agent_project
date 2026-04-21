@@ -269,6 +269,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses retained deterministic fixture `NormalizedItem` objects and assigns controlled-vocabulary `TagSet` outputs using the current fixture rule set.
 
+Output fields are governed by `FIXTURE_TAGGER_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-tags` prints compact tagged item summaries.
