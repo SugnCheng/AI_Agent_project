@@ -146,6 +146,24 @@ This validates:
 
 It still does not fetch live sources, execute schedules, compose reports, add CI, migrate package layout, or execute ai-meta-kernel handoff.
 
+## Semantic Contract Checks
+
+Run after dependency-backed checks:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\semantic_contract_checks.py'
+```
+
+Expected output:
+
+```text
+semantic-contract-checks-ok
+```
+
+This validates the currently in-scope cross-file semantic rules from `SEMANTIC_VALIDATION_PLAN.md`: source references, disabled-source selection, run mode/report target alignment, bundle date/count invariants, item source/tier consistency, and existing region-code consistency.
+
+It still does not validate deferred rules such as fetcher capability, cron semantics, tag vocabularies, triage scoring, or kernel handoff compatibility.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
