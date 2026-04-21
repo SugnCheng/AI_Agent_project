@@ -259,6 +259,22 @@ Optional flag:
 
 It does not perform production deduplication, fuzzy matching, source-precedence ranking, tagging, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
 
+## Daily US Core Fixture Tagger
+
+Run the first fixture-driven tagging helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_tagger.py'
+```
+
+This reuses retained deterministic fixture `NormalizedItem` objects and assigns controlled-vocabulary `TagSet` outputs using the current fixture rule set.
+
+Optional flag:
+
+- `--show-tags` prints compact tagged item summaries.
+
+It does not perform production tagging, open-ended tag generation, priority scoring, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
