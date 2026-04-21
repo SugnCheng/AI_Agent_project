@@ -7,3 +7,103 @@ Kernel dependency: `../ai-meta-kernel/`.
 It monitors and synthesizes macro-financial, policy, and market-risk information across Hong Kong, Macau, Taiwan, Japan, the United States, and Europe.
 
 It is not primarily a trading recommender. It should produce evidence synthesis, policy-risk monitoring, research reports, and archival outputs.
+
+## v0.1 Status
+
+This project is currently in a governed scaffold state.
+
+Completed layers:
+
+- Governance docs define boundaries, source discipline, reporting discipline, review checkpoints, and validation purpose.
+- Config and contracts define approved sources, run profiles, ingestion bundle structure, and report templates.
+- Governed examples show valid daily, weekly, and no-new-items ingestion bundles.
+- Minimal scaffolds define raw item, normalization, dedup, tagging, triage, source registry loading, and bundle builder boundaries.
+- Local scaffold contract checks cover selected contract expectations without running production behavior.
+
+Not implemented yet:
+
+- live fetching,
+- open-web crawling,
+- real scheduler execution,
+- production YAML parsing,
+- full normalization / dedup / tagging / triage logic,
+- production ingestion bundle assembly,
+- report composition,
+- archive/export automation,
+- ai-meta-kernel runtime handoff execution.
+
+## Authority Order
+
+Repository-level authority:
+
+1. `../AGENTS.md`
+2. `../ai-meta-kernel/AGENTS.md`
+3. `AGENTS.md`
+
+Kernel contracts remain upstream. This project must not weaken or redefine them.
+
+Operational macro-agent contracts:
+
+| Area | Operational contract | Supporting / overview docs |
+| --- | --- | --- |
+| Approved sources | `config/source_registry.yaml` | `SOURCE_POLICY.md`, `acquisition/FETCH_POLICY.md` |
+| Run profiles | `scheduler/run_profiles.yaml` | `AGENTS.md` scheduler rule |
+| Ingestion bundle | `bundles/schemas/INGESTION_BUNDLE.schema.json` | `INGESTION_WORKFLOW.md` |
+| Report structure | `reporting/templates/` | `REPORTING_WORKFLOW.md` |
+| Validation execution | `validation/TEST_PLAN.md` | `VALIDATION_HOOKS.md`, `bundles/examples/VALIDATION_NOTES.md` |
+
+## Current Scaffold Map
+
+| File | Role |
+| --- | --- |
+| `acquisition/raw_item.py` | Raw source item shape and minimum field check. |
+| `acquisition/source_registry_loader.py` | Source registry loading boundary; structured YAML parsing is deferred. |
+| `preprocessing/normalize/normalizer.py` | Normalized item shape and normalization boundary. |
+| `preprocessing/dedup/deduper.py` | Dedup result shape and dedup boundary. |
+| `preprocessing/tagging/tagger.py` | Tag shape and tagging boundary. |
+| `preprocessing/triage/triage_scaffold.py` | Triage priority shape and preliminary triage boundary. |
+| `bundles/bundle_builder.py` | Bundle build request shape and enum guard. |
+
+These files are scaffolds. Most methods intentionally raise `NotImplementedError`.
+
+## Governed Examples
+
+Example ingestion bundles live in `bundles/examples/`.
+
+- `daily_us_core.example.json`
+- `weekly_us_core.example.json`
+- `daily_us_core_empty.example.json`
+- `VALIDATION_NOTES.md`
+
+They are static contract artifacts, not generated runtime output.
+
+## Local Scaffold Contract Checks
+
+Run from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\scaffold_contract_checks.py'
+```
+
+Expected output:
+
+```text
+scaffold-contract-checks-ok
+```
+
+The check file uses Python standard library only. It validates:
+
+- `RawItem.validate_minimum_fields()`
+- `IngestionBundleBuilder.validate_request_enums()`
+- governed example bundle alignment with source IDs, run modes, report targets, authority tiers, priority labels, and item fields.
+
+It does not validate full JSON Schema Draft 2020-12 behavior, YAML parsing, live data retrieval, scheduling, report generation, or kernel execution.
+
+## Development Rules
+
+- Keep `ai-meta-kernel/` and this project as parallel projects.
+- Do not add uncontrolled open-web crawling.
+- Do not auto-expand `config/source_registry.yaml`.
+- Do not turn this agent into a direct trading recommender.
+- Preserve `INGESTION_BUNDLE.schema.json` field names.
+- Use explicit TODOs when runtime behavior is intentionally deferred.
