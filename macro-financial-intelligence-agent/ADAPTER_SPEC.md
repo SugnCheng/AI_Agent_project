@@ -1,3 +1,7 @@
+
+
+
+
 # Macro-Financial Intelligence Adapter Spec
 
 ## Purpose

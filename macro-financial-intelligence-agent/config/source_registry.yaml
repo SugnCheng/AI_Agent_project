@@ -1,0 +1,265 @@
+version: "0.1"
+last_updated: "2026-04-15"
+description: >
+  Whitelisted source registry for macro-financial-intelligence-agent.
+  This registry defines approved sources only. Open-web crawling is out of scope
+  for v0.1.
+
+defaults:
+  enabled: true
+  language: "en"
+  trust_score: 1.0
+  priority_weight: 1.0
+  default_cadence: "daily"
+  fetch_method: "official_html"
+  official_status: "official"
+
+regions:
+  - code: "US"
+    display_name: "United States"
+  - code: "JP"
+    display_name: "Japan"
+  - code: "TW"
+    display_name: "Taiwan"
+
+authority_tiers:
+  - code: "TIER_1"
+    description: "Official / central bank / regulator / government / exchange / official statistics"
+  - code: "TIER_2"
+    description: "Mainstream financial media"
+  - code: "TIER_3"
+    description: "Research institutes / think tanks"
+  - code: "TIER_4"
+    description: "Secondary commentary"
+
+source_types:
+  - "central_bank"
+  - "regulator"
+  - "government"
+  - "exchange"
+  - "statistics_agency"
+  - "financial_media"
+  - "research_institute"
+
+fetch_methods:
+  - "rss"
+  - "official_html"
+  - "official_pdf_index"
+  - "manual_feed_stub"
+
+sources:
+  - source_id: "fed_fomc"
+    display_name: "Federal Reserve - FOMC"
+    region: "US"
+    source_type: "central_bank"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    fetch_method: "official_html"
+    content_modes:
+      - "statement"
+      - "minutes"
+      - "press_release"
+      - "speech"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 1.0
+    trust_score: 1.0
+    notes: "Highest-priority US monetary policy source."
+
+  - source_id: "us_treasury"
+    display_name: "U.S. Department of the Treasury"
+    region: "US"
+    source_type: "government"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://home.treasury.gov/news"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "statement"
+      - "policy_update"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.95
+    trust_score: 1.0
+
+  - source_id: "bls"
+    display_name: "U.S. Bureau of Labor Statistics"
+    region: "US"
+    source_type: "statistics_agency"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.bls.gov/"
+    fetch_method: "official_html"
+    content_modes:
+      - "economic_release"
+      - "report"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.95
+    trust_score: 1.0
+
+  - source_id: "bea"
+    display_name: "U.S. Bureau of Economic Analysis"
+    region: "US"
+    source_type: "statistics_agency"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.bea.gov/news"
+    fetch_method: "official_html"
+    content_modes:
+      - "economic_release"
+      - "report"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.9
+    trust_score: 1.0
+
+  - source_id: "sec_press"
+    display_name: "U.S. SEC Press Releases"
+    region: "US"
+    source_type: "regulator"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.sec.gov/news/pressreleases"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "rule"
+      - "enforcement"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.85
+    trust_score: 1.0
+
+  - source_id: "cftc_news"
+    display_name: "U.S. CFTC News"
+    region: "US"
+    source_type: "regulator"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.cftc.gov/PressRoom/PressReleases"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "rule"
+      - "enforcement"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.8
+    trust_score: 1.0
+
+  - source_id: "nyse_press"
+    display_name: "NYSE Press Releases"
+    region: "US"
+    source_type: "exchange"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.nyse.com/press"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "market_notice"
+    default_cadence: "daily"
+    language: "en"
+    enabled: true
+    priority_weight: 0.7
+    trust_score: 0.98
+
+  - source_id: "wsj_markets_stub"
+    display_name: "WSJ Markets (Stub)"
+    region: "US"
+    source_type: "financial_media"
+    authority_tier: "TIER_2"
+    official_status: "mainstream_media"
+    base_url: "https://www.wsj.com/news/markets"
+    fetch_method: "manual_feed_stub"
+    content_modes:
+      - "market_news"
+      - "policy_news"
+      - "analysis"
+    default_cadence: "daily"
+    language: "en"
+    enabled: false
+    priority_weight: 0.6
+    trust_score: 0.9
+    notes: "Disabled by default in v0.1 unless explicit approval."
+
+  - source_id: "boj"
+    display_name: "Bank of Japan"
+    region: "JP"
+    source_type: "central_bank"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.boj.or.jp/en/"
+    fetch_method: "official_html"
+    content_modes:
+      - "statement"
+      - "minutes"
+      - "outlook_report"
+      - "speech"
+    default_cadence: "daily"
+    language: "en"
+    enabled: false
+    priority_weight: 0.95
+    trust_score: 1.0
+
+  - source_id: "jpx"
+    display_name: "Japan Exchange Group"
+    region: "JP"
+    source_type: "exchange"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.jpx.co.jp/english/"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "market_notice"
+    default_cadence: "daily"
+    language: "en"
+    enabled: false
+    priority_weight: 0.75
+    trust_score: 1.0
+
+  - source_id: "cbc_tw"
+    display_name: "Central Bank of the Republic of China (Taiwan)"
+    region: "TW"
+    source_type: "central_bank"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.cbc.gov.tw/"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "statement"
+      - "statistics"
+    default_cadence: "daily"
+    language: "zh-TW"
+    enabled: false
+    priority_weight: 0.95
+    trust_score: 1.0
+
+  - source_id: "fsc_tw"
+    display_name: "Financial Supervisory Commission, Taiwan"
+    region: "TW"
+    source_type: "regulator"
+    authority_tier: "TIER_1"
+    official_status: "official"
+    base_url: "https://www.fsc.gov.tw/"
+    fetch_method: "official_html"
+    content_modes:
+      - "press_release"
+      - "regulation"
+      - "announcement"
+    default_cadence: "daily"
+    language: "zh-TW"
+    enabled: false
+    priority_weight: 0.9
+    trust_score: 1.0

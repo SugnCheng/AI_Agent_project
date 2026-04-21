@@ -1,0 +1,177 @@
+version: "0.1"
+last_updated: "2026-04-15"
+description: >
+  Run profiles for macro-financial-intelligence-agent.
+  These profiles define scheduling intent and execution windows only.
+  Event-driven automation remains reserved for a future version.
+
+global_defaults:
+  timezone: "Asia/Taipei"
+  enabled: true
+  max_sources_per_run: 20
+  max_items_before_dedup: 200
+  max_items_after_dedup: 50
+  require_whitelist_only: true
+  archive_bundle_snapshot: true
+  generate_source_log: true
+  review_queue_enabled: true
+
+run_modes:
+  - code: "daily_brief_run"
+    description: "Daily scheduled macro-financial intelligence brief."
+
+  - code: "weekly_intelligence_run"
+    description: "Weekly synthesis report with cross-event analysis."
+
+  - code: "custom_range_run"
+    description: "Manual or operator-defined date range run."
+
+  - code: "event_watch_run"
+    description: "Reserved interface for future event-driven execution."
+
+profiles:
+  - profile_id: "daily_us_core"
+    enabled: true
+    run_mode: "daily_brief_run"
+    timezone: "Asia/Taipei"
+    schedule:
+      type: "cron"
+      cron: "0 7 * * *"
+    execution_window:
+      lookback_hours: 24
+      start_offset_minutes: 0
+      end_offset_minutes: 0
+    report_target: "daily_brief"
+    regions:
+      - "US"
+    source_selection:
+      include_source_ids:
+        - "fed_fomc"
+        - "us_treasury"
+        - "bls"
+        - "bea"
+        - "sec_press"
+        - "cftc_news"
+        - "nyse_press"
+      exclude_source_ids: []
+      authority_tiers:
+        - "TIER_1"
+    preprocessing_policy:
+      dedup_enabled: true
+      tagging_enabled: true
+      preliminary_triage_enabled: true
+      drop_priority_level: "DROP"
+    output_policy:
+      max_top_events: 3
+      include_signal_vs_noise: true
+      include_cross_event_synthesis: true
+      include_watchlist: true
+      include_source_log: true
+    review_policy:
+      require_operator_review: true
+      allow_upgrade_to_memo: true
+
+  - profile_id: "weekly_us_core"
+    enabled: true
+    run_mode: "weekly_intelligence_run"
+    timezone: "Asia/Taipei"
+    schedule:
+      type: "cron"
+      cron: "0 9 * * 6"
+    execution_window:
+      lookback_days: 7
+      start_offset_minutes: 0
+      end_offset_minutes: 0
+    report_target: "weekly_intelligence_report"
+    regions:
+      - "US"
+    source_selection:
+      include_source_ids:
+        - "fed_fomc"
+        - "us_treasury"
+        - "bls"
+        - "bea"
+        - "sec_press"
+        - "cftc_news"
+        - "nyse_press"
+      exclude_source_ids: []
+      authority_tiers:
+        - "TIER_1"
+    preprocessing_policy:
+      dedup_enabled: true
+      tagging_enabled: true
+      preliminary_triage_enabled: true
+      drop_priority_level: "DROP"
+    output_policy:
+      max_top_events: 5
+      include_signal_vs_noise: true
+      include_cross_event_synthesis: true
+      include_watchlist: true
+      include_source_log: true
+      include_region_sections: true
+    review_policy:
+      require_operator_review: true
+      allow_upgrade_to_memo: true
+
+  - profile_id: "custom_range_template"
+    enabled: false
+    run_mode: "custom_range_run"
+    timezone: "Asia/Taipei"
+    schedule:
+      type: "manual"
+    execution_window:
+      custom_range_required: true
+    report_target: "daily_brief"
+    regions:
+      - "US"
+    source_selection:
+      include_source_ids: []
+      exclude_source_ids: []
+      authority_tiers:
+        - "TIER_1"
+        - "TIER_2"
+    preprocessing_policy:
+      dedup_enabled: true
+      tagging_enabled: true
+      preliminary_triage_enabled: true
+      drop_priority_level: "DROP"
+    output_policy:
+      max_top_events: 5
+      include_signal_vs_noise: true
+      include_cross_event_synthesis: true
+      include_watchlist: true
+      include_source_log: true
+    review_policy:
+      require_operator_review: true
+      allow_upgrade_to_memo: true
+
+  - profile_id: "event_watch_reserved"
+    enabled: false
+    run_mode: "event_watch_run"
+    timezone: "Asia/Taipei"
+    schedule:
+      type: "reserved"
+    execution_window:
+      trigger_required: true
+    report_target: "special_event_memo"
+    regions: []
+    source_selection:
+      include_source_ids: []
+      exclude_source_ids: []
+      authority_tiers:
+        - "TIER_1"
+        - "TIER_2"
+    preprocessing_policy:
+      dedup_enabled: true
+      tagging_enabled: true
+      preliminary_triage_enabled: true
+      drop_priority_level: "DROP"
+    output_policy:
+      max_top_events: 10
+      include_signal_vs_noise: true
+      include_cross_event_synthesis: true
+      include_watchlist: true
+      include_source_log: true
+    review_policy:
+      require_operator_review: true
+      allow_upgrade_to_memo: false
