@@ -251,6 +251,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses deterministic fixture `NormalizedItem` objects and groups them with the current exact canonical URL strategy. Singleton groups are retained. Multi-item groups retain the lexicographically lowest `item_id` until governed source-precedence rules are defined.
 
+Output fields are governed by `FIXTURE_DEDUPER_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-groups` prints compact dedup group summaries.
