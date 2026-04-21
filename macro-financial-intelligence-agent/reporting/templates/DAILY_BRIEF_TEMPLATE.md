@@ -1,5 +1,11 @@
 # Daily Brief
 
+## Template Authority
+
+This template is the operational v0.1 structure for daily brief outputs.
+
+It implements the reporting principles in `../../REPORTING_WORKFLOW.md`. If section structure or placeholders differ, this template takes precedence for daily brief composition.
+
 ## Report Metadata
 - report_id: {{ report_id }}
 - report_date: {{ report_date }}

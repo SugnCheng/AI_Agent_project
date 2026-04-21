@@ -5,6 +5,13 @@ description: >
   These profiles define scheduling intent and execution windows only.
   Event-driven automation remains reserved for a future version.
 
+# Validation contract:
+# - run_mode values must align with INGESTION_BUNDLE.schema.json bundle_metadata.run_mode.
+# - report_target values must align with INGESTION_BUNDLE.schema.json bundle_context.report_target and reporting/templates/.
+# - include_source_ids must reference source_id values from config/source_registry.yaml.
+# - Empty include_source_ids means selection is governed by regions and authority_tiers, not unrestricted source expansion.
+# - Empty regions are allowed only for disabled or reserved profiles that require operator trigger context.
+
 global_defaults:
   timezone: "Asia/Taipei"
   enabled: true

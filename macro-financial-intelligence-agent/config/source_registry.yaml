@@ -5,6 +5,12 @@ description: >
   This registry defines approved sources only. Open-web crawling is out of scope
   for v0.1.
 
+# Validation contract:
+# - source_id values must remain unique and stable because run_profiles.yaml references them.
+# - source-level fields override defaults when present.
+# - enabled: false means the source is registered but not eligible for v0.1 automated retrieval.
+# - authority_tier and fetch_method values must stay aligned with FETCH_POLICY.md and ingestion bundle schema enums.
+
 defaults:
   enabled: true
   language: "en"

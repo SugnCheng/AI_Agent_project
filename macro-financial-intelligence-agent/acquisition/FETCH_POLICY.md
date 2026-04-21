@@ -5,6 +5,16 @@
 - owner: macro-financial-intelligence-agent
 - purpose: acquisition policy for whitelist-based controlled retrieval
 
+## Authority
+
+This file is the operational acquisition policy for v0.1.
+
+It must be read together with:
+- `../config/source_registry.yaml` as the approved source inventory.
+- `../SOURCE_POLICY.md` as the high-level source quality overview.
+
+If there is a conflict about fetch eligibility, whitelist behavior, or approved fetch methods, this file and `../config/source_registry.yaml` take precedence over the high-level overview.
+
 ---
 
 ## 1. Objective

@@ -1,5 +1,11 @@
 # Weekly Intelligence Report
 
+## Template Authority
+
+This template is the operational v0.1 structure for weekly intelligence report outputs.
+
+It implements the reporting principles in `../../REPORTING_WORKFLOW.md`. If section structure or placeholders differ, this template takes precedence for weekly report composition.
+
 ## Report Metadata
 - report_id: {{ report_id }}
 - report_week: {{ report_week }}

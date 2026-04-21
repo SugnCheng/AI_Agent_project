@@ -2,6 +2,12 @@
 
 Kernel baseline: `../ai-meta-kernel/` v1.0 candidate.
 
+## Document Role
+
+This is the executable validation plan for macro-financial-intelligence-agent v0.1.
+
+Use `../VALIDATION_HOOKS.md` as the capability mapping reference. If scenario coverage or required artifacts differ, this file takes precedence for validation execution.
+
 ## Purpose
 
 Validate whether the Macro-Financial Intelligence Agent can consume Meta-Layer handoff objects without weakening framing, verification, challenge loop, handoff, or return-to-kernel behavior.

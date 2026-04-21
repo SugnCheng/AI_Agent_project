@@ -1,5 +1,15 @@
 # Source Policy
 
+## Document Role
+
+This is a high-level source quality policy overview.
+
+Operational acquisition authority for v0.1 is defined by:
+- `config/source_registry.yaml` for approved source inventory.
+- `acquisition/FETCH_POLICY.md` for allowed fetch behavior and source eligibility.
+
+If this overview conflicts with those governed v0.1 files, the governed v0.1 files take precedence.
+
 ## Purpose
 
 Define source quality rules for the Macro-Financial Intelligence Agent.

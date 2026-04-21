@@ -1,5 +1,11 @@
 # Validation Hooks
 
+## Document Role
+
+This file maps macro-financial-intelligence-agent behavior to Meta-Layer capabilities.
+
+The executable validation plan for v0.1 is `validation/TEST_PLAN.md`. If scenario coverage or required test artifacts differ, `validation/TEST_PLAN.md` takes precedence for validation execution, while this file remains the capability mapping reference.
+
 ## Purpose
 
 This document maps the Macro-Financial Intelligence Agent's behavior to Meta-Layer capabilities. The reference agent exists to test the kernel, not to define it.

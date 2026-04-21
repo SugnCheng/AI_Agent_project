@@ -1,5 +1,13 @@
 # Special Event Memo
 
+## Template Authority
+
+This template is the operational v0.1 structure for special event memo outputs.
+
+It implements the reporting principles in `../../REPORTING_WORKFLOW.md`. If section structure or placeholders differ, this template takes precedence for special event memo composition.
+
+This memo is for research and risk-context framing only. It must not be used to issue direct personalized trading instructions.
+
 ## Report Metadata
 - report_id: {{ report_id }}
 - event_label: {{ event_label }}
