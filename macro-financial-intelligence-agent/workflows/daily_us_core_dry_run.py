@@ -192,6 +192,21 @@ def validate_bundle_artifact(bundle: dict[str, Any]) -> None:
         raise ValueError("dry-run bundle schema validation failed:\n- " + "\n- ".join(errors))
 
 
+def validate_bundle_semantics(bundle: dict[str, Any]) -> None:
+    """Validate the dry-run bundle through the existing semantic validation layer."""
+
+    semantic_module = load_module(
+        "semantic_contract_checks",
+        PROJECT_ROOT / "validation" / "semantic_contract_checks.py",
+    )
+    errors = semantic_module.validate_single_bundle_semantics(
+        bundle,
+        label="daily_us_core_dry_run_artifact",
+    )
+    if errors:
+        raise ValueError("dry-run bundle semantic validation failed:\n- " + "\n- ".join(errors))
+
+
 def run_unified_local_validation() -> None:
     """Run the existing local validation wrapper on operator request."""
 
@@ -218,6 +233,7 @@ def run_dry_run(include_artifact: bool) -> dict[str, Any]:
     validate_request_enums(request)
     bundle = build_no_items_bundle_artifact(request)
     validate_bundle_artifact(bundle)
+    validate_bundle_semantics(bundle)
 
     result: dict[str, Any] = {
         "dry_run_status": "ok",
@@ -231,6 +247,7 @@ def run_dry_run(include_artifact: bool) -> dict[str, Any]:
         "item_count_raw": bundle["bundle_metadata"]["item_count_raw"],
         "item_count_after_dedup": bundle["bundle_metadata"]["item_count_after_dedup"],
         "schema_validation": "ok",
+        "semantic_validation": "ok",
         "deferred_runtime_behavior": [
             "live_fetching",
             "scheduler_execution",

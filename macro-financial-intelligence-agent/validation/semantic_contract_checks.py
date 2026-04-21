@@ -263,6 +263,28 @@ def run_semantic_checks() -> list[str]:
     return errors
 
 
+def validate_single_bundle_semantics(
+    bundle: dict[str, Any], label: str = "in_memory_bundle"
+) -> list[str]:
+    """Validate one bundle object against the current v0.1 semantic checks.
+
+    This helper exists for local dry-run artifacts. It uses the same SV-03
+    through SV-08 checks as governed example bundles and does not add live
+    fetching, scheduling, report composition, CI, package migration, or kernel
+    handoff behavior.
+    """
+
+    registry, profiles, schema, _examples = load_inputs()
+    errors: list[str] = []
+    bundle_examples = [(Path(label), bundle)]
+
+    validate_run_modes_and_report_targets(profiles, schema, bundle_examples, errors)
+    validate_bundle_invariants(bundle_examples, errors)
+    validate_bundle_sources_and_regions(registry, profiles, bundle_examples, errors)
+
+    return errors
+
+
 def main() -> None:
     errors = run_semantic_checks()
     if errors:
