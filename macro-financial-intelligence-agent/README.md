@@ -241,6 +241,22 @@ Optional flag:
 
 It does not deduplicate, tag, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
 
+## Daily US Core Fixture Deduper
+
+Run the first fixture-driven dedup helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_deduper.py'
+```
+
+This reuses deterministic fixture `NormalizedItem` objects and groups them with the current exact canonical URL strategy. Singleton groups are retained. Multi-item groups retain the lexicographically lowest `item_id` until governed source-precedence rules are defined.
+
+Optional flag:
+
+- `--show-groups` prints compact dedup group summaries.
+
+It does not perform production deduplication, fuzzy matching, source-precedence ranking, tagging, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
