@@ -341,6 +341,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses the current fixture kernel input envelope, confirms kernel invocation is not implemented, confirms the macro agent did not generate a canonical kernel task object locally, and keeps downstream reporting blocked.
 
+Output fields and future kernel response validation semantics are governed by `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md`.
+
 Optional future validation flag:
 
 ```powershell
