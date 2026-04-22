@@ -277,6 +277,22 @@ Optional flag:
 
 It does not perform production tagging, open-ended tag generation, priority scoring, triage, build bundles, fetch live sources, compose reports, or call ai-meta-kernel.
 
+## Daily US Core Fixture Triage
+
+Run the first fixture-driven preliminary triage helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_triage.py'
+```
+
+This reuses retained tagged deterministic fixture items and assigns governed `TriageDecision` outputs using the current fixture rule set grounded in `preprocessing/triage/TRIAGE_RULES.md`.
+
+Optional flag:
+
+- `--show-decisions` prints compact triage decision summaries.
+
+It does not perform production triage, advanced negative scoring, watchlist matching, event-chain continuity detection, bundle assembly, fetch live sources, compose reports, or call ai-meta-kernel.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
