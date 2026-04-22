@@ -295,6 +295,22 @@ Optional flag:
 
 It does not perform production triage, advanced negative scoring, watchlist matching, event-chain continuity detection, bundle assembly, fetch live sources, compose reports, or call ai-meta-kernel.
 
+## Daily US Core Fixture Bundle Assembler
+
+Run the first fixture-driven bundle assembly helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_bundle_assembler.py'
+```
+
+This reuses the current deterministic fixture path through triage, maps retained triaged fixture items into `INGESTION_BUNDLE.schema.json` fields, builds an in-memory fixture ingestion bundle, and validates it with the existing schema validator.
+
+Optional flag:
+
+- `--show-bundle` prints the full in-memory fixture bundle artifact.
+
+It does not perform live fetching, scheduler execution, production bundle assembly, report composition, archive/export automation, event clustering, operator override persistence, or ai-meta-kernel runtime handoff.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
