@@ -359,6 +359,18 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py' --kernel-response-json 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_blocked_kernel_response.example.json'
 ```
 
+To validate all three expected fixture states in one local check:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\kernel_response_fixture_checks.py'
+```
+
+Expected final output:
+
+```text
+kernel-response-fixture-checks-ok
+```
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
