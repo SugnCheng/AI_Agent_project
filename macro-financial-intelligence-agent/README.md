@@ -287,6 +287,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses retained tagged deterministic fixture items and assigns governed `TriageDecision` outputs using the current fixture rule set grounded in `preprocessing/triage/TRIAGE_RULES.md`.
 
+Output fields are governed by `FIXTURE_TRIAGE_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-decisions` prints compact triage decision summaries.
