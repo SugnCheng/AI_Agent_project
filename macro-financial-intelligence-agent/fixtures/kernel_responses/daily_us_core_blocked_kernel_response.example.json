@@ -1,0 +1,162 @@
+{
+  "schema_version": "0.2.0",
+  "task_id": "fixture_kernel_daily_us_core_blocked_v0_1",
+  "raw_request": {
+    "text": "Frame the daily_us_core evidence bundle, but block downstream reporting because reframe is required.",
+    "received_at": "2026-04-23T00:00:00Z",
+    "source_context": "Static fixture kernel response example for blocked handoff validation."
+  },
+  "kernel_stage": "gate",
+  "framed_objective": {
+    "surface_request": "Prepare the daily_us_core evidence bundle for downstream macro research reporting.",
+    "core_goal": "Clarify whether the operator wants research reporting or direct investment advice before proceeding.",
+    "success_criteria": [
+      "Prevent direct advice drift",
+      "Request clarification before downstream reporting"
+    ],
+    "scope": [
+      "US macro-financial fixture evidence",
+      "Clarification before reporting"
+    ],
+    "non_goals": [
+      "Proceeding to report composition",
+      "Direct investment recommendation",
+      "Unrestricted handoff"
+    ],
+    "time_horizon": "daily",
+    "reframe_required": true,
+    "reframe_note": "The request must be reframed to confirm research-reporting scope and exclude direct trading advice."
+  },
+  "task_classification": {
+    "primary_type": "analysis",
+    "secondary_types": [
+      "decision"
+    ]
+  },
+  "risk_profile": {
+    "overall_level": "high",
+    "categories": [
+      "financial",
+      "time_sensitive"
+    ],
+    "rationale": "The request may be interpreted as a high-stakes financial decision workflow rather than research reporting.",
+    "escalation_required": true,
+    "ambiguity_level": "high",
+    "alignment_needed": true,
+    "confidence_ceiling": "low"
+  },
+  "triggered_habits": [
+    {
+      "habit_id": "H3",
+      "role": "primary",
+      "reason": "The ambiguous request may imply decision support.",
+      "required": true
+    },
+    {
+      "habit_id": "H1",
+      "role": "support",
+      "reason": "Evidence claims still require verification.",
+      "required": true
+    },
+    {
+      "habit_id": "H11",
+      "role": "support",
+      "reason": "The output risks being mistaken for direct financial advice.",
+      "required": true
+    }
+  ],
+  "structural_decomposition": {
+    "facts": [
+      "The input is a static fixture evidence bundle for daily_us_core."
+    ],
+    "assumptions": [
+      "The operator may want downstream reporting, but the current intent is insufficiently bounded."
+    ],
+    "inferences": [
+      "Proceeding could blur research reporting with financial decision advice."
+    ],
+    "unknowns": [
+      "Whether the requested output should be a research brief, a decision memo, or another artifact."
+    ],
+    "constraints": {
+      "hard": [
+        "Do not proceed without reframe",
+        "Do not provide direct trading advice"
+      ],
+      "soft": [
+        "Ask the smallest clarification needed"
+      ]
+    },
+    "stakeholders": [
+      "Human operator",
+      "Downstream macro research workflow"
+    ],
+    "tradeoffs": [
+      "Fast reporting versus avoiding high-stakes advice drift"
+    ]
+  },
+  "required_checks": {
+    "must_verify": [
+      "Verify intended output scope after reframe"
+    ],
+    "must_challenge": [
+      "wrong_question_check",
+      "missing_constraint_check",
+      "overconfidence_check",
+      "handoff_clarity_check"
+    ],
+    "must_disclose_uncertainty": [
+      "The user intent is not sufficiently bounded"
+    ],
+    "must_align_with_user": [
+      "Confirm whether the desired output is research reporting only"
+    ]
+  },
+  "status_flags": [
+    "needs_reframe"
+  ],
+  "verification_plan": {
+    "required": true,
+    "methods": [
+      "user_confirmation"
+    ],
+    "freshness_requirement": "none",
+    "citation_requirement": "recommended",
+    "notes": "Clarify operator intent before any downstream reporting."
+  },
+  "challenge_loop": {
+    "performed": true,
+    "challenges": [
+      {
+        "target": "user_framing",
+        "question": "Is the real request research reporting or direct financial decision support?",
+        "resolution": "Block handoff and request reframe before downstream reporting."
+      }
+    ],
+    "result": "reframe_first"
+  },
+  "downstream_recommendation": {
+    "agent_type": "macro-financial-intelligence-agent",
+    "mode": "do_not_handoff",
+    "output_format": "clarification_request",
+    "rationale": "The task requires reframe before downstream macro reporting can proceed.",
+    "restrictions": [
+      "No downstream report composition",
+      "No direct financial recommendation"
+    ]
+  },
+  "handoff": {
+    "downstream_agent": "macro-financial-intelligence-agent",
+    "handoff_ready": false,
+    "instructions": [
+      "Do not proceed to reporting.",
+      "Request reframe or clarification from the operator."
+    ],
+    "expected_outputs": [
+      "clarification_request"
+    ],
+    "open_questions": [
+      "Is the requested output limited to research reporting?"
+    ]
+  }
+}

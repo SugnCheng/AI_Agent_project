@@ -351,6 +351,14 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 The optional flag validates a future kernel-produced response against `../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json` and detects blocked or restricted handoff states. It does not invoke ai-meta-kernel runtime and does not synthesize a kernel response.
 
+Static fixture responses for this validation path live in `fixtures/kernel_responses/`:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py' --kernel-response-json 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_standard_kernel_response.example.json'
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py' --kernel-response-json 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_restricted_kernel_response.example.json'
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py' --kernel-response-json 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_blocked_kernel_response.example.json'
+```
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.

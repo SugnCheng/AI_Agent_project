@@ -1,0 +1,164 @@
+{
+  "schema_version": "0.2.0",
+  "task_id": "fixture_kernel_daily_us_core_restricted_v0_1",
+  "raw_request": {
+    "text": "Frame the validated daily_us_core macro-financial evidence bundle for downstream research reporting with unresolved verification limits.",
+    "received_at": "2026-04-23T00:00:00Z",
+    "source_context": "Static fixture kernel response example for restricted handoff validation."
+  },
+  "kernel_stage": "handoff_ready",
+  "framed_objective": {
+    "surface_request": "Prepare the daily_us_core evidence bundle for downstream macro research reporting.",
+    "core_goal": "Enable a restricted daily macro-financial research brief while preserving unresolved verification limits.",
+    "success_criteria": [
+      "Do not overstate confidence",
+      "Preserve verification caveats",
+      "Keep output within research reporting scope"
+    ],
+    "scope": [
+      "US macro-financial fixture evidence",
+      "Restricted daily brief preparation"
+    ],
+    "non_goals": [
+      "Direct investment recommendation",
+      "Unrestricted conclusions",
+      "Live source fetching"
+    ],
+    "time_horizon": "daily",
+    "reframe_required": false
+  },
+  "task_classification": {
+    "primary_type": "analysis",
+    "secondary_types": [
+      "information"
+    ]
+  },
+  "risk_profile": {
+    "overall_level": "medium",
+    "categories": [
+      "financial",
+      "time_sensitive"
+    ],
+    "rationale": "The evidence is financial and time-sensitive, and some verification remains unresolved.",
+    "escalation_required": false,
+    "ambiguity_level": "medium",
+    "alignment_needed": false,
+    "confidence_ceiling": "medium"
+  },
+  "triggered_habits": [
+    {
+      "habit_id": "H1",
+      "role": "primary",
+      "reason": "Source and claim verification remain material.",
+      "required": true
+    },
+    {
+      "habit_id": "H2",
+      "role": "support",
+      "reason": "Macro implications require competing interpretation checks.",
+      "required": true
+    },
+    {
+      "habit_id": "H11",
+      "role": "support",
+      "reason": "Financial research outputs must avoid misleading certainty.",
+      "required": true
+    }
+  ],
+  "structural_decomposition": {
+    "facts": [
+      "The input is a static fixture evidence bundle for daily_us_core.",
+      "The requested downstream output is a daily research brief."
+    ],
+    "assumptions": [
+      "Fixture validation passed before kernel response validation."
+    ],
+    "inferences": [
+      "Downstream reporting may proceed only with explicit verification caveats."
+    ],
+    "unknowns": [
+      "Whether all source timestamps would still be current in a production run."
+    ],
+    "constraints": {
+      "hard": [
+        "Do not present unresolved verification as confirmed",
+        "Do not provide direct trading advice"
+      ],
+      "soft": [
+        "Prefer concise caveats over broad disclaimers"
+      ]
+    },
+    "stakeholders": [
+      "Human operator",
+      "Downstream macro research workflow"
+    ],
+    "tradeoffs": [
+      "Speed of briefing versus source-currentness verification"
+    ]
+  },
+  "required_checks": {
+    "must_verify": [
+      "Confirm source timestamps before removing restricted status"
+    ],
+    "must_challenge": [
+      "alternative_explanation_check",
+      "overconfidence_check",
+      "handoff_clarity_check"
+    ],
+    "must_disclose_uncertainty": [
+      "Currentness is not verified in the fixture path"
+    ],
+    "must_align_with_user": []
+  },
+  "status_flags": [
+    "ready_for_handoff",
+    "needs_verification"
+  ],
+  "verification_plan": {
+    "required": true,
+    "methods": [
+      "source_check",
+      "cross_source_corroboration",
+      "citation_audit"
+    ],
+    "freshness_requirement": "current",
+    "citation_requirement": "required",
+    "notes": "Proceed only as restricted research output until source freshness is verified."
+  },
+  "challenge_loop": {
+    "performed": true,
+    "challenges": [
+      {
+        "target": "evidence",
+        "question": "Could unresolved source freshness change the macro interpretation?",
+        "resolution": "Keep downstream output restricted and disclose currentness limits."
+      }
+    ],
+    "result": "proceed_with_constraints"
+  },
+  "downstream_recommendation": {
+    "agent_type": "macro-financial-intelligence-agent",
+    "mode": "restricted_handoff",
+    "output_format": "daily_brief",
+    "rationale": "The response is usable for restricted research reporting, but verification caveats must remain visible.",
+    "restrictions": [
+      "Do not issue firm conclusions until source freshness is verified",
+      "Preserve fixture-data caveat"
+    ]
+  },
+  "handoff": {
+    "downstream_agent": "macro-financial-intelligence-agent",
+    "handoff_ready": true,
+    "instructions": [
+      "Prepare only a restricted research brief.",
+      "Keep verification caveats in the output.",
+      "Do not convert preliminary evidence into direct advice."
+    ],
+    "expected_outputs": [
+      "restricted_daily_brief"
+    ],
+    "open_questions": [
+      "Are all production source timestamps current?"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "schema_version": "0.2.0",
+  "task_id": "fixture_kernel_daily_us_core_standard_v0_1",
+  "raw_request": {
+    "text": "Frame the validated daily_us_core macro-financial evidence bundle for downstream research reporting.",
+    "received_at": "2026-04-23T00:00:00Z",
+    "source_context": "Static fixture kernel response example for macro-financial-intelligence-agent validation."
+  },
+  "kernel_stage": "handoff_ready",
+  "framed_objective": {
+    "surface_request": "Prepare the daily_us_core evidence bundle for downstream macro research reporting.",
+    "core_goal": "Enable a structured daily macro-financial research brief without direct trading advice.",
+    "success_criteria": [
+      "Preserve source traceability",
+      "Surface verification requirements",
+      "Keep reporting within research and monitoring scope"
+    ],
+    "scope": [
+      "US macro-financial fixture evidence",
+      "Daily brief preparation"
+    ],
+    "non_goals": [
+      "Direct investment recommendation",
+      "Live source fetching",
+      "Scheduler execution"
+    ],
+    "time_horizon": "daily",
+    "reframe_required": false
+  },
+  "task_classification": {
+    "primary_type": "analysis",
+    "secondary_types": [
+      "information"
+    ]
+  },
+  "risk_profile": {
+    "overall_level": "medium",
+    "categories": [
+      "financial",
+      "time_sensitive"
+    ],
+    "rationale": "Macro-financial evidence is time-sensitive and may affect market interpretation, but the requested output is research reporting rather than direct advice.",
+    "escalation_required": false,
+    "ambiguity_level": "low",
+    "alignment_needed": false,
+    "confidence_ceiling": "medium"
+  },
+  "triggered_habits": [
+    {
+      "habit_id": "H1",
+      "role": "primary",
+      "reason": "The bundle contains source-backed claims that require credibility and freshness checks.",
+      "required": true
+    },
+    {
+      "habit_id": "H2",
+      "role": "support",
+      "reason": "Macro implications may have multiple interpretations.",
+      "required": true
+    },
+    {
+      "habit_id": "H7",
+      "role": "support",
+      "reason": "The downstream artifact is a structured research brief.",
+      "required": true
+    }
+  ],
+  "structural_decomposition": {
+    "facts": [
+      "The input is a static fixture evidence bundle for daily_us_core.",
+      "The requested downstream output is a daily research brief."
+    ],
+    "assumptions": [
+      "The fixture evidence has already passed macro-agent bundle validation."
+    ],
+    "inferences": [
+      "The downstream macro agent can proceed if verification and uncertainty notes are preserved."
+    ],
+    "unknowns": [
+      "Whether equivalent live-source evidence would match this fixture."
+    ],
+    "constraints": {
+      "hard": [
+        "Do not provide direct trading advice",
+        "Do not fetch live sources in this fixture path"
+      ],
+      "soft": [
+        "Keep output concise and source-aware"
+      ]
+    },
+    "stakeholders": [
+      "Human operator",
+      "Downstream macro research workflow"
+    ],
+    "tradeoffs": [
+      "Timeliness versus verification depth"
+    ]
+  },
+  "required_checks": {
+    "must_verify": [
+      "Confirm source provenance and timestamps before production reporting"
+    ],
+    "must_challenge": [
+      "alternative_explanation_check",
+      "overconfidence_check",
+      "handoff_clarity_check"
+    ],
+    "must_disclose_uncertainty": [
+      "Fixture data is not live market data"
+    ],
+    "must_align_with_user": []
+  },
+  "status_flags": [
+    "ready_for_handoff"
+  ],
+  "verification_plan": {
+    "required": true,
+    "methods": [
+      "source_check",
+      "citation_audit"
+    ],
+    "freshness_requirement": "current",
+    "citation_requirement": "required",
+    "notes": "Production reporting must preserve source citations and currentness checks."
+  },
+  "challenge_loop": {
+    "performed": true,
+    "challenges": [
+      {
+        "target": "evidence",
+        "question": "Could fixture evidence be mistaken for live-source confirmation?",
+        "resolution": "Require explicit fixture caveat and production verification before live reporting."
+      }
+    ],
+    "result": "proceed"
+  },
+  "downstream_recommendation": {
+    "agent_type": "macro-financial-intelligence-agent",
+    "mode": "standard_handoff",
+    "output_format": "daily_brief",
+    "rationale": "The fixture response is schema-valid, framed, and ready for standard downstream research-report preparation within stated constraints."
+  },
+  "handoff": {
+    "downstream_agent": "macro-financial-intelligence-agent",
+    "handoff_ready": true,
+    "instructions": [
+      "Prepare a source-aware daily research brief.",
+      "Preserve verification and uncertainty notes.",
+      "Do not convert research framing into trading advice."
+    ],
+    "expected_outputs": [
+      "daily_brief"
+    ],
+    "open_questions": []
+  }
+}
