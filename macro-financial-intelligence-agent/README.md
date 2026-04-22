@@ -305,6 +305,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses the current deterministic fixture path through triage, maps retained triaged fixture items into `INGESTION_BUNDLE.schema.json` fields, builds an in-memory fixture ingestion bundle, and validates it with the existing schema validator.
 
+Output fields are governed by `FIXTURE_BUNDLE_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-bundle` prints the full in-memory fixture bundle artifact.
