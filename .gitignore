@@ -24,3 +24,8 @@ credentials.*
 # Data snapshots that should be intentionally curated before commit
 raw-news-cache/
 market-data-cache/
+
+# Macro agent generated kernel exchange artifacts
+macro-financial-intelligence-agent/runtime/kernel_exchange/envelopes/*.json
+macro-financial-intelligence-agent/runtime/kernel_exchange/responses/*.json
+macro-financial-intelligence-agent/runtime/kernel_exchange/failures/*.json

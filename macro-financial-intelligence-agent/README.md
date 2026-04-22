@@ -371,6 +371,24 @@ Expected final output:
 kernel-response-fixture-checks-ok
 ```
 
+## Daily US Core File-Based Kernel Exchange Envelope Writer
+
+Run the write-envelope-only scaffold from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_write_kernel_envelope_artifact.py'
+```
+
+This writes a generated kernel input envelope artifact under `runtime/kernel_exchange/envelopes/` using the file naming convention in `FILE_BASED_KERNEL_EXCHANGE_CONTRACT.md`.
+
+For deterministic local checks, pass an explicit timestamp:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_write_kernel_envelope_artifact.py' --timestamp '20260423T000000Z'
+```
+
+Generated runtime exchange JSON artifacts are ignored by default. This helper does not invoke ai-meta-kernel, read or write kernel responses, compose reports, fetch live sources, execute schedules, or call external services.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
