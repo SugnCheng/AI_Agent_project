@@ -331,6 +331,24 @@ Optional flag:
 
 It does not invoke ai-meta-kernel runtime, generate a canonical kernel task object, perform report composition, fetch live sources, execute schedules, call external services, or archive outputs.
 
+## Daily US Core Kernel Runtime Boundary Scaffold
+
+Run the local boundary scaffold from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py'
+```
+
+This reuses the current fixture kernel input envelope, confirms kernel invocation is not implemented, confirms the macro agent did not generate a canonical kernel task object locally, and keeps downstream reporting blocked.
+
+Optional future validation flag:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_kernel_runtime_boundary.py' --kernel-response-json '<path-to-future-kernel-response.json>'
+```
+
+The optional flag validates a future kernel-produced response against `../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json` and detects blocked or restricted handoff states. It does not invoke ai-meta-kernel runtime and does not synthesize a kernel response.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
