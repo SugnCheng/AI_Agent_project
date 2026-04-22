@@ -323,6 +323,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This reuses the current in-memory fixture ingestion bundle and wraps it as a deterministic kernel input envelope. The envelope is evidence/context for future Meta-Layer processing; it is not a completed `TASK_OBJECT_SCHEMA.json` object.
 
+Output fields are governed by `KERNEL_INPUT_ENVELOPE_OUTPUT_CONTRACT.md`.
+
 Optional flag:
 
 - `--show-envelope` prints the full in-memory kernel input envelope.
