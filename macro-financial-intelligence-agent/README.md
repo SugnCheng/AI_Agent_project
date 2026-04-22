@@ -313,6 +313,22 @@ Optional flag:
 
 It does not perform live fetching, scheduler execution, production bundle assembly, report composition, archive/export automation, event clustering, operator override persistence, or ai-meta-kernel runtime handoff.
 
+## Daily US Core Fixture Kernel Input Envelope
+
+Run the first fixture bundle-to-kernel input envelope helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_fixture_kernel_input_envelope.py'
+```
+
+This reuses the current in-memory fixture ingestion bundle and wraps it as a deterministic kernel input envelope. The envelope is evidence/context for future Meta-Layer processing; it is not a completed `TASK_OBJECT_SCHEMA.json` object.
+
+Optional flag:
+
+- `--show-envelope` prints the full in-memory kernel input envelope.
+
+It does not invoke ai-meta-kernel runtime, generate a canonical kernel task object, perform report composition, fetch live sources, execute schedules, call external services, or archive outputs.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
