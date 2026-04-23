@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document reassesses whether the current kernel-side standalone validation helpers are sufficient to justify wrapper planning or wrapper inclusion.
+This document reassesses whether the current kernel-side standalone validation helpers are sufficient to justify wrapper planning or future wrapper inclusion.
 
 It records a governed decision only. It does not add wrapper code, runtime adapter code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -10,71 +10,97 @@ It records a governed decision only. It does not add wrapper code, runtime adapt
 
 The current kernel-side validation helpers are:
 
-| Helper | Scope | Success signal |
-| --- | --- | --- |
-| `validation/kernel_file_exchange_fixture_checks.py` | Validates the static `daily_us_core` envelope, response, and failure fixtures. | `kernel-file-exchange-fixture-checks-ok` |
-| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the current adapter scaffold boundary against the same static fixtures and confirms blocked boundaries remain fail-closed. | `kernel-file-exchange-adapter-scaffold-checks-ok` |
+| Helper | Scope | Success signal | Output contract |
+| --- | --- | --- | --- |
+| `validation/static_meta_layer_contract_checks.py` | Validates static core Meta-Layer contract artifacts, including the master spec, runtime pipeline, handoff contract, and task object schema. | `kernel-static-meta-layer-contract-checks-ok` | `docs/KERNEL_STATIC_META_LAYER_CONTRACT_CHECK_OUTPUT_CONTRACT.md` |
+| `validation/kernel_file_exchange_fixture_checks.py` | Validates the static `daily_us_core` envelope, response, and failure fixtures. | `kernel-file-exchange-fixture-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md` |
+| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the current adapter scaffold boundary against the static fixtures and confirms blocked boundaries remain fail-closed. | `kernel-file-exchange-adapter-scaffold-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` |
 
-Both helpers are local, static, fixture-scoped, and `daily_us_core` scoped.
+All three helpers are local, standalone, and developer-facing.
 
-## Current Output Contracts
+They do not invoke kernel runtime, generate canonical task objects from envelopes, write response artifacts, write failure artifacts, run live fetching, run scheduler behavior, compose reports, call external services, or connect to CI.
 
-The helpers already have output contracts:
+## Breadth Change Since Prior Reassessment
 
-- `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md`
-- `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md`
+The validation breadth is now materially broader than the prior reassessment.
 
-These contracts fix each helper's execution scope, success signal, expected failure behavior, and drift rules.
+Earlier state:
 
-## Reassessment
+- two standalone helpers existed;
+- both helpers focused on one file-exchange fixture family;
+- no helper checked the core Meta-Layer contract artifacts.
 
-The current helper set is now larger than when `docs/KERNEL_VALIDATION_WRAPPER_PLAN.md` was first written, but it is still narrow.
+Current state:
 
-Current observations:
+- three standalone helpers exist;
+- one helper checks static core Meta-Layer contract artifacts;
+- one helper checks the governed file-exchange fixtures;
+- one helper checks the adapter scaffold boundary and fail-closed placeholders;
+- each helper has its own output contract and fixed success signal.
 
-1. There are two standalone helpers, not a broad validation suite.
-2. Both helpers exercise one file-exchange fixture family.
-3. Neither helper validates the full Meta-Layer baseline.
-4. Neither helper invokes runtime behavior.
-5. Neither helper writes response or failure artifacts.
-6. Neither helper needs orchestration to preserve correctness.
-7. A wrapper would currently add a third coordination surface before there is enough validation breadth to justify it.
+This creates a meaningful validation sequence rather than only a pair of related fixture checks.
 
-## Governed Decision
+## Natural Execution Order
 
-Keep the current kernel-side validation helpers standalone for now.
+If a future wrapper is planned, the current natural execution order should be:
 
-Do not begin wrapper implementation yet.
+1. `validation/static_meta_layer_contract_checks.py`
+2. `validation/kernel_file_exchange_fixture_checks.py`
+3. `validation/kernel_file_exchange_adapter_scaffold_checks.py`
 
 Reasoning:
 
-- The helpers remain narrow and independently understandable.
-- Each helper already has a stable output contract.
-- A wrapper would add orchestration overhead without materially improving validation coverage.
-- There is still no formal static Meta-Layer baseline validation helper to run before file-exchange checks.
-- Introducing a wrapper now could imply a broader kernel validation baseline than currently exists.
+- core Meta-Layer contract health should be checked before file-exchange fixture validation;
+- fixture validity should be checked before scaffold boundary checks that depend on those fixtures;
+- scaffold fail-closed behavior should remain the final local boundary check until runtime handoff is intentionally implemented.
 
-## Conditions For Future Wrapper Planning
+## Reassessment
 
-Wrapper planning becomes justified when at least one of the following is true:
+The helper set is no longer too narrow to justify wrapper planning.
 
-1. A static Meta-Layer contract/schema validation helper is added.
-2. More than two standalone kernel-side validation helpers exist and their execution order matters.
-3. File-exchange adapter checks begin depending on prior core-kernel contract checks.
-4. A governed baseline requires one command to prove kernel-side local validation health.
-5. Human review burden increases because standalone commands become hard to track.
+Current observations:
 
-Before wrapper implementation, a governed pass must define:
+1. There are now three standalone helpers, not two.
+2. The helpers span core contract validation, file-exchange fixture validation, and adapter scaffold boundary validation.
+3. Execution order now matters enough to document explicitly.
+4. The existing standalone commands remain useful and should not be removed.
+5. A wrapper would now add clarity if it is treated as local validation orchestration only.
+6. A wrapper would still be premature if implemented before its own scope, output contract, success signal, and blocked behaviors are governed.
+
+## Governed Decision
+
+Begin wrapper planning now.
+
+Keep all three helpers standalone until a dedicated wrapper planning pass and wrapper output contract are completed.
+
+Do not add wrapper code in this pass.
+
+Reasoning:
+
+- validation breadth now covers more than one concern family;
+- the expected execution order is clear enough to govern;
+- one-command local validation would now reduce operator tracking burden;
+- wrapper implementation still needs its own contract before code exists;
+- preserving standalone helpers keeps the current validation surfaces reviewable.
+
+## Conditions Before Wrapper Implementation
+
+Before wrapper code is added, a governed wrapper planning pass must define:
 
 - wrapper path and name;
 - included validation layers;
 - execution order;
 - final success signal;
 - stop-on-first-failure behavior;
-- child output preservation behavior;
+- child helper output preservation behavior;
 - dependency assumptions, especially `jsonschema`;
-- which helpers remain standalone;
+- whether `PYTHONDONTWRITEBYTECODE` remains a documented recommendation only;
+- whether the wrapper uses subprocess execution or direct Python imports;
+- how helper failures are surfaced;
+- whether standalone helper commands remain canonical for focused checks;
 - which runtime behaviors remain blocked.
+
+Before wrapper implementation, a wrapper output contract should also be created or planned so future output drift is controlled.
 
 ## Wrapper Behaviors That Remain Blocked
 
@@ -86,7 +112,7 @@ A future wrapper must not silently introduce:
 - response artifact writing;
 - failure artifact writing;
 - runtime artifact reads or writes;
-- artifact polling;
+- runtime artifact polling;
 - retry/backoff behavior;
 - artifact cleanup automation;
 - live fetching;
@@ -98,13 +124,12 @@ A future wrapper must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Static Meta-Layer Contract Check Planning Pass`.
+Implement a `Kernel-Side Validation Wrapper Planning Pass`.
 
-That pass should decide whether the kernel needs a standalone static check for canonical files such as:
+That pass should define the future local wrapper boundary, likely around the three current helpers:
 
-- `META_LAYER_MASTER_SPEC.md`
-- `meta-layer/RUNTIME_PIPELINE.md`
-- `meta-layer/HANDOFF_CONTRACT.md`
-- `meta-layer/TASK_OBJECT_SCHEMA.json`
+- `validation/static_meta_layer_contract_checks.py`
+- `validation/kernel_file_exchange_fixture_checks.py`
+- `validation/kernel_file_exchange_adapter_scaffold_checks.py`
 
-Only after such a core-kernel check exists should wrapper planning be reconsidered.
+It should still avoid wrapper code until the wrapper path, execution order, success signal, failure behavior, dependency assumptions, standalone-helper policy, and blocked runtime behaviors are explicitly governed.
