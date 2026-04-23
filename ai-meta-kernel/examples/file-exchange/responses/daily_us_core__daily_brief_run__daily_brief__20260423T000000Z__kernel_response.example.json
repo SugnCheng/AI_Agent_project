@@ -1,0 +1,179 @@
+{
+  "schema_version": "0.2.0",
+  "task_id": "kernel-file-exchange-daily-us-core-fixture-20260423T000000Z",
+  "raw_request": {
+    "text": "Prepare a daily US macro-financial intelligence brief from the governed fixture evidence bundle. The kernel should frame the task, classify risk, separate evidence from assumptions, and decide whether downstream reporting may proceed.",
+    "received_at": "2026-04-23T00:00:00Z",
+    "source_context": "Fixture kernel input envelope: daily_us_core__daily_brief_run__daily_brief__20260423T000000Z__kernel_input_envelope.example.json"
+  },
+  "kernel_stage": "handoff_ready",
+  "framed_objective": {
+    "surface_request": "Use the fixture ingestion bundle to prepare a daily US macro-financial brief.",
+    "core_goal": "Frame the fixture evidence for downstream macro-financial reporting while preserving verification, uncertainty, and kernel handoff constraints.",
+    "success_criteria": [
+      "Evidence and assumptions are separated.",
+      "Macro-financial risk and time sensitivity are identified.",
+      "Downstream reporting receives a constrained handoff with required checks."
+    ],
+    "scope": [
+      "daily_us_core",
+      "fixture evidence only",
+      "US macro-financial intelligence context"
+    ],
+    "non_goals": [
+      "live fetching",
+      "investment recommendation",
+      "report composition",
+      "scheduler execution"
+    ],
+    "time_horizon": "daily",
+    "reframe_required": false
+  },
+  "task_classification": {
+    "primary_type": "analysis",
+    "secondary_types": ["information", "planning"]
+  },
+  "risk_profile": {
+    "overall_level": "medium",
+    "ambiguity_level": "medium",
+    "categories": ["financial", "time_sensitive"],
+    "rationale": "The task involves macro-financial interpretation from fixture evidence. It is not a trading recommendation, but downstream reporting could influence market-risk interpretation.",
+    "escalation_required": false,
+    "alignment_needed": false,
+    "confidence_ceiling": "medium",
+    "constraints": [
+      "fixture evidence only",
+      "no live fetching",
+      "no report composition in kernel fixture"
+    ]
+  },
+  "triggered_habits": [
+    {
+      "habit_id": "H1",
+      "role": "primary",
+      "reason": "The task depends on source-aware evidence claims from the fixture bundle.",
+      "required": true
+    },
+    {
+      "habit_id": "H2",
+      "role": "support",
+      "reason": "Macro-financial implications require separating observations from inferences.",
+      "required": true
+    },
+    {
+      "habit_id": "H7",
+      "role": "support",
+      "reason": "The downstream artifact is a structured brief.",
+      "required": true
+    }
+  ],
+  "structural_decomposition": {
+    "facts": [
+      "The envelope source project is macro-financial-intelligence-agent.",
+      "The profile is daily_us_core.",
+      "The fixture bundle includes three retained items from official-primary sources."
+    ],
+    "assumptions": [
+      "The fixture items are representative enough to test adapter handoff shape.",
+      "The downstream macro agent will preserve kernel restrictions before report composition."
+    ],
+    "inferences": [
+      "The fixture evidence is suitable for a constrained downstream daily brief draft.",
+      "The response should remain medium confidence because no live verification occurred."
+    ],
+    "unknowns": [
+      "Whether equivalent live-source items would match the fixture evidence.",
+      "Whether operator review would add constraints before publication."
+    ],
+    "constraints": {
+      "hard": [
+        "Do not treat fixture evidence as live market data.",
+        "Do not produce investment advice.",
+        "Do not bypass downstream review."
+      ],
+      "soft": [
+        "Keep downstream output concise.",
+        "Preserve source traceability."
+      ]
+    },
+    "stakeholders": [
+      "human operator",
+      "macro-financial-intelligence-agent",
+      "downstream report reviewers"
+    ],
+    "tradeoffs": [
+      "Fast fixture validation versus live-source completeness.",
+      "Concise brief output versus explicit uncertainty disclosure."
+    ]
+  },
+  "required_checks": {
+    "must_verify": [
+      "Confirm fixture evidence remains static and governed.",
+      "Confirm no live-source claims are introduced downstream."
+    ],
+    "must_challenge": [
+      "wrong_question_check",
+      "missing_constraint_check",
+      "alternative_explanation_check",
+      "overconfidence_check",
+      "handoff_clarity_check"
+    ],
+    "must_disclose_uncertainty": [
+      "This is fixture-only evidence.",
+      "No live market or policy update was fetched."
+    ],
+    "must_align_with_user": []
+  },
+  "status_flags": ["ready_for_handoff"],
+  "verification_plan": {
+    "required": true,
+    "methods": ["source_check", "schema_validation", "citation_audit"],
+    "freshness_requirement": "none",
+    "citation_requirement": "recommended",
+    "notes": "Fixture evidence is static. Downstream live reporting would require fresh verification."
+  },
+  "challenge_loop": {
+    "performed": true,
+    "challenges": [
+      {
+        "target": "evidence",
+        "question": "Could this fixture response be mistaken for live macro-financial analysis?",
+        "resolution": "The handoff explicitly marks fixture-only evidence and requires uncertainty disclosure."
+      },
+      {
+        "target": "downstream_path",
+        "question": "Could downstream reporting proceed without preserving kernel constraints?",
+        "resolution": "The handoff includes explicit instructions and expected outputs that preserve restrictions."
+      }
+    ],
+    "result": "proceed_with_constraints"
+  },
+  "downstream_recommendation": {
+    "agent_type": "macro-financial-intelligence-agent",
+    "mode": "restricted_handoff",
+    "output_format": "daily_brief_fixture_draft",
+    "rationale": "Downstream reporting may proceed only as a fixture-based draft because no live verification occurred.",
+    "restrictions": [
+      "Mark output as fixture-only.",
+      "Do not imply live market coverage.",
+      "Do not provide investment recommendations."
+    ]
+  },
+  "handoff": {
+    "downstream_agent": "macro-financial-intelligence-agent",
+    "handoff_ready": true,
+    "instructions": [
+      "Use the fixture evidence only.",
+      "Preserve uncertainty and fixture-only status.",
+      "Do not compose or publish a live report from this fixture response."
+    ],
+    "expected_outputs": [
+      "fixture-only daily brief draft outline",
+      "source traceability notes",
+      "uncertainty notes"
+    ],
+    "open_questions": [
+      "Should a future live run require source freshness verification before report composition?"
+    ]
+  }
+}

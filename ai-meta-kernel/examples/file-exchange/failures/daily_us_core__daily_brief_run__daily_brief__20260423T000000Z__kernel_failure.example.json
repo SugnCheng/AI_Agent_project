@@ -1,0 +1,14 @@
+{
+  "artifact_type": "kernel_exchange_failure",
+  "artifact_version": "0.1.0",
+  "source_project": "ai-meta-kernel",
+  "profile_id": "daily_us_core",
+  "run_mode": "daily_brief_run",
+  "report_target": "daily_brief",
+  "regions": ["US"],
+  "envelope_artifact_path": "ai-meta-kernel/examples/file-exchange/envelopes/daily_us_core__daily_brief_run__daily_brief__20260423T000000Z__kernel_input_envelope.example.json",
+  "failure_stage": "pre_invoke",
+  "failure_reason": "Static fixture showing a blocking kernel-side adapter failure before runtime invocation is implemented.",
+  "blocking": true,
+  "created_at": "2026-04-23T00:00:00Z"
+}

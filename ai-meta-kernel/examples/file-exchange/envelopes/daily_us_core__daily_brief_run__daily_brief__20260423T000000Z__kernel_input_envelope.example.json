@@ -1,0 +1,74 @@
+{
+  "envelope_type": "kernel_input_envelope",
+  "envelope_version": "0.1.0",
+  "source_project": "macro-financial-intelligence-agent",
+  "profile_id": "daily_us_core",
+  "run_mode": "daily_brief_run",
+  "report_target": "daily_brief",
+  "regions": ["US"],
+  "operator_intent": "Prepare a daily US macro-financial intelligence brief from the governed fixture evidence bundle. The kernel should frame the task, classify risk, separate evidence from assumptions, and decide whether downstream reporting may proceed.",
+  "evidence_bundle": {
+    "bundle_type": "ingestion_bundle",
+    "bundle_version": "0.1.0",
+    "bundle_scope": "fixture_reduced",
+    "profile_id": "daily_us_core",
+    "run_mode": "daily_brief_run",
+    "report_target": "daily_brief",
+    "regions": ["US"],
+    "item_count_raw": 3,
+    "item_count_after_dedup": 3,
+    "source_count": 3,
+    "items": [
+      {
+        "source_id": "fed_fomc",
+        "authority_tier": "official_primary",
+        "title": "FOMC statement fixture item",
+        "published_at": "2026-04-23T00:00:00Z",
+        "canonical_url": "https://example.local/fixtures/fed-fomc-statement",
+        "preliminary_priority": "P1"
+      },
+      {
+        "source_id": "bls",
+        "authority_tier": "official_primary",
+        "title": "BLS labor data fixture item",
+        "published_at": "2026-04-23T00:00:00Z",
+        "canonical_url": "https://example.local/fixtures/bls-labor-data",
+        "preliminary_priority": "P2"
+      },
+      {
+        "source_id": "sec_press",
+        "authority_tier": "official_primary",
+        "title": "SEC press release fixture item",
+        "published_at": "2026-04-23T00:00:00Z",
+        "canonical_url": "https://example.local/fixtures/sec-press-release",
+        "preliminary_priority": "P2"
+      }
+    ]
+  },
+  "evidence_context": {
+    "fixture_mode": true,
+    "evidence_is_static": true,
+    "source_policy": "whitelist_only",
+    "notes": [
+      "This envelope is reduced for kernel-side adapter fixture testing.",
+      "The macro agent has not generated kernel conclusions.",
+      "The kernel must perform framing, classification, decomposition, verification planning, challenge, gate, emit, and handoff."
+    ]
+  },
+  "kernel_task_object_expectation": {
+    "expected_schema": "../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json",
+    "expected_owner": "ai-meta-kernel",
+    "expected_behavior": [
+      "treat envelope as evidence/context",
+      "run kernel-owned P0-P10",
+      "produce response artifact or blocking failure artifact"
+    ]
+  },
+  "deferred_runtime_behavior": [
+    "actual kernel runtime invocation",
+    "live fetching",
+    "scheduler runtime",
+    "report composition",
+    "external service calls"
+  ]
+}
