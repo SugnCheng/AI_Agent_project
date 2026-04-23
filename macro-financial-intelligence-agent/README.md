@@ -401,6 +401,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 The scaffold can also accept `--failure-artifact`, `--envelope-artifact`, or `--artifact-stem`. It applies the response/failure read order from `FILE_BASED_KERNEL_RESPONSE_READ_PLAN.md` and reuses existing kernel response validation semantics from `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md`.
 
+Output fields, artifact match semantics, state drift rules, and downstream unlock guardrails are governed by `FILE_BASED_KERNEL_RESPONSE_READ_OUTPUT_CONTRACT.md`.
+
 It does not invoke ai-meta-kernel runtime, generate kernel responses, compose reports, fetch live sources, execute schedules, mutate runtime artifacts, or call external services.
 
 ## Development Rules
