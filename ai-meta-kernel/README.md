@@ -30,6 +30,22 @@ This initial version creates a reviewable documentation and prompt skeleton. It 
 
 Reference agents live outside this kernel repo. The first reference agent is `../macro-financial-intelligence-agent/`.
 
+## Local Validation
+
+Run the governed kernel-side local validation wrapper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\run_all_kernel_local_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-local-validation-checks-ok
+```
+
+The wrapper only orchestrates the existing standalone validation helpers. It does not invoke kernel runtime, generate task objects, write artifacts, run CI, fetch sources, schedule jobs, or compose reports.
+
 ## Operating Principle
 
 Every downstream agent must receive work through the Meta-Layer. The kernel is responsible for clarifying intent, surfacing risk, selecting relevant reasoning habits, defining verification requirements, challenging weak assumptions, and packaging a handoff object.
