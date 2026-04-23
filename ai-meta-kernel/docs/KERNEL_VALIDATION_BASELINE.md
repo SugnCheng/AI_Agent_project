@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the writer-boundary planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -112,6 +112,50 @@ At the current stage, these documents do not mean:
 - canonical task object generation from envelopes exists;
 - writer code is authorized in the current baseline.
 
+## Current Intake-Mapping Planning And Output Contract Surface
+
+The current intake-mapping planning decision is:
+
+```text
+plan_envelope_to_kernel_owned_p0_p1_intake_before_implementation
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md
+```
+
+The current intake-mapping output contract is:
+
+```text
+future_mapping_may_emit_kernel_owned_intake_context_but_not_kernel_conclusions
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md
+```
+
+At the current stage, these documents mean:
+
+- future envelope-to-P0/P1 intake mapping is planned before implementation;
+- validated envelope fields may flow into future intake only as evidence, metadata, request text, source context, expectation context, or deferred-behavior context;
+- future mapping output may be a `kernel_intake_context`, not a canonical task object;
+- canonical task object fields remain excluded from mapping output;
+- the mapping boundary stops before P0/P1 execution and P0-P10 runtime invocation.
+
+At the current stage, these documents do not mean:
+
+- intake mapping code exists;
+- kernel-owned P0/P1 intake object construction exists;
+- P0/P1 execution exists;
+- P0-P10 runtime invocation exists;
+- canonical task object generation from envelope evidence exists;
+- mapping output can unlock reporting;
+- mapping output can be treated as a response artifact.
+
 ## Current Local Validation Wrapper
 
 Implemented wrapper:
@@ -209,6 +253,7 @@ A successful local wrapper run means:
 - the first-slice adapter fixture validation surface is covered by the existing fixture and scaffold helpers;
 - the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
+- the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
@@ -247,7 +292,8 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - CI has run;
 - production validation is complete;
 - first-slice fixture validation has opened runtime handoff;
-- writer-boundary planning has opened response or failure artifact writing.
+- writer-boundary planning has opened response or failure artifact writing;
+- intake-mapping planning has opened P0/P1 intake construction or runtime invocation.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -294,6 +340,17 @@ The writer-boundary planning and output contract surfaces also must not silently
 - partial canonical task object content in failure artifacts;
 - writer-side repair of invalid kernel outputs.
 
+The intake-mapping planning and output contract surfaces also must not silently introduce:
+
+- intake mapping implementation;
+- kernel-owned P0/P1 intake object construction;
+- P0/P1 execution;
+- canonical task object fields in mapping output;
+- mapping output treated as a response artifact;
+- mapping output unlocking downstream reporting;
+- mapping output bypassing P0-P10 runtime;
+- direct population of kernel-owned reasoning fields from macro evidence.
+
 ## Changes Requiring A Governed Pass
 
 The following changes require a governed pass before implementation:
@@ -325,6 +382,13 @@ The following changes require a governed pass before implementation:
 - changing writer mutual exclusivity rules;
 - changing writer pre-write validation order;
 - adding response or failure writer implementation;
+- changing the intake-mapping planning decision;
+- changing the intake-mapping output contract decision;
+- changing allowed envelope inputs for intake mapping;
+- changing acceptable intake-context output fields;
+- allowing canonical task object fields in mapping output;
+- adding intake mapping implementation;
+- adding P0/P1 execution or P0-P10 runtime invocation;
 - adding runtime artifact validation;
 - adding runtime adapter behavior;
 - adding file mutation, cleanup, or auto-repair behavior.
@@ -334,13 +398,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_writer_boundary_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, and governed writer-boundary planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Writer-Boundary Refresh Pass`.
+Implement a `Kernel-Side Validation Documentation Index Intake-Mapping Refresh Pass`.
 
-That pass should refresh the kernel validation documentation index so the writer-boundary plan and writer-boundary output contract are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the intake-mapping plan and intake-mapping output contract are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
