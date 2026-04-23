@@ -12,13 +12,15 @@ import contextlib
 import importlib.util
 import io
 from pathlib import Path
-from types import SimpleNamespace
+import shutil
 from types import ModuleType
 from typing import Any
+import uuid
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 KERNEL_ROOT = REPO_ROOT / "ai-meta-kernel"
+VALIDATION_ROOT = KERNEL_ROOT / "validation"
 WRAPPER_PATH = KERNEL_ROOT / "validation" / "run_all_kernel_local_checks.py"
 FINAL_SUCCESS_SIGNAL = "kernel-local-validation-checks-ok"
 
@@ -54,25 +56,43 @@ def run_wrapper_with_checks(
     return exit_code, stdout.getvalue(), stderr.getvalue()
 
 
-def check_child_nonzero_stops_and_suppresses_success(wrapper: ModuleType) -> None:
-    original_subprocess_run = wrapper.subprocess.run
-    calls: list[list[str]] = []
+def write_helper(path: Path, source: str) -> Path:
+    path.write_text(source, encoding="utf-8")
+    return path
 
-    def fake_run(command: list[str], cwd: Path, check: bool) -> SimpleNamespace:
-        calls.append(command)
-        return SimpleNamespace(returncode=7)
 
+@contextlib.contextmanager
+def temporary_validation_dir():
+    temp_root = VALIDATION_ROOT / f".kernel-wrapper-failure-path-{uuid.uuid4().hex}"
+    temp_root.mkdir()
     try:
-        wrapper.subprocess.run = fake_run
+        yield temp_root
+    finally:
+        shutil.rmtree(temp_root)
+
+
+def check_child_nonzero_stops_and_suppresses_success(wrapper: ModuleType) -> None:
+    with temporary_validation_dir() as temp_root:
+        failing_helper = write_helper(
+            temp_root / "failing_helper.py",
+            "import sys\nsys.exit(7)\n",
+        )
+        marker_path = temp_root / "later_helper_was_run.marker"
+        later_helper = write_helper(
+            temp_root / "later_helper.py",
+            (
+                "from pathlib import Path\n"
+                f"Path({str(marker_path)!r}).write_text('ran', encoding='utf-8')\n"
+            ),
+        )
+
         exit_code, stdout, stderr = run_wrapper_with_checks(
             wrapper,
             [
-                ("intentional failing helper", WRAPPER_PATH),
-                ("later helper must not run", WRAPPER_PATH),
+                ("intentional failing helper", failing_helper),
+                ("later helper must not run", later_helper),
             ],
         )
-    finally:
-        wrapper.subprocess.run = original_subprocess_run
 
     if exit_code != 7:
         raise AssertionError(f"wrapper should return failing child exit code 7, got {exit_code}")
@@ -80,7 +100,7 @@ def check_child_nonzero_stops_and_suppresses_success(wrapper: ModuleType) -> Non
     if FINAL_SUCCESS_SIGNAL in stdout:
         raise AssertionError("wrapper must suppress final success signal after child failure")
 
-    if len(calls) != 1:
+    if marker_path.exists():
         raise AssertionError("wrapper must stop before running later helper after failure")
 
     expected_failure = (
