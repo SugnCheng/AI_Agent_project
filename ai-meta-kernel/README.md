@@ -46,6 +46,12 @@ kernel-local-validation-checks-ok
 
 The wrapper only orchestrates the existing standalone validation helpers. It does not invoke kernel runtime, generate task objects, write artifacts, run CI, fetch sources, schedule jobs, or compose reports.
 
+Run the wrapper failure-path checks when changing wrapper behavior:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_validation_wrapper_failure_path_checks.py'
+```
+
 ## Operating Principle
 
 Every downstream agent must receive work through the Meta-Layer. The kernel is responsible for clarifying intent, surfacing risk, selecting relevant reasoning habits, defining verification requirements, challenging weak assumptions, and packaging a handoff object.
