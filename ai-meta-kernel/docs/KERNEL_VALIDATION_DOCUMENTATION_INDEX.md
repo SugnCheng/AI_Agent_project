@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, first-slice adapter fixture validation notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -34,6 +34,15 @@ These documents describe the developer-facing local wrapper and its failure-path
 | `validation/run_all_kernel_local_checks.py` | `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md` | Current wrapper behavior: helper order, child output preservation, final success signal, stop-on-first-failure behavior, and blocked runtime behaviors. |
 | `validation/kernel_validation_wrapper_failure_path_checks.py` | `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md` | Wrapper failure-path behavior: non-zero child exit, missing helper path, later-helper suppression, and final success signal suppression. |
 
+## First-Slice Adapter Fixture Validation
+
+These documents describe the first implementation slice's adapter fixture validation surface. Use them after the baseline when checking whether the current fixture and scaffold helpers already cover the first-slice contract.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` | Output contract for the first-slice validation surface: fixtures in scope, allowed validation, success signals, expected failures, blocked behaviors, and governed drift rules. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` | Helper-free coverage decision confirming the existing fixture and scaffold helpers fully cover the first-slice contract. |
+
 ## Baseline, Reassessment, And Planning Notes
 
 These documents explain how the validation surface evolved and what decisions have already been bounded.
@@ -50,6 +59,7 @@ These documents explain how the validation surface evolved and what decisions ha
 | `docs/KERNEL_STATIC_META_LAYER_CONTRACT_CHECK_PLAN.md` | Planning note for static Meta-Layer contract checks. |
 | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_PLAN.md` | Planning note for static file-exchange fixture checks. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_PLAN.md` | Planning note for adapter scaffold boundary validation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` | Planning note for the first acceptable adapter fixture validation slice. |
 
 ## Practical Reading Order
 
@@ -58,14 +68,17 @@ For current local validation behavior:
 1. Read `docs/KERNEL_VALIDATION_BASELINE.md`.
 2. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
 3. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
-4. Read the specific standalone helper contract only when debugging that helper.
+4. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
+5. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
+6. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
 1. Read `docs/KERNEL_VALIDATION_BASELINE.md`.
-2. Read the relevant plan or reassessment note.
-3. Compare proposed changes against the related output contract drift rules.
-4. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
+2. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` for the first-slice adapter fixture strategy when adapter fixture validation is in scope.
+3. Read the relevant plan or reassessment note.
+4. Compare proposed changes against the related output contract drift rules.
+5. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
 
 ## Current Local Commands
 
@@ -115,6 +128,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Docs Cross-Link Pass`.
+Implement a `Kernel-Side Runtime Adapter Writer Boundary Planning Pass`.
 
-That pass should add minimal cross-links from the baseline and output contracts back to this index if useful, while still avoiding runtime code, CI, scheduler behavior, live fetching, report composition, package migration, and actual handoff execution.
+That pass should plan the response/failure writer boundary before any implementation while still avoiding runtime code, CI, scheduler behavior, live fetching, report composition, package migration, and actual handoff execution.
