@@ -24,6 +24,10 @@ CHECKS = [
         VALIDATION_ROOT / "dependency_backed_contract_checks.py",
     ),
     ("semantic contract checks", VALIDATION_ROOT / "semantic_contract_checks.py"),
+    (
+        "kernel exchange fixture regression checks",
+        VALIDATION_ROOT / "kernel_exchange_fixture_regression_checks.py",
+    ),
 ]
 
 

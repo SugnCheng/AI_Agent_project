@@ -183,6 +183,7 @@ The wrapper runs these existing validation layers in order:
 1. `validation/scaffold_contract_checks.py`
 2. `validation/dependency_backed_contract_checks.py`
 3. `validation/semantic_contract_checks.py`
+4. `validation/kernel_exchange_fixture_regression_checks.py`
 
 It is a local developer helper only. It does not add CI, fetch live sources, execute schedules, compose reports, migrate package layout, or replace the individual validation scripts.
 
