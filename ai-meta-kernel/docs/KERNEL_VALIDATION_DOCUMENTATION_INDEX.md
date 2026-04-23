@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, first-slice adapter fixture validation notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, first-slice adapter fixture validation notes, writer-boundary notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -43,6 +43,15 @@ These documents describe the first implementation slice's adapter fixture valida
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` | Output contract for the first-slice validation surface: fixtures in scope, allowed validation, success signals, expected failures, blocked behaviors, and governed drift rules. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` | Helper-free coverage decision confirming the existing fixture and scaffold helpers fully cover the first-slice contract. |
 
+## Writer-Boundary Planning And Contracts
+
+These documents describe the future response writer and blocking failure writer boundaries. Use them after the baseline and first-slice fixture validation notes when checking what writer behavior is planned but still blocked.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response writer and blocking failure writer boundaries, including validation order and blocked behavior before implementation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` | Output contract for future writer behavior: artifact naming, pre-write validation guarantees, mutual exclusivity, blocked behaviors, and governed change triggers. |
+
 ## Baseline, Reassessment, And Planning Notes
 
 These documents explain how the validation surface evolved and what decisions have already been bounded.
@@ -60,6 +69,7 @@ These documents explain how the validation surface evolved and what decisions ha
 | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_PLAN.md` | Planning note for static file-exchange fixture checks. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_PLAN.md` | Planning note for adapter scaffold boundary validation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` | Planning note for the first acceptable adapter fixture validation slice. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response/failure writer boundaries before implementation. |
 
 ## Practical Reading Order
 
@@ -70,15 +80,17 @@ For current local validation behavior:
 3. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
 4. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
 5. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
-6. Read the specific standalone helper contract only when debugging that helper.
+6. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
+7. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
 1. Read `docs/KERNEL_VALIDATION_BASELINE.md`.
 2. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` for the first-slice adapter fixture strategy when adapter fixture validation is in scope.
-3. Read the relevant plan or reassessment note.
-4. Compare proposed changes against the related output contract drift rules.
-5. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
+3. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` when response/failure writer boundaries are in scope.
+4. Read the relevant plan or reassessment note.
+5. Compare proposed changes against the related output contract drift rules.
+6. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
 
 ## Current Local Commands
 
@@ -116,6 +128,8 @@ This documentation index must not silently introduce:
 - kernel intake preparation;
 - response artifact writing;
 - failure artifact writing;
+- response writer implementation;
+- failure writer implementation;
 - runtime artifact reads or writes;
 - live fetching;
 - scheduler runtime;
@@ -128,6 +142,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Adapter Writer Boundary Planning Pass`.
+Implement a `Kernel-Side Runtime Adapter Intake Mapping Planning Pass`.
 
-That pass should plan the response/failure writer boundary before any implementation while still avoiding runtime code, CI, scheduler behavior, live fetching, report composition, package migration, and actual handoff execution.
+That pass should plan the envelope-to-P0/P1 intake mapping boundary before any implementation while still avoiding runtime code, CI, scheduler behavior, live fetching, report composition, package migration, and actual handoff execution.
