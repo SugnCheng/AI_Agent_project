@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -29,6 +29,45 @@ The current kernel-side standalone helpers are:
 These helpers remain canonical standalone checks.
 
 They may be run individually for focused debugging even though a wrapper now exists.
+
+## Current First-Slice Adapter Fixture Validation Surface
+
+The current first implementation slice validation surface is:
+
+```text
+validate_existing_daily_us_core_static_adapter_fixtures_and_fail_closed_scaffold_boundaries
+```
+
+It is governed by:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md
+```
+
+The first-slice surface covers only:
+
+- the existing `daily_us_core` static kernel input envelope fixture;
+- the existing `daily_us_core` expected kernel response fixture;
+- the existing `daily_us_core` expected blocking kernel failure fixture;
+- the current fail-closed adapter scaffold boundaries.
+
+Helper-free coverage decision:
+
+```text
+existing_helpers_fully_cover_first_slice_adapter_fixture_validation_contract
+```
+
+No new validation helper is currently needed for this slice.
+
+Current coverage is provided by:
+
+| Helper | First-slice coverage |
+| --- | --- |
+| `validation/kernel_file_exchange_fixture_checks.py` | Validates fixture existence, JSON object shape, governed `daily_us_core` values, response schema validity, blocking failure shape, and forbidden canonical task object leakage in envelope/failure fixtures. |
+| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures and confirms `prepare_kernel_intake`, `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
+
+This surface is local-only and deterministic. It does not scan runtime artifact directories, discover live work, mutate fixtures, generate artifacts, or call runtime code.
 
 ## Current Local Validation Wrapper
 
@@ -124,6 +163,8 @@ A successful local wrapper run means:
 - the core static Meta-Layer contract helper passed;
 - the governed static file-exchange fixtures passed;
 - the adapter scaffold boundary helper passed;
+- the first-slice adapter fixture validation surface is covered by the existing fixture and scaffold helpers;
+- the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
@@ -160,7 +201,8 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - downstream macro reporting is unlocked;
 - live fetching or scheduler runtime works;
 - CI has run;
-- production validation is complete.
+- production validation is complete;
+- first-slice fixture validation has opened runtime handoff.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -185,6 +227,16 @@ The current validation baseline must not silently introduce:
 - generic multi-profile production validation;
 - contract auto-repair.
 
+The first-slice adapter fixture validation surface also must not silently introduce:
+
+- additional fixture classes beyond envelope, expected response, and blocking failure;
+- additional profiles beyond `daily_us_core`;
+- generated runtime artifacts as committed fixtures;
+- runtime reader discovery;
+- response or failure writer behavior;
+- CLI command behavior;
+- macro-side production of kernel response artifacts.
+
 ## Changes Requiring A Governed Pass
 
 The following changes require a governed pass before implementation:
@@ -206,6 +258,10 @@ The following changes require a governed pass before implementation:
 - connecting validation to CI;
 - broadening validation beyond the current standalone helper, wrapper, and wrapper failure-path helper baseline;
 - changing fixture scope beyond the current governed static fixtures;
+- changing the first-slice adapter fixture validation contract;
+- changing the helper-free first-slice coverage decision;
+- adding a new first-slice validation helper when existing helpers still cover the contract;
+- changing the existing `daily_us_core` fixture set used by first-slice validation;
 - adding runtime artifact validation;
 - adding runtime adapter behavior;
 - adding file mutation, cleanup, or auto-repair behavior.
@@ -215,13 +271,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage
 ```
 
-The kernel now has a usable local success-path validation entrypoint plus a focused wrapper failure-path helper while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, and an explicit helper-free first-slice adapter fixture validation coverage decision while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Pass`.
+Implement a `Kernel-Side Validation Documentation Index Refresh Pass`.
 
-That pass should make the kernel validation docs easier to navigate by linking the standalone helper contracts, wrapper contract, failure-path contract, and baseline note while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the first-slice adapter fixture validation contract and helper-free coverage note are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
