@@ -12,6 +12,14 @@ It confirms the wrapper scaffold's actual execution behavior, final success sign
 
 This document does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
+## Documentation Index
+
+For the current validation documentation map, see:
+
+```text
+docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md
+```
+
 ## Actual Wrapper Path And Scope
 
 Actual wrapper path:

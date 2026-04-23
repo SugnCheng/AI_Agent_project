@@ -8,6 +8,14 @@ It records the current standalone validation helpers, the implemented local vali
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
+## Documentation Index
+
+For the current validation documentation map, see:
+
+```text
+docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md
+```
+
 ## Current Standalone Validation Helpers
 
 The current kernel-side standalone helpers are:
