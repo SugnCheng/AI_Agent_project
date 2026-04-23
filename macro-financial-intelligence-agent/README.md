@@ -399,6 +399,12 @@ Run the local read-response scaffold against an explicit future kernel response 
 $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_read_kernel_response_artifact.py' --response-artifact 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_standard_kernel_response.example.json'
 ```
 
+Run the same scaffold against the static blocking failure fixture:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_read_kernel_response_artifact.py' --failure-artifact 'macro-financial-intelligence-agent\fixtures\kernel_failures\daily_us_core_kernel_failure.example.json'
+```
+
 The scaffold can also accept `--failure-artifact`, `--envelope-artifact`, or `--artifact-stem`. It applies the response/failure read order from `FILE_BASED_KERNEL_RESPONSE_READ_PLAN.md` and reuses existing kernel response validation semantics from `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md`.
 
 Output fields, artifact match semantics, state drift rules, and downstream unlock guardrails are governed by `FILE_BASED_KERNEL_RESPONSE_READ_OUTPUT_CONTRACT.md`.

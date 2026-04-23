@@ -1,0 +1,14 @@
+{
+  "artifact_type": "kernel_exchange_failure",
+  "artifact_version": "0.1.0",
+  "source_project": "macro-financial-intelligence-agent",
+  "profile_id": "daily_us_core",
+  "run_mode": "daily_brief_run",
+  "report_target": "daily_brief",
+  "regions": ["US"],
+  "envelope_artifact_path": "macro-financial-intelligence-agent/runtime/kernel_exchange/envelopes/daily_us_core__daily_brief_run__daily_brief__20260423T000000Z__kernel_input_envelope.json",
+  "failure_stage": "response_schema_validation",
+  "failure_reason": "Static fixture: kernel response artifact was unavailable or invalid, so downstream reporting must remain blocked.",
+  "blocking": true,
+  "created_at": "2026-04-23T00:00:00Z"
+}
