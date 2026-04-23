@@ -16,10 +16,10 @@ This document does not add runtime behavior, live fetching, scheduler runtime, r
 Current cross-project status:
 
 ```text
-file_based_exchange_contract_aligned_but_runtime_handoff_not_implemented
+file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, and wrapper failure-path checks. The actual kernel-side file reader, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, writer-boundary governance, and intake-mapping governance. The actual kernel-side runtime reader, intake mapping implementation, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -61,12 +61,15 @@ Already in place:
 - wrapper failure-path helper for child failure, missing helper, stop-on-first-failure, and success-signal suppression behavior;
 - validation documentation index;
 - refreshed validation baseline;
-- kernel-side file exchange adapter contract snapshot.
+- kernel-side file exchange adapter contract snapshot;
+- first-slice adapter fixture validation output contract and helper-free coverage decision;
+- writer-boundary plan and output contract for future response/failure writers;
+- intake-mapping plan and output contract for future envelope-to-P0/P1 intake context.
 
 Still absent on the kernel side:
 
-- actual envelope artifact reader implementation;
-- envelope-to-P0/P1 intake implementation;
+- runtime envelope artifact reader implementation beyond the current local scaffold boundary;
+- envelope-to-P0/P1 intake mapping implementation;
 - P0-P10 runtime execution implementation;
 - canonical task object production from envelope evidence;
 - response artifact writer implementation;
@@ -90,6 +93,38 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 | Fixture distinction | Static fixtures are reviewable examples; runtime artifacts are generated local material and not committed by default. |
 | Restricted / blocked semantics | Macro side validates standard, restricted, blocked, and failure states before downstream unlock. |
 
+## Current Runtime-Governance Status
+
+The current runtime-adapter governance status is:
+
+```text
+first_slice_fixture_validation_plus_writer_boundary_plus_intake_mapping_governed_but_unimplemented
+```
+
+Current first-slice adapter fixture validation status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md`;
+- uses the existing `daily_us_core` static envelope, expected response, and blocking failure fixtures;
+- covered by existing kernel fixture and adapter scaffold helpers;
+- helper-free coverage decision is recorded in the kernel validation baseline;
+- validates static fixture shape and fail-closed scaffold boundaries only.
+
+Current writer-boundary governance status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md`;
+- future response writer must validate before writing a response artifact;
+- future blocking failure writer must emit `blocking == true` failure artifacts when a valid response cannot be produced;
+- one envelope invocation should eventually produce exactly one terminal artifact: response or blocking failure;
+- response and failure writer implementations remain absent.
+
+Current intake-mapping governance status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md`;
+- future mapping may emit kernel-owned intake context, not kernel conclusions;
+- envelope fields may flow only as evidence, metadata, request text, source context, expectation context, or deferred-behavior context;
+- canonical task object fields remain excluded from mapping output;
+- intake mapping implementation and P0/P1 execution remain absent.
+
 ## Validation And Governance Surfaces
 
 Current macro-side validation surfaces:
@@ -111,22 +146,24 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
-- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, and adapter scaffold behavior.
+- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, writer boundaries, and intake mapping.
 
 ## Remaining Runtime Handoff Gaps
 
 Before actual runtime handoff, the following gaps remain:
 
-1. Define and implement kernel-side envelope artifact reading.
-2. Define and implement envelope intake validation without weakening canonical kernel contracts.
-3. Map envelope evidence/context into kernel-owned P0/P1 intake.
-4. Implement or expose the kernel-owned P0-P10 runtime path.
-5. Produce canonical task objects only inside `ai-meta-kernel`.
-6. Validate kernel-produced responses against `ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
-7. Write kernel response artifacts only after schema validation succeeds.
-8. Write blocking kernel failure artifacts when invocation, parsing, schema validation, or response state validation fails.
+1. Implement kernel-side runtime envelope artifact reading beyond the current local scaffold boundary.
+2. Implement envelope-to-P0/P1 intake mapping only after the governed mapping contract is ready for implementation.
+3. Implement or expose the kernel-owned P0-P10 runtime path.
+4. Produce canonical task objects only inside `ai-meta-kernel`.
+5. Validate kernel-produced responses against `ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
+6. Implement response artifact writing only after schema and response-state validation.
+7. Implement blocking kernel failure artifact writing for invocation, parsing, schema validation, or response state validation failures.
+8. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation.
 9. Preserve restricted and blocked response semantics before macro-side reporting.
 10. Define the operator review checkpoint for restricted and blocked outputs.
+11. Decide runtime artifact retention, fixture promotion, and cleanup policy.
+12. Define any CLI or invocation boundary separately from scheduler/reporting behavior.
 
 ## Explicitly Blocked Behaviors
 
@@ -142,6 +179,12 @@ The current cross-project baseline must not silently introduce:
 - external service calls;
 - macro-side canonical kernel task object generation;
 - macro-side kernel response artifact writing;
+- kernel-side intake mapping implementation;
+- kernel-side P0/P1 execution;
+- kernel-side P0-P10 runtime invocation;
+- kernel-side response artifact writing;
+- kernel-side failure artifact writing;
+- treating intake mapping output as a response artifact;
 - kernel contract renaming or schema drift;
 - hidden runtime handoff;
 - automatic source governance changes;
@@ -149,6 +192,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side File Exchange Adapter Fixture Planning Pass`.
+Implement a `Kernel-Side Runtime Adapter Implementation Gate Refresh Pass`.
 
-That pass should define the smallest static kernel-side envelope fixture and expected response/failure fixture strategy for testing the kernel adapter boundary before any runtime file reader, response writer, failure writer, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution is added.
+That pass should refresh the implementation gate now that first-slice fixture validation governance, writer-boundary governance, and intake-mapping governance are documented, while still avoiding runtime file reader implementation, intake mapping implementation, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution.
