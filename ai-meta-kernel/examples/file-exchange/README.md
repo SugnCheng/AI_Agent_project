@@ -34,3 +34,15 @@ Expected output:
 ```text
 kernel-file-exchange-fixture-checks-ok
 ```
+
+To exercise the current adapter scaffold boundary against these fixtures, run:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_file_exchange_adapter_scaffold_checks.py'
+```
+
+Expected output:
+
+```text
+kernel-file-exchange-adapter-scaffold-checks-ok
+```
