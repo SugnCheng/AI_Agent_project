@@ -2,15 +2,15 @@
 
 ## Purpose
 
-This note summarizes the current readiness state for future ai-meta-kernel runtime integration from the macro-financial-intelligence-agent.
+This note refreshes the current readiness state for future `ai-meta-kernel` runtime integration from `macro-financial-intelligence-agent`.
 
-It is a developer-facing milestone note only. It does not implement kernel runtime handoff, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, production archive/export, or local canonical task object generation.
+It is a developer-facing milestone note only. It does not implement kernel runtime handoff, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, production archive/export, artifact polling, or local canonical task object generation.
 
 ## Current Readiness Summary
 
-The macro agent is ready for a future kernel runtime boundary design pass, but not ready for actual kernel invocation.
+The macro agent is now ready for a kernel-side file exchange integration planning pass, but it is still not ready for actual kernel runtime invocation.
 
-The current path is:
+The current governed local path is:
 
 ```text
 fixture raw items
@@ -20,11 +20,14 @@ fixture raw items
 -> triage decisions
 -> schema-valid ingestion bundle
 -> kernel input envelope
--> local kernel runtime boundary scaffold
--> static kernel response fixture validation
+-> file-based envelope artifact writer
+-> file-based response / failure artifact reader
+-> kernel response fixture validation
+-> kernel exchange fixture regression validation
+-> unified local validation wrapper
 ```
 
-The path remains local, deterministic, fixture-only, and validation-first.
+The path remains local, deterministic, fixture-driven, and validation-first. It prepares the macro side of the boundary; it does not invoke `ai-meta-kernel`.
 
 ## Already In Place
 
@@ -33,108 +36,161 @@ The path remains local, deterministic, fixture-only, and validation-first.
 - Local fixture raw item loading exists for `daily_us_core`.
 - Deterministic fixture normalization, dedup, tagging, and triage scaffolds exist.
 - Fixture bundle assembly produces an in-memory ingestion bundle.
-- The fixture bundle is validated against the governed ingestion bundle schema.
+- The fixture bundle is validated against `bundles/schemas/INGESTION_BUNDLE.schema.json`.
 - Bundle invariants are checked before kernel input envelope construction.
 
 ### Kernel Input Envelope
 
 - `workflows/daily_us_core_fixture_kernel_input_envelope.py` builds a deterministic macro-side input envelope.
 - `KERNEL_INPUT_ENVELOPE_OUTPUT_CONTRACT.md` defines the envelope output contract.
-- The envelope explicitly remains evidence/context only.
+- The envelope remains evidence/context only.
 - The envelope does not pre-fill kernel-owned conclusions.
-- `canonical_task_object_generated` remains `false`.
+- The macro agent does not generate a completed canonical kernel task object.
 
-### Runtime Boundary Scaffold
+### File-Based Exchange Contract
 
-- `workflows/daily_us_core_kernel_runtime_boundary.py` defines the future invocation boundary.
-- `invoke_kernel_runtime(envelope)` intentionally raises `NotImplementedError`.
-- The boundary scaffold confirms:
-  - `kernel_invocation_implemented == false`
-  - `canonical_task_object_generated_locally == false`
-  - `downstream_reporting_blocked == true`
-- The scaffold can validate future kernel-produced response objects without invoking runtime.
+- `FILE_BASED_KERNEL_EXCHANGE_CONTRACT.md` defines the v0.1 file-based envelope / response exchange.
+- Runtime exchange directories are prepared under `runtime/kernel_exchange/`.
+- Generated runtime exchange JSON artifacts are ignored by default.
+- The selected v0.1 interface is file-based exchange, not CLI invocation, Python module invocation, service invocation, or direct in-process kernel calls.
+- The macro agent may write kernel input envelope artifacts.
+- The macro agent must not produce kernel response artifacts.
+
+### Envelope Artifact Writer
+
+- `workflows/daily_us_core_write_kernel_envelope_artifact.py` writes a local kernel input envelope artifact for `daily_us_core`.
+- `FILE_BASED_KERNEL_EXCHANGE_OUTPUT_CONTRACT.md` snapshots its compact output fields, artifact naming semantics, and generated-artifact drift rules.
+- The writer does not invoke `ai-meta-kernel`.
+- The writer does not read or write kernel response artifacts.
+- The writer does not compose reports.
+
+### Response / Failure Artifact Reader
+
+- `workflows/daily_us_core_read_kernel_response_artifact.py` reads explicit or derived local response / failure artifacts.
+- `FILE_BASED_KERNEL_RESPONSE_READ_OUTPUT_CONTRACT.md` snapshots compact decision fields, artifact match semantics, blocked / restricted / standard drift rules, and downstream unlock guardrails.
+- The reader can classify:
+  - standard response;
+  - restricted response;
+  - blocked response;
+  - failure artifact;
+  - missing artifact;
+  - ambiguous response/failure pair.
+- Failure artifacts are always blocking in v0.1.
+- Missing or ambiguous artifacts are always blocking.
 
 ### Kernel Response Validation
 
-- `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md` snapshots validation output fields and blocked / restricted / standard semantics.
+- `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md` snapshots future kernel response validation fields and blocked / restricted / standard semantics.
 - Static fixture kernel responses exist for:
-  - standard handoff
-  - restricted handoff
-  - blocked handoff
-- `validation/kernel_response_fixture_checks.py` confirms the three fixture responses classify as expected.
-- Fixture responses validate against `../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
+  - standard handoff;
+  - restricted handoff;
+  - blocked handoff.
+- Static failure fixture exists for the blocking file-exchange failure path.
+- Kernel response fixtures validate against `../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
+
+### Local Regression Validation
+
+- `validation/kernel_response_fixture_checks.py` validates the three static kernel response fixtures.
+- `validation/kernel_exchange_fixture_regression_checks.py` validates the file-based exchange response/failure branches:
+  - standard response -> `standard`;
+  - restricted response -> `restricted`;
+  - blocked response -> `blocked`;
+  - failure artifact -> `blocked`.
+- `validation/run_all_local_checks.py` now includes the kernel exchange fixture regression helper.
+- `VALIDATION_BASELINE_SNAPSHOT.md` fixes the current unified validation layer scope.
+- `VALIDATION_WRAPPER_OUTPUT_CONTRACT.md` fixes wrapper execution order, success signal, failure behavior, and drift rules.
 
 ## Locally Validated
 
-The following local checks currently pass:
+The current local validation baseline is:
 
-- `validation/run_all_local_checks.py`
-- `validation/kernel_response_fixture_checks.py`
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\run_all_local_checks.py'
+```
 
-The current validation coverage confirms:
+Expected final output:
 
-1. Existing macro config and ingestion examples remain valid.
-2. Fixture bundle construction remains schema-valid.
-3. Kernel input envelope construction does not impersonate a kernel task object.
-4. The runtime boundary scaffold remains non-executing.
-5. Static kernel response fixtures pass schema validation.
-6. The validation helper correctly detects:
-   - `standard`
-   - `restricted`
-   - `blocked`
+```text
+all-local-validation-checks-ok
+```
 
-## Interface Decisions Still Missing
+When this passes, it confirms:
 
-Actual kernel runtime integration requires explicit decisions that are not yet made:
+1. scaffold contract checks pass;
+2. dependency-backed YAML/schema checks pass;
+3. semantic config and bundle checks pass;
+4. file-based kernel exchange fixture regression checks pass;
+5. standard / restricted / blocked / failure exchange branches classify as expected.
 
-| Decision | Why it matters |
+It does not confirm that live acquisition, scheduler execution, report composition, or actual kernel runtime handoff exists.
+
+## Ready Areas
+
+The following areas are ready as local governed scaffolds or contracts:
+
+| Area | Current readiness |
 | --- | --- |
-| Kernel invocation interface | The repo does not yet define whether kernel runtime will be called as a CLI, Python module, service boundary, file exchange, or another mechanism. |
-| Envelope-to-kernel intake mapping | The kernel must decide how the macro envelope maps into `raw_request`, `source_context`, and P0/P1 intake fields. |
-| Runtime ownership boundary | The macro agent must not construct canonical task objects, but a concrete interface must define where kernel-owned construction begins. |
-| Response transport format | The handoff path must define whether the kernel returns JSON on stdout, writes a file, returns an object, or uses another interface. |
-| Failure signaling | Runtime errors, validation failures, refused handoff, and clarification/reframe states need a stable transport-level convention. |
-| Artifact persistence | The project has not decided whether envelopes and kernel responses should be stored as files during runtime. |
-| Human review checkpoint | The exact point where an operator reviews restricted or blocked responses is not yet implemented. |
-| Reporting unlock rule | Downstream reporting must define exactly how it consumes `standard_handoff` versus `restricted_handoff` once report composition exists. |
+| Evidence packaging | Fixture-driven path can produce deterministic triaged items and a schema-valid ingestion bundle. |
+| Kernel input preparation | Macro agent can produce an evidence/context envelope without pretending to be the kernel. |
+| File exchange interface choice | v0.1 uses file-based envelope / response exchange. |
+| Envelope artifact writing | Macro agent can write a governed local envelope artifact. |
+| Response artifact reading | Macro agent can read and classify governed response artifacts. |
+| Failure artifact handling | Macro agent can read a static blocking failure artifact and keep reporting blocked. |
+| Response state semantics | Standard, restricted, and blocked states are locally validated with fixtures. |
+| Unified validation | Local wrapper now includes kernel exchange regression validation. |
 
-## Explicit Blockers Before Real Runtime Handoff
+## Still Blocked
 
-The following must remain blocked until a governed integration task addresses them:
+The following must remain blocked until governed implementation work explicitly addresses them:
 
-- Actual ai-meta-kernel runtime invocation.
+- Actual `ai-meta-kernel` runtime invocation.
+- Kernel-side file reader implementation.
+- Kernel-side response artifact writer implementation.
+- Kernel-side failure artifact writer implementation.
 - Any macro-agent code path that generates a completed `TASK_OBJECT_SCHEMA.json` object.
 - Report composition based only on envelope validation.
-- Report composition based on a blocked kernel response.
+- Report composition from a missing, ambiguous, failed, or blocked kernel exchange result.
 - Unrestricted reporting from a restricted kernel response.
-- Live fetching before the runtime boundary is intentionally updated.
+- Live fetching.
 - Scheduler execution.
 - Archive/export automation.
 - External service calls.
 - CI integration.
 - Package migration.
-- Generic multi-profile runtime integration.
+- Generic multi-profile runtime exchange.
 
-## Minimum Conditions For Future Implementation
+## Missing Decisions / Implementations Before Actual Invocation
 
-A future implementation pass should not proceed unless it can preserve these conditions:
+The file-based interface choice is decided, but real runtime invocation still needs these concrete implementation decisions:
+
+| Missing item | Required decision or implementation |
+| --- | --- |
+| Kernel-side envelope intake | Define how `ai-meta-kernel` reads the file-based envelope and maps it into P0/P1 intake without weakening `RUNTIME_PIPELINE.md`. |
+| Kernel-owned task object production | Implement kernel-owned construction of the canonical task object; macro agent must not synthesize it. |
+| Kernel response artifact writer | Define and implement where the kernel writes schema-valid response artifacts. |
+| Kernel failure artifact writer | Define and implement how invocation, parse, schema, or state failures write blocking failure artifacts. |
+| Response/failure ownership | Confirm whether the kernel itself or a thin boundary wrapper owns failure artifact creation. |
+| Operator review checkpoint | Define how restricted and blocked responses are surfaced for human review before reporting. |
+| Reporting unlock interface | Define how future report composition consumes `standard` versus `restricted` decisions without bypassing review hooks. |
+| Runtime artifact retention | Decide whether generated artifacts remain local-only, are archived, or are promoted to fixtures through governed review. |
+
+## Minimum Conditions For Future Runtime Handoff
+
+A future implementation pass should not proceed unless it preserves these conditions:
 
 1. `ai-meta-kernel` owns P0-P10 of the runtime pipeline.
 2. The macro agent submits evidence/context only.
 3. The macro agent never fabricates kernel conclusions.
-4. Returned kernel responses validate against `TASK_OBJECT_SCHEMA.json`.
-5. Blocked and restricted states are enforced before downstream reporting.
-6. The current fixture regression checks continue to pass.
-7. Any new invocation interface is documented before broadening behavior.
+4. The macro agent never writes kernel response artifacts.
+5. Returned kernel responses validate against `../ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
+6. Failure artifacts block downstream reporting.
+7. Blocked responses block downstream reporting.
+8. Restricted responses preserve restrictions and do not silently promote to standard.
+9. Human review checkpoints remain intact.
+10. `validation/run_all_local_checks.py` continues to pass after integration changes.
 
 ## Recommended Next Phase
 
-Implement a `Kernel Invocation Interface Decision Pass`.
+Implement a `Kernel-Side File Exchange Adapter Planning Pass`.
 
-That pass should choose the smallest acceptable integration interface for v0.1, such as:
-
-- local CLI boundary;
-- local Python function boundary;
-- file-based envelope/response exchange.
-
-It should not implement live fetching, scheduler runtime, report composition, or generic production automation.
+That pass should define the smallest governed `ai-meta-kernel`-side file reader / response writer boundary for v0.1. It should still avoid live fetching, scheduler runtime, report composition, CI, package migration, external service calls, and broad production automation.
