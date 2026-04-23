@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the writer-boundary planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -68,6 +68,49 @@ Current coverage is provided by:
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures and confirms `prepare_kernel_intake`, `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
 
 This surface is local-only and deterministic. It does not scan runtime artifact directories, discover live work, mutate fixtures, generate artifacts, or call runtime code.
+
+## Current Writer-Boundary Planning And Output Contract Surface
+
+The current writer-boundary planning decision is:
+
+```text
+plan_response_and_blocking_failure_writers_before_implementation
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md
+```
+
+The current writer-boundary output contract is:
+
+```text
+future_writers_must_validate_before_write_and_emit_exactly_one_terminal_artifact
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md
+```
+
+At the current stage, these documents mean:
+
+- future response writer and blocking failure writer boundaries are planned before implementation;
+- future response artifacts must be schema-validated before write;
+- future blocking failure artifacts must remain `blocking == true`;
+- one envelope invocation should produce exactly one terminal artifact: response or blocking failure;
+- failure stages, artifact naming expectations, and pre-write validation order are governed before implementation.
+
+At the current stage, these documents do not mean:
+
+- response writing exists;
+- failure writing exists;
+- runtime handoff exists;
+- P0-P10 runtime invocation exists;
+- canonical task object generation from envelopes exists;
+- writer code is authorized in the current baseline.
 
 ## Current Local Validation Wrapper
 
@@ -165,6 +208,7 @@ A successful local wrapper run means:
 - the adapter scaffold boundary helper passed;
 - the first-slice adapter fixture validation surface is covered by the existing fixture and scaffold helpers;
 - the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
+- the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
@@ -202,7 +246,8 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - live fetching or scheduler runtime works;
 - CI has run;
 - production validation is complete;
-- first-slice fixture validation has opened runtime handoff.
+- first-slice fixture validation has opened runtime handoff;
+- writer-boundary planning has opened response or failure artifact writing.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -237,6 +282,18 @@ The first-slice adapter fixture validation surface also must not silently introd
 - CLI command behavior;
 - macro-side production of kernel response artifacts.
 
+The writer-boundary planning and output contract surfaces also must not silently introduce:
+
+- response writer implementation;
+- failure writer implementation;
+- response artifact emission;
+- failure artifact emission;
+- writing both response and failure artifacts for one invocation;
+- writing failure artifacts with `blocking == false`;
+- writing response artifacts before schema and state validation;
+- partial canonical task object content in failure artifacts;
+- writer-side repair of invalid kernel outputs.
+
 ## Changes Requiring A Governed Pass
 
 The following changes require a governed pass before implementation:
@@ -262,6 +319,12 @@ The following changes require a governed pass before implementation:
 - changing the helper-free first-slice coverage decision;
 - adding a new first-slice validation helper when existing helpers still cover the contract;
 - changing the existing `daily_us_core` fixture set used by first-slice validation;
+- changing the writer-boundary planning decision;
+- changing the writer-boundary output contract decision;
+- changing response or failure artifact naming semantics;
+- changing writer mutual exclusivity rules;
+- changing writer pre-write validation order;
+- adding response or failure writer implementation;
 - adding runtime artifact validation;
 - adding runtime adapter behavior;
 - adding file mutation, cleanup, or auto-repair behavior.
@@ -271,13 +334,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_writer_boundary_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, and an explicit helper-free first-slice adapter fixture validation coverage decision while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, and governed writer-boundary planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Refresh Pass`.
+Implement a `Kernel-Side Validation Documentation Index Writer-Boundary Refresh Pass`.
 
-That pass should refresh the kernel validation documentation index so the first-slice adapter fixture validation contract and helper-free coverage note are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the writer-boundary plan and writer-boundary output contract are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
