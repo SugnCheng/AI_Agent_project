@@ -411,6 +411,22 @@ Output fields, artifact match semantics, state drift rules, and downstream unloc
 
 It does not invoke ai-meta-kernel runtime, generate kernel responses, compose reports, fetch live sources, execute schedules, mutate runtime artifacts, or call external services.
 
+## File-Based Kernel Exchange Fixture Regression Checks
+
+Run all governed file-based exchange fixture branches from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\validation\kernel_exchange_fixture_regression_checks.py'
+```
+
+Expected final output:
+
+```text
+kernel-exchange-fixture-regression-checks-ok
+```
+
+This validates the static standard, restricted, blocked, and failure artifact paths against the current read-response scaffold. It does not invoke ai-meta-kernel runtime or compose reports.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
