@@ -391,6 +391,18 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 Generated runtime exchange JSON artifacts are ignored by default. This helper does not invoke ai-meta-kernel, read or write kernel responses, compose reports, fetch live sources, execute schedules, or call external services.
 
+## Daily US Core File-Based Kernel Response Reader
+
+Run the local read-response scaffold against an explicit future kernel response artifact:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\workflows\daily_us_core_read_kernel_response_artifact.py' --response-artifact 'macro-financial-intelligence-agent\fixtures\kernel_responses\daily_us_core_standard_kernel_response.example.json'
+```
+
+The scaffold can also accept `--failure-artifact`, `--envelope-artifact`, or `--artifact-stem`. It applies the response/failure read order from `FILE_BASED_KERNEL_RESPONSE_READ_PLAN.md` and reuses existing kernel response validation semantics from `KERNEL_RESPONSE_VALIDATION_OUTPUT_CONTRACT.md`.
+
+It does not invoke ai-meta-kernel runtime, generate kernel responses, compose reports, fetch live sources, execute schedules, mutate runtime artifacts, or call external services.
+
 ## Development Rules
 
 - Keep `ai-meta-kernel/` and this project as parallel projects.
