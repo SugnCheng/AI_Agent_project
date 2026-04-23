@@ -1,0 +1,235 @@
+"""Fail-closed scaffold for future kernel-side file exchange adapter boundaries.
+
+This module is intentionally narrow. It may read and validate one local kernel
+input envelope, but it does not invoke kernel runtime, generate canonical task
+objects from envelopes, or write response/failure artifacts.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+try:
+    from jsonschema import Draft202012Validator
+except ImportError:  # pragma: no cover - developer environment guard.
+    Draft202012Validator = None  # type: ignore[assignment]
+
+
+KERNEL_ROOT = Path(__file__).resolve().parent
+TASK_OBJECT_SCHEMA = KERNEL_ROOT / "meta-layer" / "TASK_OBJECT_SCHEMA.json"
+
+ENVELOPE_REQUIRED_FIELDS = {
+    "envelope_type",
+    "envelope_version",
+    "source_project",
+    "profile_id",
+    "run_mode",
+    "report_target",
+    "regions",
+    "operator_intent",
+    "evidence_bundle",
+    "evidence_context",
+    "kernel_task_object_expectation",
+    "deferred_runtime_behavior",
+}
+
+CANONICAL_TASK_OBJECT_TOP_LEVEL_FIELDS = {
+    "schema_version",
+    "task_id",
+    "raw_request",
+    "kernel_stage",
+    "framed_objective",
+    "task_classification",
+    "risk_profile",
+    "triggered_habits",
+    "structural_decomposition",
+    "required_checks",
+    "status_flags",
+    "verification_plan",
+    "challenge_loop",
+    "downstream_recommendation",
+    "handoff",
+}
+
+
+class KernelFileExchangeAdapterScaffoldError(ValueError):
+    """Raised when scaffold boundary validation fails."""
+
+
+def _require_object(value: Any, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise KernelFileExchangeAdapterScaffoldError(f"{label} must be a JSON object")
+    return value
+
+
+def read_envelope_artifact(path: str | Path) -> dict[str, Any]:
+    """Read exactly one local kernel input envelope artifact.
+
+    This function performs only local file reading and JSON shape validation. It
+    does not discover artifacts, mutate files, invoke runtime, or write outputs.
+    """
+
+    envelope_path = Path(path)
+    if not envelope_path.is_file():
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"envelope artifact does not exist or is not a file: {envelope_path}"
+        )
+
+    with envelope_path.open("r", encoding="utf-8") as file:
+        try:
+            envelope = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"envelope artifact is not valid JSON: {envelope_path}"
+            ) from exc
+
+    return _require_object(envelope, "envelope artifact")
+
+
+def validate_envelope_intake(envelope: dict[str, Any]) -> dict[str, Any]:
+    """Validate envelope guardrails before any future runtime invocation."""
+
+    envelope = _require_object(envelope, "envelope")
+
+    missing = sorted(ENVELOPE_REQUIRED_FIELDS.difference(envelope))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"envelope missing required fields: {missing}"
+        )
+
+    if envelope.get("envelope_type") != "kernel_input_envelope":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "artifact is not a kernel input envelope"
+        )
+
+    if envelope.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid envelope intake"
+        )
+
+    if not isinstance(envelope.get("regions"), list) or not envelope["regions"]:
+        raise KernelFileExchangeAdapterScaffoldError("envelope regions must be a non-empty list")
+
+    if not isinstance(envelope.get("operator_intent"), str) or not envelope["operator_intent"].strip():
+        raise KernelFileExchangeAdapterScaffoldError(
+            "envelope operator_intent must be a non-empty string"
+        )
+
+    leaked_fields = sorted(CANONICAL_TASK_OBJECT_TOP_LEVEL_FIELDS.intersection(envelope))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "envelope must not contain canonical task object fields: "
+            f"{leaked_fields}"
+        )
+
+    for field in ("evidence_bundle", "evidence_context", "kernel_task_object_expectation"):
+        if not isinstance(envelope.get(field), dict):
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"envelope {field} must be a JSON object"
+            )
+
+    if not isinstance(envelope.get("deferred_runtime_behavior"), list):
+        raise KernelFileExchangeAdapterScaffoldError(
+            "envelope deferred_runtime_behavior must be a list"
+        )
+
+    return envelope
+
+
+def prepare_kernel_intake(envelope: dict[str, Any]) -> dict[str, Any]:
+    """Future boundary for preparing kernel-owned P0/P1 intake.
+
+    This is intentionally blocked because converting an envelope into kernel
+    intake must be approved separately from this scaffold creation pass.
+    """
+
+    validate_envelope_intake(envelope)
+    raise NotImplementedError(
+        "Kernel intake preparation is intentionally not implemented in this "
+        "scaffold. A governed runtime implementation pass must define this boundary."
+    )
+
+
+def invoke_kernel_runtime(kernel_intake: dict[str, Any]) -> dict[str, Any]:
+    """Future boundary for invoking the real P0-P10 kernel runtime."""
+
+    _require_object(kernel_intake, "kernel_intake")
+    raise NotImplementedError(
+        "Kernel runtime invocation is intentionally not implemented in this scaffold."
+    )
+
+
+def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:
+    """Validate a provided kernel response object against TASK_OBJECT_SCHEMA.
+
+    This boundary validates only a caller-provided object. It does not create,
+    repair, or write canonical task objects.
+    """
+
+    task_object = _require_object(task_object, "task_object")
+    if Draft202012Validator is None:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "jsonschema is required for TASK_OBJECT_SCHEMA validation"
+        )
+
+    schema = read_json_object(TASK_OBJECT_SCHEMA, "task object schema")
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(task_object), key=lambda error: list(error.path))
+    if errors:
+        details = [
+            f"{list(error.path) or '<root>'}: {error.message}"
+            for error in errors
+        ]
+        raise KernelFileExchangeAdapterScaffoldError(
+            "kernel response schema validation failed: " + "; ".join(details)
+        )
+
+    return task_object
+
+
+def read_json_object(path: str | Path, label: str) -> dict[str, Any]:
+    """Read a local JSON object for scaffold validation boundaries."""
+
+    json_path = Path(path)
+    if not json_path.is_file():
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"{label} does not exist or is not a file: {json_path}"
+        )
+
+    with json_path.open("r", encoding="utf-8") as file:
+        try:
+            data = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"{label} is not valid JSON: {json_path}"
+            ) from exc
+
+    return _require_object(data, label)
+
+
+def write_response_artifact(task_object: dict[str, Any], destination: str | Path) -> None:
+    """Future response writer boundary.
+
+    Response writing remains blocked until a governed implementation pass.
+    """
+
+    validate_kernel_response(task_object)
+    Path(destination)
+    raise NotImplementedError(
+        "Response artifact writing is intentionally not implemented in this scaffold."
+    )
+
+
+def write_failure_artifact(failure: dict[str, Any], destination: str | Path) -> None:
+    """Future blocking failure writer boundary.
+
+    Failure writing remains blocked until a governed implementation pass.
+    """
+
+    _require_object(failure, "failure")
+    Path(destination)
+    raise NotImplementedError(
+        "Failure artifact writing is intentionally not implemented in this scaffold."
+    )
