@@ -381,6 +381,8 @@ $env:PYTHONDONTWRITEBYTECODE='1'; python 'macro-financial-intelligence-agent\wor
 
 This writes a generated kernel input envelope artifact under `runtime/kernel_exchange/envelopes/` using the file naming convention in `FILE_BASED_KERNEL_EXCHANGE_CONTRACT.md`.
 
+Output fields, artifact naming semantics, and generated-artifact drift rules are governed by `FILE_BASED_KERNEL_EXCHANGE_OUTPUT_CONTRACT.md`.
+
 For deterministic local checks, pass an explicit timestamp:
 
 ```powershell
