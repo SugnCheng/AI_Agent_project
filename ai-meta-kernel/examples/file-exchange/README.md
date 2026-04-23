@@ -20,3 +20,17 @@ The fixtures are examples only. They do not implement runtime invocation, file r
 - The response fixture must stay valid against `../../meta-layer/TASK_OBJECT_SCHEMA.json`.
 - The failure fixture must remain blocking.
 - These fixtures must not be used to imply actual runtime handoff exists.
+
+## Local Validation
+
+Run from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_file_exchange_fixture_checks.py'
+```
+
+Expected output:
+
+```text
+kernel-file-exchange-fixture-checks-ok
+```
