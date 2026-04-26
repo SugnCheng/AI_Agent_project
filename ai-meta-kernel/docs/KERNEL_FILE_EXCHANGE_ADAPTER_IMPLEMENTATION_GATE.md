@@ -11,16 +11,31 @@ It is a developer-facing gate note only. It does not implement runtime handoff, 
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_not_yet_open
+runtime_adapter_implementation_gate_still_closed_after_runtime_governance_refresh
 ```
 
-The projects are aligned enough for a kernel-side adapter fixture planning pass. They are not yet ready for actual runtime handoff or response/failure artifact writing.
+The recent governance work has improved implementation readiness. First-slice adapter fixture validation, future writer boundaries, and future intake mapping boundaries are now documented and discoverable.
 
-The next acceptable step is planning and fixture strategy for the kernel-side adapter boundary, not runtime execution.
+The gate remains closed for actual runtime handoff because the runtime reader, intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
-## Already Satisfied Prerequisites
+## Recently Satisfied Prerequisites
 
-The following prerequisites are already satisfied:
+The following prerequisites are now satisfied because of the recent governance work:
+
+| Area | Current status |
+| --- | --- |
+| First-slice fixture strategy | The smallest static adapter fixture strategy is documented for the existing `daily_us_core` envelope, response, and blocking failure examples. |
+| First-slice validation output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` fixes what the first slice may validate and what success means. |
+| First-slice helper coverage | Existing kernel fixture and adapter scaffold helpers cover the first-slice contract without a new helper. |
+| Writer-boundary planning | Future response writer and blocking failure writer responsibilities are planned without implementation. |
+| Writer-boundary output contract | Future writer naming, pre-write validation, blocking failure semantics, and mutual exclusivity are governed. |
+| Intake-mapping planning | The future envelope-to-P0/P1 intake mapping boundary is planned as kernel-owned context mapping only. |
+| Intake-mapping output contract | Allowed envelope inputs, acceptable future intake context, excluded kernel-owned conclusions, and the stop boundary before runtime invocation are governed. |
+| Cross-project status refresh | The cross-project status snapshot now reflects first-slice fixture validation governance, writer-boundary governance, and intake-mapping governance. |
+
+## Existing Satisfied Prerequisites
+
+The following earlier prerequisites remain satisfied:
 
 | Area | Current status |
 | --- | --- |
@@ -32,7 +47,6 @@ The following prerequisites are already satisfied:
 | Kernel adapter contract | Kernel-side adapter boundary, ownership, response/failure responsibilities, and drift rules are documented. |
 | Kernel scaffold boundary | Current scaffold keeps runtime invocation, intake preparation, response writing, and failure writing fail-closed. |
 | Kernel validation surface | Static contract checks, file-exchange fixture checks, adapter scaffold checks, wrapper checks, and wrapper failure-path checks exist. |
-| Cross-project status | Current status snapshot confirms file-based exchange alignment while runtime handoff remains unimplemented. |
 
 ## Unsatisfied Prerequisites
 
@@ -40,49 +54,40 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 
 | Missing prerequisite | Why it blocks implementation |
 | --- | --- |
-| Kernel-side envelope fixture strategy | The adapter needs a stable static fixture target before runtime file reader behavior expands. |
-| Kernel-side response/failure fixture strategy | Response and failure writer behavior needs expected fixture shapes before implementation. |
-| Envelope-to-P0/P1 intake decision | The mapping from envelope evidence/context into kernel-owned intake must be defined without weakening `RUNTIME_PIPELINE.md`. |
-| Kernel-owned task object production path | The kernel must own canonical task object construction; macro-side substitutes remain forbidden. |
-| Runtime invocation boundary | The future P0-P10 invocation entrypoint is not implemented or exposed. |
-| Response writer output contract | The exact writer behavior, validation order, and output signal need a governed pass. |
-| Failure writer output contract | Blocking failure artifact creation semantics need a governed implementation contract. |
-| Operator review checkpoint | Restricted and blocked outputs need a defined review surface before reporting unlocks. |
-| Runtime artifact retention decision | Generated artifact retention, promotion to fixtures, and cleanup remain governed future decisions. |
+| Runtime envelope reader implementation | The kernel still lacks a governed runtime reader beyond static fixture and scaffold validation. |
+| Intake mapping implementation | The mapping contract exists, but no code may yet produce `kernel_intake_context`. |
+| P0/P1 and P0-P10 runtime invocation path | The adapter still has no governed runtime entrypoint into the kernel pipeline. |
+| Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
+| Response writer implementation | The writer contract exists, but response artifact writing remains blocked. |
+| Blocking failure writer implementation | The failure writer contract exists, but failure artifact writing remains blocked. |
+| Response state validation implementation | Future runtime responses still need governed state validation before any write. |
+| CLI or invocation boundary | No local command boundary has been defined for runtime adapter execution. |
+| Operator review checkpoint | Restricted and blocked outputs still need a defined review surface before reporting unlocks. |
+| Runtime artifact retention policy | Generated artifact retention, fixture promotion, and cleanup remain governed future decisions. |
 
-## First Acceptable Implementation Slice
+## First Acceptable Implementation Slice Status
 
-The first acceptable implementation slice, after a fixture planning pass, should be:
+The first acceptable implementation-adjacent slice remains:
 
 ```text
 kernel_side_file_exchange_adapter_fixture_validation_slice
 ```
 
-That slice may include only:
+That slice is now governed and covered by existing helpers. It validates static fixtures and fail-closed scaffold boundaries only. It does not open runtime reader implementation, intake mapping code, P0-P10 invocation, response writing, failure writing, or CLI behavior.
 
-- one committed static kernel input envelope fixture or a clearly documented fixture strategy;
-- local validation that the fixture satisfies the existing envelope intake contract;
-- local validation that the fixture does not contain completed canonical task object conclusions;
-- local validation that the current scaffold keeps blocked boundaries fail-closed;
-- output contract documentation for the new validation helper if one is added;
-- no runtime invocation.
+The first future code implementation slice is not open yet. When a governed pass opens code, it should begin with the smallest pre-runtime adapter boundary and must still stop before kernel runtime invocation unless a separate governed pass explicitly opens that boundary.
 
-The slice should preserve the current adapter scaffold boundary:
+## What Must Remain Blocked
 
-```text
-read envelope artifact
--> validate envelope intake
--> stop before kernel intake preparation and runtime invocation
-```
+The current gate must continue to block:
 
-## What Must Remain Blocked In The First Slice
-
-The first implementation slice must not include:
-
+- runtime envelope artifact queue discovery;
+- P0/P1 intake mapping implementation;
 - P0-P10 runtime invocation;
-- kernel-owned canonical task object generation;
+- kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
 - failure artifact writing;
+- response state validation behavior that is not yet governed by implementation;
 - CLI command design;
 - artifact polling or watcher behavior;
 - retry/backoff behavior;
@@ -105,16 +110,17 @@ The first implementation slice must not include:
 
 Actual runtime adapter implementation should not begin until all of the following are true:
 
-1. Kernel-side envelope fixture strategy is documented.
-2. Expected response and failure fixture strategy is documented.
-3. Envelope intake validation is covered by local kernel-side validation.
-4. Existing kernel validation wrapper still passes.
-5. Existing wrapper failure-path helper still passes.
-6. Macro unified local validation still passes.
-7. Envelope-to-P0/P1 mapping is defined as kernel-owned intake, not macro-owned reasoning.
-8. Response writer behavior is governed by an output contract before implementation.
-9. Failure writer behavior is governed by an output contract before implementation.
+1. Current kernel local validation still passes.
+2. Current wrapper failure-path validation still passes.
+3. Macro unified local validation still passes.
+4. A governed implementation pass defines the first runtime reader boundary.
+5. A governed implementation pass defines how `kernel_intake_context` code will be validated before runtime invocation.
+6. The future P0/P1 or P0-P10 invocation entrypoint is defined as kernel-owned behavior.
+7. Response state validation is governed before any response artifact writer is implemented.
+8. Blocking failure writer implementation is governed separately from response writer implementation.
+9. The CLI or local invocation boundary is defined without scheduler, CI, live fetching, or reporting behavior.
 10. Restricted, blocked, failed, missing, and ambiguous states remain blocking or review-gated before reporting.
+11. Runtime artifact retention, fixture promotion, and cleanup rules are decided before generated artifacts are treated as durable fixtures.
 
 ## Explicit Non-Goals
 
@@ -139,6 +145,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side File Exchange Adapter Fixture Planning Pass`.
+Implement a `Kernel-Side Runtime Adapter Implementation Sequencing Pass`.
 
-That pass should define the smallest static kernel-side envelope fixture and expected response/failure fixture strategy for testing the adapter boundary before any runtime reader expansion, response writer, failure writer, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution is added.
+That pass should define the smallest governed sequence for future runtime reader, intake mapping, runtime invocation, response validation, response writer, and blocking failure writer work, while still avoiding live fetching, scheduler behavior, report composition, CI, package migration, external service calls, and actual runtime handoff until explicitly opened by a later governed implementation pass.
