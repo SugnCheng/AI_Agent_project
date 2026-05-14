@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, first-slice adapter fixture validation notes, runtime envelope reader contract, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, first-slice adapter fixture validation notes, runtime envelope reader contract and helper, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -24,6 +24,7 @@ These documents describe the individually runnable validation helpers. Use them 
 | `validation/static_meta_layer_contract_checks.py` | `docs/KERNEL_STATIC_META_LAYER_CONTRACT_CHECK_OUTPUT_CONTRACT.md` | Static checks for canonical Meta-Layer contract artifacts, schema shape, required fields, handoff modes, and P0-P10 references. |
 | `validation/kernel_file_exchange_fixture_checks.py` | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md` | Static validation for the governed `daily_us_core` file-exchange envelope, response, and failure fixtures. |
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` | Scaffold boundary checks for fixture reads, response validation, and fail-closed adapter placeholders. |
+| `validation/kernel_runtime_envelope_reader_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` | Standalone reader contract helper for the future runtime envelope reader surface. Success signal: `kernel-runtime-envelope-reader-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 
 ## Wrapper Contracts
 
@@ -45,11 +46,15 @@ These documents describe the first implementation slice's adapter fixture valida
 
 ## Runtime Envelope Reader Boundary Contract
 
-This document describes the first future implementation-sequence boundary for the runtime adapter path. Use it after the baseline and implementation sequence when checking what the future reader may accept and where it must stop. It is not implemented runtime behavior.
+This section describes the first future implementation-sequence boundary for the runtime adapter path. Use it after the baseline and implementation sequence when checking what the future reader may accept, where it must stop, and which standalone helper covers the current scaffold-level reader contract surface. It is not implemented runtime behavior.
 
 | Document | What it is for |
 | --- | --- |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` | Output contract for the future runtime envelope reader boundary: allowed explicit local input path, successful reader output, fail-closed failure behavior, stop-before-intake guarantee, blocked behaviors, and governed change triggers. |
+
+| Helper | Success signal | Current status |
+| --- | --- | --- |
+| `validation/kernel_runtime_envelope_reader_contract_checks.py` | `kernel-runtime-envelope-reader-contract-checks-ok` | Standalone helper that exercises the current scaffold reader and intake guardrails against the runtime envelope reader output contract. It is intentionally outside `validation/run_all_kernel_local_checks.py` at this milestone. |
 
 ## Writer-Boundary Planning And Contracts
 
@@ -102,9 +107,10 @@ For current local validation behavior:
 5. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
 6. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking future runtime adapter implementation order.
 7. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` when checking the first future reader boundary and its stop-before-intake guarantee.
-8. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
-9. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` when checking future intake-context expectations and blocked mapping behavior.
-10. Read the specific standalone helper contract only when debugging that helper.
+8. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
+9. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
+10. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` when checking future intake-context expectations and blocked mapping behavior.
+11. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
@@ -144,6 +150,20 @@ Expected final success signal:
 kernel-validation-wrapper-failure-path-checks-ok
 ```
 
+Run the standalone runtime envelope reader contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_runtime_envelope_reader_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-runtime-envelope-reader-contract-checks-ok
+```
+
+This helper is intentionally not included in `validation/run_all_kernel_local_checks.py` at the current milestone.
+
 ## Explicit Non-Goals
 
 This documentation index must not silently introduce:
@@ -159,6 +179,8 @@ This documentation index must not silently introduce:
 - intake mapping implementation;
 - P0/P1 execution;
 - runtime envelope reader implementation;
+- adding the runtime envelope reader helper to the main wrapper;
+- wrapper behavior changes;
 - runtime directory scanning;
 - artifact queue discovery;
 - runtime artifact reads or writes;
@@ -173,6 +195,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Helper Coverage Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Wrapper Inclusion Gate Pass`.
 
-That pass should determine whether the existing scaffold and validation helpers already cover the runtime envelope reader output contract surface, and add no helper unless there is a minimal local-only coverage gap. It should still avoid reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution.
+That pass should define when, if ever, the standalone runtime envelope reader helper should be added to the main local wrapper, while still avoiding wrapper changes, reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution.
