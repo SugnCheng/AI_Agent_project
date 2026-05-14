@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -25,6 +25,7 @@ The current kernel-side standalone helpers are:
 | `validation/static_meta_layer_contract_checks.py` | Checks static core Meta-Layer contract artifacts, including master spec, runtime pipeline, handoff contract, and task object schema. | `kernel-static-meta-layer-contract-checks-ok` | `docs/KERNEL_STATIC_META_LAYER_CONTRACT_CHECK_OUTPUT_CONTRACT.md` |
 | `validation/kernel_file_exchange_fixture_checks.py` | Checks the governed static `daily_us_core` file-exchange envelope, response, and failure fixtures. | `kernel-file-exchange-fixture-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md` |
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Checks the current file-exchange adapter scaffold boundary and confirms blocked placeholder functions remain fail-closed. | `kernel-file-exchange-adapter-scaffold-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` |
+| `validation/kernel_runtime_envelope_reader_contract_checks.py` | Checks the future runtime envelope reader contract surface against the current scaffold reader and intake guardrails without implementing runtime reader behavior. | `kernel-runtime-envelope-reader-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` |
 
 These helpers remain canonical standalone checks.
 
@@ -106,6 +107,37 @@ At the current stage, this document does not mean:
 - reader output can unlock reporting;
 - reader failure can write a blocking failure artifact;
 - intake mapping, P0/P1 execution, P0-P10 invocation, response validation, response writing, or failure writing exists.
+
+Current helper:
+
+```text
+validation/kernel_runtime_envelope_reader_contract_checks.py
+```
+
+Current helper success signal:
+
+```text
+kernel-runtime-envelope-reader-contract-checks-ok
+```
+
+The helper covers:
+
+- successful read of the governed `daily_us_core` envelope fixture through `read_envelope_artifact`;
+- successful validation of the parsed object through `validate_envelope_intake`;
+- preservation of the original validated envelope object as the reader output;
+- rejection of a missing path;
+- rejection of a directory path;
+- rejection of invalid JSON input;
+- rejection of non-object JSON input;
+- rejection of missing required envelope fields;
+- rejection of a non-`kernel_input_envelope` artifact type;
+- rejection of a failure artifact passed as envelope input;
+- rejection of top-level canonical task object field leakage;
+- confirmation that `prepare_kernel_intake` and `invoke_kernel_runtime` remain blocked with `NotImplementedError`.
+
+The helper remains standalone. It is not currently included in `validation/run_all_kernel_local_checks.py`.
+
+This standalone status is intentional for the current milestone: the wrapper remains the stable three-helper success-path baseline, while the reader helper separately covers the newly governed future reader boundary.
 
 ## Current Writer-Boundary Planning And Output Contract Surface
 
@@ -281,6 +313,18 @@ Expected final success signal:
 kernel-validation-wrapper-failure-path-checks-ok
 ```
 
+Run the runtime envelope reader contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_runtime_envelope_reader_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-runtime-envelope-reader-contract-checks-ok
+```
+
 ## What Success-Path Validation Means
 
 A successful local wrapper run means:
@@ -292,13 +336,13 @@ A successful local wrapper run means:
 - the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
-- the runtime envelope reader output contract is documented as a future governed surface, not implemented behavior;
+- the runtime envelope reader output contract and standalone helper are documented as future governed surfaces, not implemented behavior;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
 It is the current success-path local validation baseline signal only.
 
-It does not exercise wrapper child-failure or missing-helper paths. Those paths are covered separately by the wrapper failure-path helper.
+It does not exercise wrapper child-failure paths, missing-helper paths, or the standalone runtime envelope reader contract helper. Those surfaces are covered separately by their focused helpers.
 
 ## What Failure-Path Validation Means
 
@@ -382,6 +426,15 @@ The runtime envelope reader output contract surface also must not silently intro
 - reader output unlocking downstream reporting;
 - response or failure artifact writing from reader failures.
 
+The runtime envelope reader contract helper also must not silently introduce:
+
+- file mutation;
+- generated runtime artifacts;
+- temporary committed fixtures;
+- runtime reader implementation;
+- wrapper inclusion without a governed wrapper update;
+- external dependencies beyond the Python standard library and the existing scaffold module.
+
 The writer-boundary planning and output contract surfaces also must not silently introduce:
 
 - response writer implementation;
@@ -437,6 +490,9 @@ The following changes require a governed pass before implementation:
 - allowing canonical task object fields in reader output;
 - treating reader output as intake context, runtime result, response artifact, failure artifact, or reporting unlock;
 - adding runtime envelope reader implementation beyond the existing scaffold boundary;
+- changing the runtime envelope reader contract helper path;
+- changing the runtime envelope reader contract helper success signal;
+- adding the runtime envelope reader contract helper to the local wrapper;
 - changing the writer-boundary planning decision;
 - changing the writer-boundary output contract decision;
 - changing response or failure artifact naming semantics;
@@ -459,13 +515,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Runtime Reader Refresh Pass`.
+Implement a `Kernel-Side Validation Documentation Index Runtime Reader Helper Refresh Pass`.
 
-That pass should refresh the kernel validation documentation index so the runtime envelope reader output contract is easy to find while keeping reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the runtime envelope reader contract helper is easy to find while keeping wrapper changes, reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
