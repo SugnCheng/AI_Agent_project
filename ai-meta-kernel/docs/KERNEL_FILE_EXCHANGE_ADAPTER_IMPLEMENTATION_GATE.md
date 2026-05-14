@@ -4,19 +4,19 @@
 
 This note defines the implementation gate for beginning actual kernel-side file exchange adapter work in `ai-meta-kernel`.
 
-It is a developer-facing gate note only. It does not implement runtime handoff, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
+It is a developer-facing gate note only. It does not implement runtime handoff, runtime envelope reader code, intake mapping, kernel invocation, response writing, failure writing, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
 
 ## Gate Decision
 
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_still_closed_after_runtime_governance_refresh
+runtime_adapter_implementation_gate_still_closed_after_runtime_reader_governance_refresh
 ```
 
-The recent governance work has improved implementation readiness. First-slice adapter fixture validation, future writer boundaries, and future intake mapping boundaries are now documented and discoverable.
+The recent governance work has improved implementation readiness. First-slice adapter fixture validation, future runtime reader boundaries, future writer boundaries, and future intake mapping boundaries are now documented and discoverable.
 
-The gate remains closed for actual runtime handoff because the runtime reader, intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because the runtime envelope reader implementation, intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 ## Recently Satisfied Prerequisites
 
@@ -27,11 +27,16 @@ The following prerequisites are now satisfied because of the recent governance w
 | First-slice fixture strategy | The smallest static adapter fixture strategy is documented for the existing `daily_us_core` envelope, response, and blocking failure examples. |
 | First-slice validation output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` fixes what the first slice may validate and what success means. |
 | First-slice helper coverage | Existing kernel fixture and adapter scaffold helpers cover the first-slice contract without a new helper. |
+| Runtime envelope reader output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` fixes the future reader boundary: one explicit local envelope input, reader validation, and stop-before-intake behavior. |
+| Runtime reader standalone helper | `validation/kernel_runtime_envelope_reader_contract_checks.py` exists for focused reader-contract validation and reports `kernel-runtime-envelope-reader-contract-checks-ok`. |
+| Runtime reader wrapper inclusion gate | `KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` records that the reader helper remains outside `validation/run_all_kernel_local_checks.py`. |
+| Runtime reader wrapper inclusion reassessment | `KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` records the TASK 114 decision to keep the reader helper standalone for the next milestone. |
+| Runtime reader baseline/index refresh | `KERNEL_VALIDATION_BASELINE.md` and `KERNEL_VALIDATION_DOCUMENTATION_INDEX.md` now record that `kernel-local-validation-checks-ok` does not include reader helper coverage and that `kernel-runtime-envelope-reader-contract-checks-ok` remains separately runnable. |
 | Writer-boundary planning | Future response writer and blocking failure writer responsibilities are planned without implementation. |
 | Writer-boundary output contract | Future writer naming, pre-write validation, blocking failure semantics, and mutual exclusivity are governed. |
 | Intake-mapping planning | The future envelope-to-P0/P1 intake mapping boundary is planned as kernel-owned context mapping only. |
 | Intake-mapping output contract | Allowed envelope inputs, acceptable future intake context, excluded kernel-owned conclusions, and the stop boundary before runtime invocation are governed. |
-| Cross-project status refresh | The cross-project status snapshot now reflects first-slice fixture validation governance, writer-boundary governance, and intake-mapping governance. |
+| Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, writer-boundary governance, and intake-mapping governance. |
 
 ## Existing Satisfied Prerequisites
 
@@ -55,6 +60,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | Missing prerequisite | Why it blocks implementation |
 | --- | --- |
 | Runtime envelope reader implementation | The kernel still lacks a governed runtime reader beyond static fixture and scaffold validation. |
+| Runtime reader wrapper inclusion | The standalone reader helper remains outside the main wrapper; adding it to `CHECKS` requires a separate governed wrapper pass. |
 | Intake mapping implementation | The mapping contract exists, but no code may yet produce `kernel_intake_context`. |
 | P0/P1 and P0-P10 runtime invocation path | The adapter still has no governed runtime entrypoint into the kernel pipeline. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
@@ -75,12 +81,15 @@ kernel_side_file_exchange_adapter_fixture_validation_slice
 
 That slice is now governed and covered by existing helpers. It validates static fixtures and fail-closed scaffold boundaries only. It does not open runtime reader implementation, intake mapping code, P0-P10 invocation, response writing, failure writing, or CLI behavior.
 
-The first future code implementation slice is not open yet. When a governed pass opens code, it should begin with the smallest pre-runtime adapter boundary and must still stop before kernel runtime invocation unless a separate governed pass explicitly opens that boundary.
+The runtime reader boundary is now governed by contract and standalone helper coverage, but the first future code implementation slice is still not open yet. When a governed pass opens code, it should begin with the smallest pre-runtime adapter boundary and must still stop before intake mapping and kernel runtime invocation unless separate governed passes explicitly open those boundaries.
 
 ## What Must Remain Blocked
 
 The current gate must continue to block:
 
+- runtime envelope reader implementation;
+- adding `validation/kernel_runtime_envelope_reader_contract_checks.py` to `validation/run_all_kernel_local_checks.py`;
+- treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - runtime envelope artifact queue discovery;
 - P0/P1 intake mapping implementation;
 - P0-P10 runtime invocation;
@@ -113,7 +122,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 1. Current kernel local validation still passes.
 2. Current wrapper failure-path validation still passes.
 3. Macro unified local validation still passes.
-4. A governed implementation pass defines the first runtime reader boundary.
+4. A governed implementation pass defines the first runtime reader code slice from the existing reader output contract and standalone helper surface.
 5. A governed implementation pass defines how `kernel_intake_context` code will be validated before runtime invocation.
 6. The future P0/P1 or P0-P10 invocation entrypoint is defined as kernel-owned behavior.
 7. Response state validation is governed before any response artifact writer is implemented.
@@ -127,6 +136,9 @@ Actual runtime adapter implementation should not begin until all of the followin
 This gate note must not silently introduce:
 
 - runtime adapter invocation;
+- runtime envelope reader implementation;
+- runtime reader wrapper inclusion;
+- treating standalone reader-helper success as wrapper success;
 - P0-P10 runtime execution;
 - canonical task object generation from envelopes;
 - response artifact writing;
@@ -145,6 +157,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Adapter Implementation Sequencing Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Implementation Boundary Planning Pass`.
 
-That pass should define the smallest governed sequence for future runtime reader, intake mapping, runtime invocation, response validation, response writer, and blocking failure writer work, while still avoiding live fetching, scheduler behavior, report composition, CI, package migration, external service calls, and actual runtime handoff until explicitly opened by a later governed implementation pass.
+That pass should define the smallest future reader implementation boundary from the existing reader output contract and standalone helper coverage, while still avoiding reader implementation code, intake mapping code, runtime invocation, response/failure writers, wrapper inclusion, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution until explicitly opened by a later governed implementation pass.
