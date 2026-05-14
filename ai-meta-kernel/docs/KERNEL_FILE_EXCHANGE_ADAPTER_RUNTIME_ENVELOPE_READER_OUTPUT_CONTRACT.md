@@ -186,6 +186,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
+Implement a `Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass`.
 
-That pass should update the relevant kernel-side baseline and gate after Phase R2, while keeping reader broadening, intake mapping code, runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while keeping reader broadening, P0/P1 execution, P0-P10 runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

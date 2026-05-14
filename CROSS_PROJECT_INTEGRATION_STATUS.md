@@ -19,7 +19,7 @@ Current cross-project status:
 file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. The actual kernel-side intake mapping implementation, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, post-reader handoff gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. The actual kernel-side intake mapping implementation, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -66,6 +66,7 @@ Already in place:
 - runtime envelope reader output contract;
 - standalone runtime envelope reader contract helper;
 - Phase R2 minimal runtime envelope reader implementation;
+- post-reader handoff gate confirming actual runtime handoff remains closed after the minimal reader slice;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -112,6 +113,12 @@ Current Phase R2 reader implementation status:
 runtime_envelope_reader_minimal_implementation_slice_complete
 ```
 
+Current post-reader handoff gate status:
+
+```text
+post_reader_handoff_gate_closed_next_intake_mapping_preparation
+```
+
 Current first-slice adapter fixture validation status:
 
 - governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md`;
@@ -148,6 +155,7 @@ Current runtime reader governance status:
 - the reassessment decision is now reflected in `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md` and indexed in `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`;
 - `kernel-local-validation-checks-ok` still covers only the main three-helper wrapper path and does not include runtime reader helper coverage;
 - Phase R2 documents now define the minimal runtime reader implementation boundary, output contract, and validation plan;
+- `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` records that the minimal explicit-file reader does not unlock actual runtime handoff;
 - runtime reader expansion beyond one explicit local file remains absent.
 
 ## Validation And Governance Surfaces
@@ -179,7 +187,7 @@ Current kernel-side validation surfaces:
 Before actual runtime handoff, the following gaps remain:
 
 1. Keep any reader broadening beyond one explicit local file behind a governed pass; the current reader stops before intake mapping.
-2. Implement envelope-to-P0/P1 intake mapping only after the governed mapping contract is ready for implementation.
+2. Prepare and implement envelope-to-P0/P1 intake mapping only through a governed pass; the current post-reader gate recommends intake mapping implementation preparation next.
 3. Implement or expose the kernel-owned P0-P10 runtime path.
 4. Produce canonical task objects only inside `ai-meta-kernel`.
 5. Validate kernel-produced responses against `ai-meta-kernel/meta-layer/TASK_OBJECT_SCHEMA.json`.
@@ -208,6 +216,7 @@ The current cross-project baseline must not silently introduce:
 - kernel-side intake mapping implementation;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
+- treating the post-reader handoff gate as actual handoff authorization;
 - adding the standalone runtime reader helper to the main kernel local wrapper without a governed wrapper pass;
 - treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - kernel-side P0/P1 execution;
@@ -222,6 +231,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
+Implement a `Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass`.
 
-That pass should record the completed minimal reader slice and decide the next governed boundary, while still avoiding wrapper inclusion, intake mapping implementation, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution unless separately governed.
+That pass should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution unless separately governed.

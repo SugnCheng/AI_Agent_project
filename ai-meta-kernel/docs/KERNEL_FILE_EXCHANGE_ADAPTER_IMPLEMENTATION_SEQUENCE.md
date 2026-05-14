@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. This does not change the implementation order and does not open intake mapping or later runtime boundaries.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. The post-reader handoff gate keeps actual handoff closed and selects intake mapping implementation preparation as the next governed boundary. This does not change the implementation order and does not open intake mapping or later runtime boundaries.
 
 ## Intended Implementation Order
 
@@ -56,6 +56,7 @@ Depends on:
 - `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md`;
 - existing static fixture validation and adapter scaffold checks.
 
 Must still not include:
@@ -80,6 +81,12 @@ Purpose:
 - carry only allowed evidence, provenance, operator request, expectation, and deferred-behavior context;
 - stop before P0/P1 execution.
 
+Current status:
+
+```text
+closed_next_boundary_requires_intake_mapping_implementation_preparation
+```
+
 Depends on:
 
 - runtime envelope reader boundary;
@@ -99,7 +106,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- an intake mapping implementation contract and local validation helper before code may emit `kernel_intake_context`.
+- an intake mapping implementation preparation pass, followed by any required implementation contract and local validation helper, before code may emit `kernel_intake_context`.
 
 ## Step 3: Kernel Runtime Invocation Boundary
 
@@ -281,6 +288,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
+Implement a `Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass`.
 
-That pass should record the completed minimal reader slice and decide the next governed boundary, while still keeping intake mapping code, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while still keeping P0/P1 execution, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
