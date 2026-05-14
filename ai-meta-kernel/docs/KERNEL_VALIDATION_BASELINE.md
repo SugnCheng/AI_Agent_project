@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R1 runtime reader implementation preparation surface, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -213,6 +213,38 @@ At the current stage, the reassessment does not mean:
 - runtime reader implementation is authorized;
 - runtime artifact discovery, polling, retry, cleanup, CLI, or runtime invocation is authorized.
 
+## Current Runtime Envelope Reader Implementation Preparation Surface
+
+The current Phase R1 preparation status is:
+
+```text
+runtime_envelope_reader_implementation_preparation_baseline
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md
+```
+
+At the current stage, these documents mean:
+
+- the smallest future runtime reader implementation boundary is planned;
+- future reader implementation output expectations are fixed before code opens;
+- future implementation validation coverage is planned;
+- the future reader must still accept one explicit local envelope path and stop before intake mapping;
+- the existing standalone reader helper remains the current focused validation surface.
+
+At the current stage, these documents do not mean:
+
+- runtime reader code is implemented;
+- `file_exchange_adapter_scaffold.py` behavior changed;
+- `validation/run_all_kernel_local_checks.py` behavior changed;
+- the reader helper is included in the main wrapper;
+- intake mapping, kernel invocation, response/failure writing, CLI, or actual handoff is open.
+
 ## Current Writer-Boundary Planning And Output Contract Surface
 
 The current writer-boundary planning decision is:
@@ -411,6 +443,7 @@ A successful local wrapper run means:
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the runtime envelope reader output contract and standalone helper are documented as future governed surfaces, not implemented behavior;
+- the Phase R1 runtime reader implementation preparation documents exist but do not add runtime behavior;
 - the runtime reader wrapper inclusion gate is documented and keeps the reader helper standalone;
 - the TASK 114 runtime reader wrapper inclusion reassessment keeps the reader helper standalone for the next milestone;
 - all three helpers passed in the governed order;
@@ -532,6 +565,15 @@ The TASK 114 runtime reader wrapper inclusion reassessment also must not silentl
 - weakening the existing wrapper inclusion gate;
 - skipping governed wrapper output contract, failure-path, baseline, or index updates before any future inclusion.
 
+The Phase R1 runtime reader implementation preparation surface also must not silently introduce:
+
+- runtime reader implementation code;
+- changes to `file_exchange_adapter_scaffold.py` runtime behavior;
+- changes to `validation/run_all_kernel_local_checks.py`;
+- wrapper inclusion for the standalone reader helper;
+- implementation tests or committed failing fixtures;
+- intake mapping, runtime invocation, response/failure writers, CLI, or actual handoff.
+
 The writer-boundary planning and output contract surfaces also must not silently introduce:
 
 - response writer implementation;
@@ -587,6 +629,9 @@ The following changes require a governed pass before implementation:
 - allowing canonical task object fields in reader output;
 - treating reader output as intake context, runtime result, response artifact, failure artifact, or reporting unlock;
 - adding runtime envelope reader implementation beyond the existing scaffold boundary;
+- changing the Phase R1 runtime reader implementation preparation decision;
+- changing the future reader implementation output contract;
+- changing the future reader implementation validation plan;
 - changing the runtime envelope reader contract helper path;
 - changing the runtime envelope reader contract helper success signal;
 - adding the runtime envelope reader contract helper to the local wrapper;
@@ -618,13 +663,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_implementation_preparation_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a governed wrapper inclusion gate and TASK 114 reassessment that keep that helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, Phase R1 runtime reader implementation preparation documents, a governed wrapper inclusion gate and TASK 114 reassessment that keep that helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Runtime Reader Inclusion Reassessment Refresh Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Minimal Implementation Slice Pass`.
 
-That pass should refresh the kernel validation documentation index so the TASK 114 runtime reader wrapper inclusion reassessment is easy to find while keeping wrapper changes, reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
+That pass may open only the smallest runtime reader implementation slice prepared by Phase R1, while keeping wrapper inclusion, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope unless separately governed.

@@ -4,7 +4,7 @@
 
 This note defines the intended future implementation order for the kernel-side file exchange adapter runtime path in `ai-meta-kernel`.
 
-It is a developer-facing sequencing note only. It does not add runtime code, modify kernel contracts, invoke kernel runtime, write response artifacts, write failure artifacts, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing sequencing note only. It does not add runtime code, modify kernel contracts, invoke kernel runtime, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Sequencing Decision
 
@@ -15,6 +15,8 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 ```
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
+
+Phase R1 preparation now exists for the first step. It does not change the implementation order and does not open runtime reader implementation.
 
 ## Intended Implementation Order
 
@@ -44,6 +46,10 @@ Depends on:
 
 - `KERNEL_FILE_EXCHANGE_ADAPTER_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md`;
 - existing static fixture validation and adapter scaffold checks.
 
 Must still not include:
@@ -58,7 +64,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a runtime reader output contract and local validation helper before reader code is broadened beyond one explicit local file.
+- a minimal runtime reader implementation pass before reader code is broadened beyond the existing scaffold boundary. That pass must preserve one explicit local input path and stop before intake mapping.
 
 ## Step 2: Envelope-To-Intake Mapping Boundary
 
@@ -251,6 +257,7 @@ Additional governed pass required:
 
 No step in this sequence may silently introduce:
 
+- runtime reader implementation before the governed implementation slice opens;
 - live fetching;
 - uncontrolled open-web crawling;
 - scheduler runtime;
@@ -268,6 +275,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Boundary Output Contract Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Minimal Implementation Slice Pass`.
 
-That pass should define the smallest output contract for reading one explicit local kernel input envelope artifact and stopping before intake mapping, while keeping intake mapping code, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope.
+That pass may open only the smallest runtime reader implementation slice already prepared by Phase R1, and must still keep intake mapping code, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
