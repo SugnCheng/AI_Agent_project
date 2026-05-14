@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This document snapshots the future output contract for the kernel-side runtime envelope reader boundary.
+This document snapshots the output contract for the kernel-side runtime envelope reader boundary.
 
-It is a developer-facing contract note only. It does not add runtime code, modify kernel contracts, prepare kernel intake, invoke kernel runtime, generate canonical task objects, write response artifacts, write failure artifacts, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing contract note. The Phase R2 minimal reader slice implements the explicit-file reader portion only. This document does not authorize intake mapping, kernel runtime invocation, canonical task object generation, response/failure writing, CLI behavior, live fetching, scheduler runtime, report composition, CI, package migration, or external service calls.
 
 ## Contract Decision
 
 Current runtime envelope reader output contract:
 
 ```text
-future_reader_accepts_one_explicit_local_envelope_and_stops_before_intake_mapping
+reader_accepts_one_explicit_local_envelope_and_stops_before_intake_mapping
 ```
 
-The future reader boundary may read exactly one explicitly provided local kernel input envelope artifact. It may perform reader-level file, JSON, object, and envelope guardrail checks. It must stop before envelope-to-intake mapping, P0/P1 execution, P0-P10 runtime invocation, response validation, response writing, or failure writing.
+The reader boundary may read exactly one explicitly provided local kernel input envelope artifact. It performs reader-level file, JSON, object, and envelope guardrail checks. It must stop before envelope-to-intake mapping, P0/P1 execution, P0-P10 runtime invocation, response validation, response writing, or failure writing.
 
 ## Allowed Reader Input
 
-The future reader may accept exactly one local file path that points to a kernel input envelope artifact.
+The reader may accept exactly one local file path that points to a kernel input envelope artifact.
 
 Allowed input properties:
 
@@ -51,7 +51,7 @@ A successful reader output means:
 one_validated_kernel_input_envelope_object
 ```
 
-The reader may return the parsed envelope object and adapter-local source path context needed by later governed steps.
+The current minimal reader returns the parsed and validated envelope object.
 
 The successful output must preserve:
 
@@ -144,7 +144,7 @@ It must not continue into:
 
 The current reader output contract must not silently introduce:
 
-- runtime directory scanning;
+- runtime directory scanning beyond explicit-file input;
 - artifact queue discovery;
 - artifact polling or watcher behavior;
 - retry/backoff behavior;
@@ -181,11 +181,11 @@ The following changes require a governed pass before implementation:
 - changing the stop boundary before intake mapping;
 - allowing reader output to be treated as `kernel_intake_context`;
 - allowing reader output to unlock reporting;
-- adding reader implementation code beyond the existing scaffold boundary;
+- broadening reader implementation code beyond the existing explicit-file scaffold boundary;
 - adding intake mapping code, P0/P1 or P0-P10 runtime execution, response validation, response writing, failure writing, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or external service calls.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
 
-That pass should update the relevant kernel-side baseline or documentation index so this reader output contract is discoverable, while keeping reader implementation code, intake mapping code, runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.
+That pass should update the relevant kernel-side baseline and gate after Phase R2, while keeping reader broadening, intake mapping code, runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

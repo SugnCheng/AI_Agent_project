@@ -11,17 +11,17 @@ It is a developer-facing gate note only. It does not implement runtime handoff, 
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_still_closed_with_runtime_reader_preparation_complete
+runtime_adapter_implementation_gate_partially_opened_for_minimal_reader_only
 ```
 
-The recent governance work has improved implementation readiness. First-slice adapter fixture validation, Phase R1 runtime reader implementation preparation, future writer boundaries, and future intake mapping boundaries are now documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and future intake mapping boundaries remain documented and discoverable.
 
-The gate remains closed for actual runtime handoff because the runtime envelope reader implementation, intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
-Current preparation baseline:
+Current implementation baseline:
 
 ```text
-runtime_envelope_reader_implementation_preparation_baseline
+runtime_envelope_reader_minimal_implementation_slice_complete
 ```
 
 ## Recently Satisfied Prerequisites
@@ -38,9 +38,10 @@ The following prerequisites are now satisfied because of the recent governance w
 | Runtime reader wrapper inclusion gate | `KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` records that the reader helper remains outside `validation/run_all_kernel_local_checks.py`. |
 | Runtime reader wrapper inclusion reassessment | `KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` records the TASK 114 decision to keep the reader helper standalone for the next milestone. |
 | Runtime reader baseline/index refresh | `KERNEL_VALIDATION_BASELINE.md` and `KERNEL_VALIDATION_DOCUMENTATION_INDEX.md` now record that `kernel-local-validation-checks-ok` does not include reader helper coverage and that `kernel-runtime-envelope-reader-contract-checks-ok` remains separately runnable. |
-| Phase R1 reader implementation boundary plan | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md` defines the smallest future reader implementation boundary without opening code. |
-| Phase R1 reader implementation output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md` defines future minimal reader output and failure semantics without authorizing implementation. |
-| Phase R1 reader implementation validation plan | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md` defines future implementation validation coverage without adding tests. |
+| Phase R2 reader implementation boundary | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md` records the implemented smallest reader boundary. |
+| Phase R2 minimal reader implementation | `file_exchange_adapter_scaffold.py` reads exactly one explicit local envelope path, parses JSON, validates the envelope object, rejects response/failure artifacts and canonical task leakage, returns the validated envelope, and stops before intake. |
+| Phase R2 reader implementation output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md` records current minimal reader output and failure semantics. |
+| Phase R2 reader implementation validation | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md` is reflected by the standalone helper `validation/kernel_runtime_envelope_reader_contract_checks.py`. |
 | Writer-boundary planning | Future response writer and blocking failure writer responsibilities are planned without implementation. |
 | Writer-boundary output contract | Future writer naming, pre-write validation, blocking failure semantics, and mutual exclusivity are governed. |
 | Intake-mapping planning | The future envelope-to-P0/P1 intake mapping boundary is planned as kernel-owned context mapping only. |
@@ -68,7 +69,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 
 | Missing prerequisite | Why it blocks implementation |
 | --- | --- |
-| Runtime envelope reader implementation | The kernel still lacks a governed runtime reader beyond static fixture and scaffold validation. |
+| Runtime envelope reader expansion | The minimal reader exists, but queue discovery, polling, CLI behavior, intake mapping, runtime invocation, and artifact writing remain blocked. |
 | Runtime reader wrapper inclusion | The standalone reader helper remains outside the main wrapper; adding it to `CHECKS` requires a separate governed wrapper pass. |
 | Intake mapping implementation | The mapping contract exists, but no code may yet produce `kernel_intake_context`. |
 | P0/P1 and P0-P10 runtime invocation path | The adapter still has no governed runtime entrypoint into the kernel pipeline. |
@@ -90,13 +91,13 @@ kernel_side_file_exchange_adapter_fixture_validation_slice
 
 That slice is now governed and covered by existing helpers. It validates static fixtures and fail-closed scaffold boundaries only. It does not open runtime reader implementation, intake mapping code, P0-P10 invocation, response writing, failure writing, or CLI behavior.
 
-The runtime reader boundary now has Phase R1 preparation materials, but the first future code implementation slice is still not open yet. When a governed pass opens code, it should begin with the smallest pre-runtime adapter boundary and must still stop before intake mapping and kernel runtime invocation unless separate governed passes explicitly open those boundaries.
+The first reader implementation slice is complete and remains bounded to one explicit local input path. Future code must still stop before intake mapping and kernel runtime invocation unless separate governed passes explicitly open those boundaries.
 
 ## What Must Remain Blocked
 
 The current gate must continue to block:
 
-- runtime envelope reader implementation;
+- runtime envelope reader behavior beyond the minimal explicit-file reader;
 - adding `validation/kernel_runtime_envelope_reader_contract_checks.py` to `validation/run_all_kernel_local_checks.py`;
 - treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - runtime envelope artifact queue discovery;
@@ -131,7 +132,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 1. Current kernel local validation still passes.
 2. Current wrapper failure-path validation still passes.
 3. Macro unified local validation still passes.
-4. A governed implementation pass defines the first runtime reader code slice from the existing reader output contract and standalone helper surface.
+4. Any reader broadening pass preserves the existing explicit-file, fail-closed baseline or updates it through governed review.
 5. A governed implementation pass defines how `kernel_intake_context` code will be validated before runtime invocation.
 6. The future P0/P1 or P0-P10 invocation entrypoint is defined as kernel-owned behavior.
 7. Response state validation is governed before any response artifact writer is implemented.
@@ -145,7 +146,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 This gate note must not silently introduce:
 
 - runtime adapter invocation;
-- runtime envelope reader implementation;
+- runtime envelope reader expansion beyond the minimal explicit-file reader;
 - runtime reader wrapper inclusion;
 - treating standalone reader-helper success as wrapper success;
 - P0-P10 runtime execution;
@@ -166,6 +167,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Minimal Implementation Slice Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
 
-That pass may open only the smallest runtime reader implementation slice described by Phase R1, and must still avoid intake mapping code, runtime invocation, response/failure writers, wrapper inclusion, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.
+That pass should reassess the post-R2 baseline and decide whether the next governed opening is intake mapping planning/implementation or additional reader validation, while still avoiding runtime invocation, response/failure writers, wrapper inclusion, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.

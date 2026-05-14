@@ -104,6 +104,11 @@ def validate_envelope_intake(envelope: dict[str, Any]) -> dict[str, Any]:
             "artifact is not a kernel input envelope"
         )
 
+    if envelope.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid envelope intake"
+        )
+
     if envelope.get("artifact_type") == "kernel_exchange_failure":
         raise KernelFileExchangeAdapterScaffoldError(
             "failure artifacts are not valid envelope intake"

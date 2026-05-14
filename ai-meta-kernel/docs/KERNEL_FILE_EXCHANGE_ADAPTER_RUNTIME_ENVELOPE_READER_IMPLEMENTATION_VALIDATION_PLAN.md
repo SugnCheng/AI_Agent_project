@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the future validation coverage required before a minimal runtime envelope reader implementation may be opened.
+This note defines the validation coverage for the minimal runtime envelope reader implementation slice.
 
-This is a Phase R1 documentation-only validation plan. It does not add tests, modify helper code, modify wrapper behavior, implement reader code, or change kernel contracts.
+This plan is now reflected by the standalone reader helper. It does not modify wrapper behavior, add wrapper inclusion, implement intake mapping, invoke kernel runtime, write artifacts, add CLI behavior, or change kernel contracts.
 
 ## Validation Plan Decision
 
-Current Phase R1 validation planning decision:
+Current Phase R2 validation decision:
 
 ```text
-future_reader_implementation_must_validate_one_explicit_local_envelope_and_fail_closed
+minimal_reader_implementation_validated_by_standalone_helper_and_fail_closed
 ```
 
 The future validation surface should stay local, deterministic, and standard-library friendly unless a later governed pass explicitly changes that boundary.
 
 ## Required Future Checks
 
-Future implementation validation should cover:
+Implementation validation covers:
 
 - one explicit local input path;
 - valid envelope parsing;
@@ -67,15 +67,13 @@ Current signal:
 kernel-runtime-envelope-reader-contract-checks-ok
 ```
 
-Future implementation validation may extend this helper or introduce a new focused helper only through a governed pass. The current helper must remain outside the main wrapper unless a separate wrapper inclusion pass updates wrapper contracts, failure-path coverage, baseline, and index.
+The current helper remains outside the main wrapper. Future extension or wrapper inclusion requires a governed pass that updates wrapper contracts, failure-path coverage, baseline, and index.
 
 ## Blocked In This Plan
 
-This plan does not add:
+This validation surface does not add:
 
-- implementation tests;
 - committed failing fixtures;
-- runtime reader implementation;
 - wrapper inclusion;
 - intake mapping;
 - kernel invocation;

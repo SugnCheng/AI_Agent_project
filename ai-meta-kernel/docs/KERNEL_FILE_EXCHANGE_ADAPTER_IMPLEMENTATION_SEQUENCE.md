@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R1 preparation now exists for the first step. It does not change the implementation order and does not open runtime reader implementation.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. This does not change the implementation order and does not open intake mapping or later runtime boundaries.
 
 ## Intended Implementation Order
 
@@ -42,6 +42,12 @@ Purpose:
 - validate that the object is a `kernel_input_envelope`;
 - stop before intake mapping.
 
+Current status:
+
+```text
+minimal_explicit_file_reader_implemented_and_validated
+```
+
 Depends on:
 
 - `KERNEL_FILE_EXCHANGE_ADAPTER_CONTRACT.md`;
@@ -64,7 +70,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a minimal runtime reader implementation pass before reader code is broadened beyond the existing scaffold boundary. That pass must preserve one explicit local input path and stop before intake mapping.
+- a separate governed pass before reader behavior is broadened beyond one explicit local file or before envelope-to-intake mapping is opened.
 
 ## Step 2: Envelope-To-Intake Mapping Boundary
 
@@ -257,7 +263,7 @@ Additional governed pass required:
 
 No step in this sequence may silently introduce:
 
-- runtime reader implementation before the governed implementation slice opens;
+- runtime reader behavior beyond one explicit local file before a governed broadening pass opens;
 - live fetching;
 - uncontrolled open-web crawling;
 - scheduler runtime;
@@ -275,6 +281,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Envelope Reader Minimal Implementation Slice Pass`.
+Implement a `Kernel-Side Runtime Envelope Reader Baseline Refresh And Handoff Gate Pass`.
 
-That pass may open only the smallest runtime reader implementation slice already prepared by Phase R1, and must still keep intake mapping code, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should record the completed minimal reader slice and decide the next governed boundary, while still keeping intake mapping code, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

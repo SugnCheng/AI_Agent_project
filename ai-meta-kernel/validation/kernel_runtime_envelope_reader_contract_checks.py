@@ -110,6 +110,13 @@ def check_reader_failures() -> None:
         lambda: scaffold.validate_envelope_intake(wrong_type),
     )
 
+    response_artifact = dict(envelope)
+    response_artifact["artifact_type"] = "kernel_response"
+    assert_scaffold_error(
+        "response artifact as envelope input",
+        lambda: scaffold.validate_envelope_intake(response_artifact),
+    )
+
     failure_artifact = dict(envelope)
     failure_artifact["artifact_type"] = "kernel_exchange_failure"
     assert_scaffold_error(

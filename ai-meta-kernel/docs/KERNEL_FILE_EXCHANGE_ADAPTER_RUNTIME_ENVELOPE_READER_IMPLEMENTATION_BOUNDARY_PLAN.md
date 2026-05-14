@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the smallest acceptable future runtime envelope reader implementation boundary for `ai-meta-kernel`.
+This note defines the smallest acceptable runtime envelope reader implementation boundary for `ai-meta-kernel`.
 
-This is a Phase R1 preparation note only. It does not implement reader code, modify `file_exchange_adapter_scaffold.py`, modify `validation/run_all_kernel_local_checks.py`, add wrapper inclusion, prepare intake, invoke kernel runtime, write artifacts, add CLI behavior, or change kernel contracts.
+This note now records the Phase R2 minimal reader implementation boundary. It does not modify `validation/run_all_kernel_local_checks.py`, add wrapper inclusion, prepare intake, invoke kernel runtime, write artifacts, add CLI behavior, or change kernel contracts.
 
 ## Planning Decision
 
-Current Phase R1 planning decision:
+Current Phase R2 boundary decision:
 
 ```text
-prepare_minimal_explicit_local_runtime_envelope_reader_slice_without_implementation
+minimal_explicit_local_runtime_envelope_reader_slice_implemented
 ```
 
-The future implementation slice may only turn the already governed reader boundary into the smallest local implementation surface. It must still stop before intake mapping and runtime invocation.
+The implemented slice turns the governed reader boundary into the smallest local implementation surface. It still stops before intake mapping and runtime invocation.
 
 ## Intended Input Boundary
 
-The future reader may accept exactly one explicit local file path for one kernel input envelope artifact.
+The reader may accept exactly one explicit local file path for one kernel input envelope artifact.
 
 The future reader must not accept:
 
@@ -33,7 +33,7 @@ The future reader must not accept:
 
 ## Intended Output Boundary
 
-The future reader may return one parsed and validated `kernel_input_envelope` object, with optional local source-path context if a governed implementation pass requires it.
+The reader returns one parsed and validated `kernel_input_envelope` object.
 
 The future reader output must not be:
 
@@ -46,7 +46,7 @@ The future reader output must not be:
 
 ## Validation Responsibilities
 
-The future implementation must preserve the current reader guardrails:
+The implementation must preserve the current reader guardrails:
 
 - explicit local path exists;
 - path is a file, not a directory;
@@ -116,11 +116,11 @@ The helper remains outside:
 validation/run_all_kernel_local_checks.py
 ```
 
-Future implementation work may reuse or extend this helper only through a governed validation pass. Wrapper inclusion remains separately governed.
+The Phase R2 implementation is validated by this helper. Wrapper inclusion remains separately governed.
 
 ## Files Requiring Refresh If Implementation Opens Later
 
-A later implementation-opening pass must refresh at minimum:
+A later reader behavior broadening pass must refresh at minimum:
 
 - `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md`
 - `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md`
@@ -134,9 +134,9 @@ If wrapper inclusion is proposed, that pass must also refresh wrapper output and
 
 ## Behaviors That Remain Blocked
 
-Phase R1 does not open:
+Phase R2 does not open:
 
-- runtime reader implementation code;
+- reader behavior beyond one explicit local envelope path;
 - wrapper inclusion;
 - intake mapping;
 - P0/P1 or P0-P10 invocation;
