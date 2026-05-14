@@ -19,7 +19,7 @@ Current cross-project status:
 file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, writer-boundary governance, and intake-mapping governance. The actual kernel-side runtime reader, intake mapping implementation, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. The actual kernel-side runtime reader, intake mapping implementation, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -63,6 +63,10 @@ Already in place:
 - refreshed validation baseline;
 - kernel-side file exchange adapter contract snapshot;
 - first-slice adapter fixture validation output contract and helper-free coverage decision;
+- runtime envelope reader output contract;
+- standalone runtime envelope reader contract helper;
+- runtime reader wrapper inclusion gate and TASK 114 reassessment;
+- validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
 - intake-mapping plan and output contract for future envelope-to-P0/P1 intake context.
 
@@ -98,7 +102,7 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_writer_boundary_plus_intake_mapping_governed_but_unimplemented
+first_slice_fixture_validation_plus_runtime_reader_governance_plus_writer_boundary_plus_intake_mapping_governed_but_unimplemented
 ```
 
 Current first-slice adapter fixture validation status:
@@ -125,6 +129,19 @@ Current intake-mapping governance status:
 - canonical task object fields remain excluded from mapping output;
 - intake mapping implementation and P0/P1 execution remain absent.
 
+Current runtime reader governance status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md`;
+- the future reader boundary may accept one explicit local kernel input envelope path and must stop before intake mapping;
+- standalone helper `ai-meta-kernel/validation/kernel_runtime_envelope_reader_contract_checks.py` exists for focused reader-contract validation;
+- standalone helper success signal remains `kernel-runtime-envelope-reader-contract-checks-ok`;
+- the helper remains outside `ai-meta-kernel/validation/run_all_kernel_local_checks.py`;
+- wrapper inclusion is governed by `ai-meta-kernel/docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md`;
+- TASK 114 reassessment is recorded in `ai-meta-kernel/docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md`;
+- the reassessment decision is now reflected in `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md` and indexed in `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`;
+- `kernel-local-validation-checks-ok` still covers only the main three-helper wrapper path and does not include runtime reader helper coverage;
+- runtime envelope reader implementation remains absent.
+
 ## Validation And Governance Surfaces
 
 Current macro-side validation surfaces:
@@ -143,16 +160,17 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/static_meta_layer_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_file_exchange_fixture_checks.py`
 - `ai-meta-kernel/validation/kernel_file_exchange_adapter_scaffold_checks.py`
+- `ai-meta-kernel/validation/kernel_runtime_envelope_reader_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
-- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, writer boundaries, and intake mapping.
+- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
 
 ## Remaining Runtime Handoff Gaps
 
 Before actual runtime handoff, the following gaps remain:
 
-1. Implement kernel-side runtime envelope artifact reading beyond the current local scaffold boundary.
+1. Implement kernel-side runtime envelope artifact reading beyond the current local scaffold boundary; the current reader governance is contract/helper coverage only.
 2. Implement envelope-to-P0/P1 intake mapping only after the governed mapping contract is ready for implementation.
 3. Implement or expose the kernel-owned P0-P10 runtime path.
 4. Produce canonical task objects only inside `ai-meta-kernel`.
@@ -180,6 +198,9 @@ The current cross-project baseline must not silently introduce:
 - macro-side canonical kernel task object generation;
 - macro-side kernel response artifact writing;
 - kernel-side intake mapping implementation;
+- kernel-side runtime envelope reader implementation;
+- adding the standalone runtime reader helper to the main kernel local wrapper without a governed wrapper pass;
+- treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - kernel-side P0/P1 execution;
 - kernel-side P0-P10 runtime invocation;
 - kernel-side response artifact writing;
@@ -192,6 +213,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Adapter Implementation Gate Refresh Pass`.
+Implement a `Kernel-Side Runtime Adapter Implementation Gate Runtime Reader Governance Refresh Pass`.
 
-That pass should refresh the implementation gate now that first-slice fixture validation governance, writer-boundary governance, and intake-mapping governance are documented, while still avoiding runtime file reader implementation, intake mapping implementation, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution.
+That pass should refresh the implementation gate now that first-slice fixture validation governance, runtime reader output-contract governance, standalone reader helper coverage, wrapper inclusion gate/reassessment, writer-boundary governance, and intake-mapping governance are documented, while still avoiding runtime file reader implementation, intake mapping implementation, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution.
