@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the runtime reader wrapper inclusion gate, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -138,6 +138,46 @@ The helper covers:
 The helper remains standalone. It is not currently included in `validation/run_all_kernel_local_checks.py`.
 
 This standalone status is intentional for the current milestone: the wrapper remains the stable three-helper success-path baseline, while the reader helper separately covers the newly governed future reader boundary.
+
+## Current Runtime Reader Wrapper Inclusion Gate
+
+The current runtime reader wrapper inclusion gate decision is:
+
+```text
+runtime_reader_contract_helper_remains_standalone_outside_main_wrapper
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md
+```
+
+At the current stage, this means:
+
+- `validation/kernel_runtime_envelope_reader_contract_checks.py` remains standalone;
+- `validation/run_all_kernel_local_checks.py` remains unchanged;
+- the wrapper's `CHECKS` list still contains only the three stable success-path helpers;
+- the wrapper final success signal still means those three helpers passed in order;
+- the reader helper may be run separately for focused reader-contract validation.
+
+Before future wrapper inclusion, a governed pass must at minimum:
+
+- re-review wrapper execution order;
+- update the wrapper output contract;
+- update this validation baseline;
+- update the validation documentation index;
+- confirm or update wrapper failure-path coverage for the expanded `CHECKS` list;
+- preserve the reader helper's local-only, deterministic, no-mutation behavior;
+- avoid introducing runtime reader implementation or runtime handoff behavior.
+
+At the current stage, the inclusion gate does not mean:
+
+- the reader helper is wrapper-included;
+- the wrapper success signal includes reader-contract coverage;
+- wrapper behavior has changed;
+- runtime reader implementation is authorized;
+- runtime artifact reads, writes, discovery, polling, retry, cleanup, CLI, or handoff are authorized.
 
 ## Current Writer-Boundary Planning And Output Contract Surface
 
@@ -337,6 +377,7 @@ A successful local wrapper run means:
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the runtime envelope reader output contract and standalone helper are documented as future governed surfaces, not implemented behavior;
+- the runtime reader wrapper inclusion gate is documented and keeps the reader helper standalone;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
@@ -435,6 +476,16 @@ The runtime envelope reader contract helper also must not silently introduce:
 - wrapper inclusion without a governed wrapper update;
 - external dependencies beyond the Python standard library and the existing scaffold module.
 
+The runtime reader wrapper inclusion gate also must not silently introduce:
+
+- adding the reader helper to `validation/run_all_kernel_local_checks.py`;
+- changing wrapper execution order;
+- changing wrapper final success signal meaning;
+- weakening wrapper stop-on-first-failure behavior;
+- bypassing wrapper failure-path validation;
+- treating standalone reader-helper success as wrapper success;
+- treating wrapper inclusion as runtime reader implementation.
+
 The writer-boundary planning and output contract surfaces also must not silently introduce:
 
 - response writer implementation;
@@ -493,6 +544,9 @@ The following changes require a governed pass before implementation:
 - changing the runtime envelope reader contract helper path;
 - changing the runtime envelope reader contract helper success signal;
 - adding the runtime envelope reader contract helper to the local wrapper;
+- changing the runtime reader wrapper inclusion gate decision;
+- changing the wrapper inclusion prerequisites;
+- changing the list of documents/contracts required for future wrapper inclusion;
 - changing the writer-boundary planning decision;
 - changing the writer-boundary output contract decision;
 - changing response or failure artifact naming semantics;
@@ -515,13 +569,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_wrapper_inclusion_gate_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a governed wrapper inclusion gate that keeps that helper outside the main wrapper, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Runtime Reader Helper Refresh Pass`.
+Implement a `Kernel-Side Validation Documentation Index Wrapper Inclusion Gate Refresh Pass`.
 
-That pass should refresh the kernel validation documentation index so the runtime envelope reader contract helper is easy to find while keeping wrapper changes, reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the runtime reader wrapper inclusion gate is easy to find while keeping wrapper changes, reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
