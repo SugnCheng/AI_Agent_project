@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface, the writer-boundary planning and output contract surfaces, the intake-mapping planning and output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -68,6 +68,44 @@ Current coverage is provided by:
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures and confirms `prepare_kernel_intake`, `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
 
 This surface is local-only and deterministic. It does not scan runtime artifact directories, discover live work, mutate fixtures, generate artifacts, or call runtime code.
+
+## Current Runtime Envelope Reader Output Contract Surface
+
+The current runtime envelope reader output contract is:
+
+```text
+future_reader_accepts_one_explicit_local_envelope_and_stops_before_intake_mapping
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md
+```
+
+It fits into the implementation sequence as step 1:
+
+```text
+Runtime envelope reader boundary
+```
+
+At the current stage, this document means:
+
+- the future reader boundary is governed before implementation;
+- the future reader may accept exactly one explicit local file path;
+- the future reader output is one parsed and reader-validated `kernel_input_envelope` object;
+- reader failure must be local, explicit, and fail-closed;
+- reader output must stop before `kernel_intake_context` construction and intake mapping.
+
+At the current stage, this document does not mean:
+
+- runtime reader implementation exists;
+- runtime directory scanning exists;
+- queue discovery, polling, watcher, retry, or cleanup behavior exists;
+- reader output can be treated as `kernel_intake_context`;
+- reader output can unlock reporting;
+- reader failure can write a blocking failure artifact;
+- intake mapping, P0/P1 execution, P0-P10 invocation, response validation, response writing, or failure writing exists.
 
 ## Current Writer-Boundary Planning And Output Contract Surface
 
@@ -254,6 +292,7 @@ A successful local wrapper run means:
 - the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
 - the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
+- the runtime envelope reader output contract is documented as a future governed surface, not implemented behavior;
 - all three helpers passed in the governed order;
 - the wrapper reached the final success signal.
 
@@ -294,6 +333,7 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - first-slice fixture validation has opened runtime handoff;
 - writer-boundary planning has opened response or failure artifact writing;
 - intake-mapping planning has opened P0/P1 intake construction or runtime invocation.
+- runtime envelope reader planning has opened runtime artifact queue discovery, runtime directory scanning, or reader implementation.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -327,6 +367,20 @@ The first-slice adapter fixture validation surface also must not silently introd
 - response or failure writer behavior;
 - CLI command behavior;
 - macro-side production of kernel response artifacts.
+
+The runtime envelope reader output contract surface also must not silently introduce:
+
+- runtime reader implementation beyond the existing scaffold boundary;
+- runtime directory scanning;
+- artifact queue discovery;
+- artifact polling or watcher behavior;
+- retry/backoff behavior;
+- cleanup automation;
+- accepting more than one envelope per invocation;
+- accepting response or failure artifacts as envelope input;
+- treating reader output as `kernel_intake_context`;
+- reader output unlocking downstream reporting;
+- response or failure artifact writing from reader failures.
 
 The writer-boundary planning and output contract surfaces also must not silently introduce:
 
@@ -376,6 +430,13 @@ The following changes require a governed pass before implementation:
 - changing the helper-free first-slice coverage decision;
 - adding a new first-slice validation helper when existing helpers still cover the contract;
 - changing the existing `daily_us_core` fixture set used by first-slice validation;
+- changing the runtime envelope reader output contract decision;
+- changing reader input from one explicit local file to directory discovery;
+- allowing more than one envelope per reader invocation;
+- allowing response or failure artifacts as reader input;
+- allowing canonical task object fields in reader output;
+- treating reader output as intake context, runtime result, response artifact, failure artifact, or reporting unlock;
+- adding runtime envelope reader implementation beyond the existing scaffold boundary;
 - changing the writer-boundary planning decision;
 - changing the writer-boundary output contract decision;
 - changing response or failure artifact naming semantics;
@@ -398,13 +459,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Validation Documentation Index Intake-Mapping Refresh Pass`.
+Implement a `Kernel-Side Validation Documentation Index Runtime Reader Refresh Pass`.
 
-That pass should refresh the kernel validation documentation index so the intake-mapping plan and intake-mapping output contract are easy to find while keeping runtime behavior, CI, package migration, and actual kernel runtime handoff out of scope.
+That pass should refresh the kernel validation documentation index so the runtime envelope reader output contract is easy to find while keeping reader implementation code, intake mapping code, runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope.
