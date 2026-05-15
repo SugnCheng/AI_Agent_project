@@ -146,6 +146,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Writer Boundary Output Contract Pass`.
+Implement a `Kernel-Side Terminal Writer Implementation Gate Pass`.
 
-That pass should snapshot the exact future response writer and blocking failure writer output contracts before any writer code is added, while preserving the current fail-closed scaffold and keeping runtime handoff unimplemented.
+That pass should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices. It must keep writer code, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

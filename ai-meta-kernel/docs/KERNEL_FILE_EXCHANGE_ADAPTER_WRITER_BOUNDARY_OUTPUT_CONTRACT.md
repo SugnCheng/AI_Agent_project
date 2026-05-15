@@ -147,6 +147,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Writer Boundary Baseline Refresh Pass`.
+Implement a `Kernel-Side Terminal Writer Implementation Gate Pass`.
 
-That pass should update the relevant kernel-side baseline or documentation index so this writer-boundary output contract is discoverable, while keeping response/failure writers, runtime invocation, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.
+That pass should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices. It must keep writer code, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

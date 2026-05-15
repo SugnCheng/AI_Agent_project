@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R8 runtime invocation implementation notes and helper, Phase R10 response validation implementation notes and helper, post-response-validation writer gate, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R8 runtime invocation implementation notes and helper, Phase R10 response validation implementation notes and helper, post-response-validation writer gate, Phase R12 terminal writer preparation notes, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -124,6 +124,9 @@ These documents describe the future response writer and blocking failure writer 
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` | Phase R11 gate note confirming local response validation is implemented while response/failure writers, CLI, macro reporting, and actual handoff remain closed. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response writer and blocking failure writer boundaries, including validation order and blocked behavior before implementation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` | Output contract for future writer behavior: artifact naming, pre-write validation guarantees, mutual exclusivity, blocked behaviors, and governed change triggers. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R12 implementation boundary preparation for future response and blocking failure writers. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R12 output contract for future terminal writer artifacts and prohibited outputs. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R12 validation plan for future writer checks, mutual exclusivity, and stop-before-orchestration guarantees. |
 
 ## Baseline, Reassessment, And Planning Notes
 
@@ -162,6 +165,9 @@ These documents explain how the validation surface evolved and what decisions ha
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R10 response validation validation plan. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` | Phase R11 post-response-validation writer gate. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response/failure writer boundaries before implementation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R12 terminal writer implementation boundary preparation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R12 terminal writer implementation output contract. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R12 terminal writer implementation validation plan. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` | Planning note for future envelope-to-P0/P1 intake mapping before implementation. |
 
 ## Practical Reading Order
@@ -180,17 +186,18 @@ For current local validation behavior:
 10. Read the three Phase R10 response validation implementation notes and run or inspect `validation/kernel_response_validation_contract_checks.py` when debugging the standalone response validation helper.
 11. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` before proposing response/failure writer preparation.
 12. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` and `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
-13. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
-14. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
-15. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
-16. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current partial gate state for reader, mapper, candidate-only invocation, and local response validation only.
-17. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 reader implementation, post-reader handoff gate, Phase R5 mapper implementation, Phase R6 runtime invocation gate refresh, Phase R8 candidate-only invocation implementation, Phase R10 response validation implementation, and Phase R11 writer gate.
-18. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
-19. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
-20. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
-21. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
-22. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking future runtime adapter implementation order.
-23. Read the specific standalone helper contract only when debugging that helper.
+13. Read the three Phase R12 terminal writer preparation notes before proposing writer implementation.
+14. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
+15. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
+16. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
+17. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current partial gate state for reader, mapper, candidate-only invocation, and local response validation only.
+18. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 reader implementation, post-reader handoff gate, Phase R5 mapper implementation, Phase R6 runtime invocation gate refresh, Phase R8 candidate-only invocation implementation, Phase R10 response validation implementation, Phase R11 writer gate, and Phase R12 terminal writer preparation.
+19. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
+20. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
+21. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
+22. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
+23. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking future runtime adapter implementation order.
+24. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
@@ -210,9 +217,10 @@ For planning or governance review:
 14. Read the three Phase R10 response validation implementation notes before proposing writer work.
 15. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` before selecting writer preparation.
 16. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` when response/failure writer boundaries are in scope.
-17. Read the relevant plan or reassessment note.
-18. Compare proposed changes against the related output contract drift rules.
-19. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
+17. Read the three Phase R12 terminal writer preparation notes before selecting writer implementation.
+18. Read the relevant plan or reassessment note.
+19. Compare proposed changes against the related output contract drift rules.
+20. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
 
 ## Current Local Commands
 
@@ -316,6 +324,7 @@ This documentation index must not silently introduce:
 - treating Phase R8 candidate-only invocation as terminal response validation or writer authorization;
 - treating Phase R10 local response validation as terminal schema validation or writer authorization;
 - treating the Phase R11 writer gate as writer implementation authorization;
+- treating Phase R12 terminal writer preparation as writer implementation authorization;
 - terminal response validation as writer behavior;
 - P0/P1 execution;
 - runtime envelope reader expansion beyond one explicit local file;
@@ -340,6 +349,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Terminal Writer Preparation Pass`.
+Implement a `Kernel-Side Terminal Writer Implementation Gate Pass`.
 
-That pass should prepare response writer and blocking failure writer boundaries together, because they share terminal-artifact mutual exclusivity. It must not implement writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution.
+That pass should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices. It must not implement writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution.

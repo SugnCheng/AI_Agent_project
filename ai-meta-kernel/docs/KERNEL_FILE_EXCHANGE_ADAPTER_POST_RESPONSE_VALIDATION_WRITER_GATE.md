@@ -62,15 +62,15 @@ The validated response object may be used only as local proof that the current c
 
 ## Next Boundary Decision
 
-After Phase R10, the next governed phase should be:
+After Phase R12, the next governed phase should be:
 
 ```text
-Kernel-Side Terminal Writer Preparation Pass
+Kernel-Side Terminal Writer Implementation Gate Pass
 ```
 
-This should be a combined preparation pass for response writer and blocking failure writer boundaries. The writers have mutual-exclusion requirements, so preparing them together is safer than selecting response writer preparation or failure writer preparation in isolation.
+Phase R12 has prepared response writer and blocking failure writer boundaries together. The next gate should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices.
 
-Do not select wrapper inclusion reassessment or CLI planning as the next phase unless a concrete validation coverage or operator invocation gap appears. The current standalone helpers remain intentionally outside the main wrapper, and no CLI boundary should appear before writer responsibilities are governed.
+Do not select wrapper inclusion reassessment or CLI planning as the next phase unless a concrete validation coverage or operator invocation gap appears. The current standalone helpers remain intentionally outside the main wrapper, and no CLI boundary should appear before writer implementation gating is complete.
 
 ## Validation Commands That Must Remain Green
 
