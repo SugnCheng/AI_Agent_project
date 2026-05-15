@@ -41,7 +41,7 @@ The helper currently performs these checks:
 | 1 | Envelope boundary | `read_envelope_artifact` reads the governed envelope fixture and `validate_envelope_intake` accepts it. |
 | 2 | Response validation boundary | `read_json_object` reads the governed response fixture and `validate_kernel_response` accepts it against `meta-layer/TASK_OBJECT_SCHEMA.json`. |
 | 3 | Kernel intake mapping boundary | `prepare_kernel_intake` returns a context-only `kernel_intake_context` and stops before runtime. |
-| 4 | Kernel runtime placeholder | `invoke_kernel_runtime` remains fail-closed with `NotImplementedError`. |
+| 4 | Kernel runtime candidate boundary | `invoke_kernel_runtime` returns a candidate-only pre-writer object from validated intake. |
 | 5 | Response writer placeholder | `write_response_artifact` remains fail-closed with `NotImplementedError`. |
 | 6 | Failure writer placeholder | `write_failure_artifact` remains fail-closed with `NotImplementedError`. |
 
@@ -90,7 +90,8 @@ Typical failure categories:
 - invalid response JSON;
 - response failing `validate_kernel_response`;
 - missing failure fixture;
-- blocked runtime or writer boundary unexpectedly returning instead of raising `NotImplementedError`;
+- writer boundary unexpectedly returning instead of raising `NotImplementedError`;
+- runtime invocation returning anything other than candidate-only pre-writer output;
 - missing `jsonschema` dependency when response schema validation is required;
 - scaffold module import failure.
 
@@ -120,12 +121,12 @@ The following changes require a governed pass before implementation:
 - broadening the check beyond the committed static fixture set;
 - suppressing failure details;
 - allowing warnings to pass where errors are currently required;
-- allowing runtime or writer blocked boundaries to return successfully;
-- replacing runtime or writer `NotImplementedError` expectations with runtime behavior;
+- allowing writer blocked boundaries to return successfully;
+- broadening runtime invocation beyond candidate-only pre-writer output;
 - adding response artifact writing;
 - adding failure artifact writing;
 - broadening kernel intake mapping beyond context-only output;
-- adding P0-P10 runtime invocation;
+- adding real P0-P10 runtime invocation;
 - adding runtime artifact directory reads;
 - adding artifact polling, cleanup, or retry behavior;
 - adding wrapper orchestration;

@@ -35,7 +35,7 @@ The current scaffold exposes the following function boundary:
 | `read_envelope_artifact(path)` | Reads exactly one local JSON file and returns a JSON object. | Returns `dict`; raises `KernelFileExchangeAdapterScaffoldError` for missing file, invalid JSON, or non-object JSON. |
 | `validate_envelope_intake(envelope)` | Validates required envelope fields and guardrails. | Returns the validated envelope `dict`; raises `KernelFileExchangeAdapterScaffoldError` on shape, required-field, type, or leaked canonical-field failure. |
 | `prepare_kernel_intake(envelope)` | Validates envelope intake, then returns a context-only `kernel_intake_context`. | Stops before P0/P1 and runtime invocation. |
-| `invoke_kernel_runtime(kernel_intake)` | Verifies object-like input, then blocks. | Raises `NotImplementedError`. |
+| `invoke_kernel_runtime(kernel_intake)` | Verifies one context-only intake object, then returns candidate-only output. | Returns a pre-writer candidate response object. |
 | `validate_kernel_response(task_object)` | Validates a caller-provided object against `meta-layer/TASK_OBJECT_SCHEMA.json`. | Returns the validated `task_object`; raises `KernelFileExchangeAdapterScaffoldError` on missing `jsonschema`, invalid object shape, missing schema, invalid schema JSON, or schema validation failure. |
 | `read_json_object(path, label)` | Reads a local JSON object for scaffold validation boundaries. | Returns `dict`; raises `KernelFileExchangeAdapterScaffoldError` for missing file, invalid JSON, or non-object JSON. |
 | `write_response_artifact(task_object, destination)` | Validates a provided response object, then blocks before writing. | Raises `NotImplementedError`; must not write files. |
@@ -98,16 +98,15 @@ The current rejected canonical top-level fields are:
 
 ## Current Blocked Runtime Behavior
 
-The following functions are intentionally blocked:
+The following writer functions are intentionally blocked:
 
-- `invoke_kernel_runtime(kernel_intake)`
 - `write_response_artifact(task_object, destination)`
 - `write_failure_artifact(failure, destination)`
 
 Current rule:
 
 ```text
-Runtime invocation and writer functions must raise NotImplementedError until a governed implementation pass explicitly replaces the placeholder behavior.
+Writer functions must raise NotImplementedError until a governed implementation pass explicitly replaces the placeholder behavior. Runtime invocation remains candidate-only and pre-writer.
 ```
 
 They must not:
@@ -181,7 +180,7 @@ The following changes require a governed pass before implementation:
 - changing canonical field leak detection;
 - allowing envelope intake to include canonical task object fields;
 - broadening `prepare_kernel_intake` beyond context-only `kernel_intake_context`;
-- replacing `invoke_kernel_runtime` `NotImplementedError` with real runtime invocation;
+- broadening `invoke_kernel_runtime` beyond candidate-only output into real runtime invocation;
 - allowing response artifact writing;
 - allowing failure artifact writing;
 - changing response validation target away from `meta-layer/TASK_OBJECT_SCHEMA.json`;

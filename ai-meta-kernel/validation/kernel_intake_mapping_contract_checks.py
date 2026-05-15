@@ -1,9 +1,9 @@
 """Local checks for the minimal envelope-to-intake mapping contract surface.
 
 This helper exercises only the current context-only mapping boundary. It does
-not discover runtime queues, invoke kernel runtime, generate canonical task
-objects, write response/failure artifacts, fetch sources, compose reports, run
-scheduler behavior, or mutate fixtures.
+not discover runtime queues, broaden runtime invocation, generate canonical
+task objects, write response/failure artifacts, fetch sources, compose reports,
+run scheduler behavior, or mutate fixtures.
 """
 
 from __future__ import annotations
@@ -76,14 +76,6 @@ def assert_scaffold_error(label: str, callback: Callable[[], object]) -> None:
     except scaffold.KernelFileExchangeAdapterScaffoldError:
         return
     raise AssertionError(f"{label} must fail closed with scaffold error")
-
-
-def assert_not_implemented(label: str, callback: Callable[[], object]) -> None:
-    try:
-        callback()
-    except NotImplementedError:
-        return
-    raise AssertionError(f"{label} must remain blocked with NotImplementedError")
 
 
 def check_successful_mapping() -> dict[str, Any]:
@@ -173,23 +165,31 @@ def check_mapping_failures() -> None:
     )
 
 
-def check_stop_before_runtime(context: dict[str, Any]) -> None:
+def check_stop_before_writers(context: dict[str, Any]) -> None:
     with mock.patch.object(scaffold, "invoke_kernel_runtime") as mocked_invoke:
         envelope = scaffold.read_envelope_artifact(ENVELOPE_FIXTURE)
         scaffold.prepare_kernel_intake(envelope)
         if mocked_invoke.called:
             raise AssertionError("prepare_kernel_intake must not invoke runtime")
 
-    assert_not_implemented(
-        "invoke_kernel_runtime",
-        lambda: scaffold.invoke_kernel_runtime(context),
-    )
+    with mock.patch.object(scaffold, "write_response_artifact") as mocked_response_writer:
+        with mock.patch.object(scaffold, "write_failure_artifact") as mocked_failure_writer:
+            candidate = scaffold.invoke_kernel_runtime(context)
+
+    if candidate.get("candidate_state") != "pre_writer_non_terminal":
+        raise AssertionError("invoke_kernel_runtime should return candidate-only output")
+
+    if mocked_response_writer.called:
+        raise AssertionError("invoke_kernel_runtime must not call response writer")
+
+    if mocked_failure_writer.called:
+        raise AssertionError("invoke_kernel_runtime must not call failure writer")
 
 
 def main() -> None:
     context = check_successful_mapping()
     check_mapping_failures()
-    check_stop_before_runtime(context)
+    check_stop_before_writers(context)
 
     print("kernel-intake-mapping-contract-checks-ok")
 

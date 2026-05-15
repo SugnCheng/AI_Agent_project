@@ -2,35 +2,35 @@
 
 ## Purpose
 
-This document snapshots the output contract for a future minimal runtime invocation implementation slice.
+This document snapshots the output contract for the implemented minimal runtime invocation slice.
 
-It is a developer-facing preparation contract only. It does not authorize runtime invocation code, modify kernel contracts, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, broaden intake mapping, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, call external services, or implement actual runtime handoff.
+It is a developer-facing implementation contract. It does not authorize runtime invocation beyond the candidate-only slice, modify kernel contracts, execute P0/P1, invoke the real P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, broaden intake mapping, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, call external services, or implement actual runtime handoff.
 
 ## Contract Decision
 
-Current Phase R7 preparation output contract decision:
+Current Phase R8 implementation output contract decision:
 
 ```text
-future_runtime_invocation_may_return_candidate_kernel_response_only
+minimal_runtime_invocation_returns_candidate_response_only
 ```
 
-A future minimal invocation implementation may output one candidate kernel response object from one validated `kernel_intake_context`. The candidate remains pre-writer and pre-terminal-artifact.
+The minimal invocation implementation outputs one candidate kernel response object from one validated `kernel_intake_context`. The candidate remains pre-writer and pre-terminal-artifact.
 
 ## Allowed Future Output
 
-The future output may be:
+The current output is:
 
 ```text
 one_candidate_kernel_response_object
 ```
 
-The candidate may be canonical task object shaped only if produced by kernel-owned runtime reasoning. It must later pass `meta-layer/TASK_OBJECT_SCHEMA.json` validation and response-state validation before any writer can run.
+The current candidate is not canonical-task-object-shaped and is not a terminal kernel response. It must later pass `meta-layer/TASK_OBJECT_SCHEMA.json` validation and response-state validation before any writer can run.
 
-The candidate output must remain in memory or local return value scope for the future implementation slice. It must not be treated as a durable response artifact until the response writer boundary is separately implemented.
+The candidate output remains in local return value scope. It must not be treated as a durable response artifact until the response writer boundary is separately implemented.
 
 ## Outputs That Remain Prohibited
 
-The future invocation output must not be:
+The invocation output must not be:
 
 - written response artifact;
 - written failure artifact;
@@ -58,13 +58,13 @@ This output contract does not implement that validation. It records that validat
 
 Invocation failure must fail closed.
 
-At the invocation slice, failure should remain local and explicit. It may be returned or raised through a governed local failure surface in a later implementation pass, but it must not write artifacts in the invocation slice.
+At the invocation slice, failure remains local and explicit. It must not write artifacts in the invocation slice.
 
 The failure writer remains a separate future boundary. A failed invocation must not silently emit a failure artifact, response artifact, report unlock, CLI success signal, or downstream macro reporting signal.
 
 ## Stop Boundary
 
-The future invocation output contract stops at:
+The invocation output contract stops at:
 
 ```text
 candidate kernel response object
@@ -95,5 +95,4 @@ The following require a governed pass before implementation:
 
 ## Explicit Non-Authorization
 
-This contract authorizes no code implementation in Phase R7. It prepares only the future output boundary for a later governed runtime invocation implementation slice.
-
+This contract authorizes only the implemented Phase R8 candidate-only invocation slice. It does not authorize terminal response validation, response/failure writers, CLI behavior, or actual runtime handoff.

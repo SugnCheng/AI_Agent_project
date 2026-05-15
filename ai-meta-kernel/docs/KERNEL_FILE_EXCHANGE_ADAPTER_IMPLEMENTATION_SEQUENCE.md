@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepares the future runtime invocation implementation boundary. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. This does not open response validation as runtime behavior, response/failure writers, CLI behavior, or actual handoff.
 
 ## Intended Implementation Order
 
@@ -134,13 +134,14 @@ Depends on:
 Current status:
 
 ```text
-runtime_invocation_implementation_preparation_exists_but_invocation_unimplemented
+minimal_candidate_only_runtime_invocation_implemented_and_validated
 ```
 
 Must still not include:
 
 - macro-side reasoning substitution;
 - schema repair after runtime output;
+- terminal response validation;
 - response artifact writing;
 - failure artifact writing;
 - scheduler execution;
@@ -149,7 +150,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a minimal runtime invocation implementation pass before any invocation path is implemented or exposed.
+- a response validation preparation pass before candidate responses are validated as terminal runtime output or passed to writers.
 
 ## Step 4: Kernel Response Validation Boundary
 
@@ -303,6 +304,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
+Implement a `Kernel-Side Response Validation Preparation Pass`.
 
-That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees. It must keep response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should define how a candidate kernel response object will later be validated before any response writer or failure writer is opened. It must keep response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

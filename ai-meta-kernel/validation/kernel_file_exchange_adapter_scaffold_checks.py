@@ -1,9 +1,8 @@
 """Local checks for the kernel file exchange adapter scaffold.
 
 This helper exercises only the current scaffold boundary against committed
-fixtures. It does not invoke kernel runtime, generate canonical task objects,
-write response/failure artifacts, fetch sources, compose reports, or run
-scheduler behavior.
+fixtures. It does not generate canonical task objects, write response/failure
+artifacts, fetch sources, compose reports, or run scheduler behavior.
 """
 
 from __future__ import annotations
@@ -69,10 +68,12 @@ def check_blocked_boundaries(envelope: dict, response: dict) -> None:
     if kernel_intake.get("mapping_stage") != "kernel_intake_context_pre_runtime":
         raise AssertionError("prepare_kernel_intake should stop before runtime")
 
-    assert_raises_not_implemented(
-        "invoke_kernel_runtime",
-        lambda: scaffold.invoke_kernel_runtime({"placeholder": "kernel_intake"}),
-    )
+    candidate = scaffold.invoke_kernel_runtime(kernel_intake)
+    if candidate.get("candidate_state") != "pre_writer_non_terminal":
+        raise AssertionError("invoke_kernel_runtime should stop before writers")
+    if candidate.get("terminal_artifact_written") is not False:
+        raise AssertionError("invoke_kernel_runtime must not write terminal artifacts")
+
     assert_raises_not_implemented(
         "write_response_artifact",
         lambda: scaffold.write_response_artifact(response, "unused_kernel_response.json"),

@@ -138,8 +138,8 @@ def read_envelope_with_mocked_json(value: Any) -> dict[str, Any]:
 
 
 def check_stop_before_runtime(envelope: dict[str, Any]) -> None:
-    assert_not_implemented(
-        "invoke_kernel_runtime",
+    assert_scaffold_error(
+        "runtime invocation placeholder intake",
         lambda: scaffold.invoke_kernel_runtime({"placeholder": "kernel_intake"}),
     )
 

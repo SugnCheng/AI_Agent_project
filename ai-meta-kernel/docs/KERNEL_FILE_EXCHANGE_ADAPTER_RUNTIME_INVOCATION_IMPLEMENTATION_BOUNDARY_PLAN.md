@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the smallest acceptable future runtime invocation implementation boundary for `ai-meta-kernel`.
+This note defines the smallest implemented runtime invocation boundary for `ai-meta-kernel`.
 
-It is a preparation note only. It does not implement runtime invocation code, modify kernel contracts, execute P0/P1, invoke the P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, broaden the reader, broaden intake mapping, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, call external services, or implement actual runtime handoff.
+It records the Phase R8 minimal candidate-only invocation slice. It does not modify kernel contracts, execute P0/P1, invoke the real P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, broaden the reader, broaden intake mapping, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, call external services, or implement actual runtime handoff.
 
 ## Planning Decision
 
-Current Phase R7 preparation decision:
+Current Phase R8 implementation decision:
 
 ```text
-prepare_runtime_invocation_boundary_after_context_only_intake_mapping
+minimal_runtime_invocation_returns_candidate_response_only
 ```
 
-The future implementation slice should accept one validated `kernel_intake_context`, invoke only a kernel-owned runtime boundary, return one candidate kernel response object, and stop before response writing and failure writing.
+The implemented slice accepts one validated `kernel_intake_context`, returns one local candidate response object, and stops before response validation as runtime behavior, response writing, and failure writing.
 
 ## Intended Input Boundary
 
-The future invocation boundary may accept exactly one validated `kernel_intake_context`.
+The invocation boundary accepts exactly one validated `kernel_intake_context`.
 
 The input should come from the current context-only mapper and must preserve:
 
@@ -30,7 +30,7 @@ The input should come from the current context-only mapper and must preserve:
 - `deferred_behavior_context`;
 - `mapping_stage == "kernel_intake_context_pre_runtime"`.
 
-The future invocation boundary must reject:
+The invocation boundary rejects:
 
 - non-object input;
 - malformed intake context;
@@ -42,9 +42,9 @@ The future invocation boundary must reject:
 
 ## Intended Output Boundary
 
-The future invocation boundary may return exactly one candidate kernel response object.
+The invocation boundary returns exactly one candidate kernel response object.
 
-The future candidate response may be canonical task object shaped only as the product of kernel-owned runtime reasoning. It remains candidate-only until a later governed response validation boundary validates it against `meta-layer/TASK_OBJECT_SCHEMA.json` and response-state expectations.
+The current candidate response is not canonical-task-object-shaped. This is intentional: the full required schema fields are not yet derived by a governed P0-P10 implementation path. The candidate remains candidate-only until a later governed response validation boundary validates a future runtime response against `meta-layer/TASK_OBJECT_SCHEMA.json` and response-state expectations.
 
 The invocation boundary must not write terminal artifacts. It must not return a written response artifact path, written failure artifact path, report eligibility signal, macro report unlock, CLI success signal, or external-service result.
 
@@ -56,19 +56,19 @@ The boundaries remain distinct:
 | --- | --- |
 | Runtime reader | Read and validate one explicit local `kernel_input_envelope`. |
 | Intake mapper | Convert one validated envelope into context-only `kernel_intake_context`. |
-| Runtime invocation | Future kernel-owned reasoning boundary that may produce a candidate response object. |
+| Runtime invocation | Current minimal candidate-only boundary that returns a pre-writer response candidate. |
 | Response validation | Future boundary that validates the candidate before any write. |
 | Response/failure writers | Future terminal artifact boundaries after validation or classified failure. |
 
-The future invocation boundary owns kernel reasoning only after it receives validated context. It must not move writer behavior, CLI behavior, scheduler behavior, report behavior, or artifact cleanup into invocation.
+The current invocation boundary owns only candidate construction after it receives validated context. It must not move writer behavior, CLI behavior, scheduler behavior, report behavior, or artifact cleanup into invocation.
 
 ## Stop-Before-Writer Boundaries
 
-The future implementation must stop here:
+The implementation stops here:
 
 ```text
 kernel_intake_context
--> future runtime invocation boundary
+-> runtime invocation boundary
 -> candidate kernel response object
 -> stop
 ```
@@ -81,11 +81,11 @@ It must stop before:
 - CLI/local invocation orchestration;
 - macro-side reporting.
 
-Invocation failure must remain local and explicit in the invocation slice. It must not write a failure artifact until a separate governed failure writer boundary is implemented.
+Invocation failure remains local and explicit in the invocation slice. It must not write a failure artifact until a separate governed failure writer boundary is implemented.
 
 ## Relationship To Reader And Intake Mapper
 
-The future invocation boundary depends on:
+The invocation boundary depends on:
 
 - Phase R2 minimal explicit-file reader;
 - Phase R5 minimal context-only mapper;
@@ -101,11 +101,11 @@ The writer-boundary output contract remains downstream:
 docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md
 ```
 
-Runtime invocation preparation does not authorize writer implementation. Candidate responses must later pass governed response validation before a response writer may run. Invocation failures must later flow to a governed blocking failure writer before any failure artifact may be written.
+Runtime invocation implementation does not authorize writer implementation. Candidate responses must later pass governed response validation before a response writer may run. Invocation failures must later flow to a governed blocking failure writer before any failure artifact may be written.
 
 ## Files Requiring Refresh If Implementation Opens Later
 
-A future runtime invocation implementation slice must refresh at minimum:
+A future runtime invocation broadening or terminal-response slice must refresh at minimum:
 
 - `ai-meta-kernel/file_exchange_adapter_scaffold.py`
 - a focused standalone runtime invocation validation helper, if added;
@@ -121,9 +121,9 @@ If wrapper inclusion is proposed for any new helper, the wrapper output contract
 
 ## Behaviors That Remain Blocked
 
-Phase R7 keeps the following blocked:
+Phase R8 keeps the following blocked:
 
-- runtime invocation implementation;
+- runtime invocation beyond the minimal candidate-only implementation;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation from envelope evidence;
@@ -144,4 +144,3 @@ Phase R7 keeps the following blocked:
 - package migration;
 - external service calls;
 - actual runtime handoff.
-

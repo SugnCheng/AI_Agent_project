@@ -1,8 +1,9 @@
 """Fail-closed scaffold for future kernel-side file exchange adapter boundaries.
 
 This module is intentionally narrow. It may read and validate one local kernel
-input envelope, but it does not invoke kernel runtime, generate canonical task
-objects from envelopes, or write response/failure artifacts.
+input envelope and produce one local candidate response from a validated intake
+context, but it does not execute the real P0-P10 runtime, generate canonical
+task objects from envelopes, or write response/failure artifacts.
 """
 
 from __future__ import annotations
@@ -52,6 +53,16 @@ CANONICAL_TASK_OBJECT_TOP_LEVEL_FIELDS = {
     "challenge_loop",
     "downstream_recommendation",
     "handoff",
+}
+
+KERNEL_INTAKE_CONTEXT_REQUIRED_FIELDS = {
+    "source_envelope",
+    "operator_request",
+    "source_context",
+    "evidence_context",
+    "expectation_context",
+    "deferred_behavior_context",
+    "mapping_stage",
 }
 
 
@@ -172,13 +183,98 @@ def prepare_kernel_intake(envelope: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def invoke_kernel_runtime(kernel_intake: dict[str, Any]) -> dict[str, Any]:
-    """Future boundary for invoking the real P0-P10 kernel runtime."""
+def validate_kernel_intake_context(kernel_intake: dict[str, Any]) -> dict[str, Any]:
+    """Validate the context-only intake object before minimal invocation."""
 
-    _require_object(kernel_intake, "kernel_intake")
-    raise NotImplementedError(
-        "Kernel runtime invocation is intentionally not implemented in this scaffold."
-    )
+    kernel_intake = _require_object(kernel_intake, "kernel_intake")
+
+    if kernel_intake.get("envelope_type") == "kernel_input_envelope":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "raw kernel input envelopes are not valid runtime invocation intake"
+        )
+
+    if kernel_intake.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid runtime invocation intake"
+        )
+
+    if kernel_intake.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid runtime invocation intake"
+        )
+
+    leaked_fields = sorted(CANONICAL_TASK_OBJECT_TOP_LEVEL_FIELDS.intersection(kernel_intake))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "kernel intake must not contain canonical task object fields: "
+            f"{leaked_fields}"
+        )
+
+    missing = sorted(KERNEL_INTAKE_CONTEXT_REQUIRED_FIELDS.difference(kernel_intake))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"kernel intake missing required fields: {missing}"
+        )
+
+    if kernel_intake.get("mapping_stage") != "kernel_intake_context_pre_runtime":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "kernel intake mapping_stage must be kernel_intake_context_pre_runtime"
+        )
+
+    if not isinstance(kernel_intake.get("operator_request"), str) or not kernel_intake["operator_request"].strip():
+        raise KernelFileExchangeAdapterScaffoldError(
+            "kernel intake operator_request must be a non-empty string"
+        )
+
+    for field in (
+        "source_envelope",
+        "source_context",
+        "evidence_context",
+        "expectation_context",
+    ):
+        if not isinstance(kernel_intake.get(field), dict):
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"kernel intake {field} must be a JSON object"
+            )
+
+    if not isinstance(kernel_intake.get("deferred_behavior_context"), list):
+        raise KernelFileExchangeAdapterScaffoldError(
+            "kernel intake deferred_behavior_context must be a list"
+        )
+
+    return kernel_intake
+
+
+def invoke_kernel_runtime(kernel_intake: dict[str, Any]) -> dict[str, Any]:
+    """Return a local candidate response object from one validated intake context.
+
+    This is a minimal pre-writer invocation boundary. It does not execute the
+    real P0-P10 runtime, validate a terminal response, write artifacts, or
+    unlock reporting.
+    """
+
+    validated = validate_kernel_intake_context(kernel_intake)
+    return {
+        "candidate_type": "kernel_runtime_candidate_response",
+        "candidate_version": "0.1.0",
+        "candidate_state": "pre_writer_non_terminal",
+        "invocation_stage": "kernel_runtime_invocation_candidate_only",
+        "source_context": deepcopy(validated["source_context"]),
+        "operator_request": validated["operator_request"],
+        "evidence_context": deepcopy(validated["evidence_context"]),
+        "expectation_context": deepcopy(validated["expectation_context"]),
+        "deferred_behavior_context": deepcopy(validated["deferred_behavior_context"]),
+        "source_mapping_stage": validated["mapping_stage"],
+        "terminal_artifact_written": False,
+        "response_writer_called": False,
+        "failure_writer_called": False,
+        "macro_report_unlock": False,
+        "notes": [
+            "candidate-only local invocation output",
+            "not validated as terminal TASK_OBJECT_SCHEMA response",
+            "stop before response validation and writers",
+        ],
+    }
 
 
 def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:

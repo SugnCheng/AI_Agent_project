@@ -53,7 +53,7 @@ The smallest acceptable future scaffold boundary is:
 | `read_envelope_artifact(path)` | Read and parse one envelope artifact path. | May parse local JSON and return object-like envelope data, or remain a stub if the implementation pass chooses stricter no-read behavior. |
 | `validate_envelope_intake(envelope)` | Apply envelope guardrails before kernel intake. | Should validate shape and guardrails only; must not create a canonical task object. |
 | `prepare_kernel_intake(envelope)` | Prepare a kernel-owned context-only intake input from the envelope. | Returns the Phase R5 minimal `kernel_intake_context` and stops before P0/P1 execution and P0-P10 runtime invocation. |
-| `invoke_kernel_runtime(kernel_intake)` | Invoke the real kernel runtime pipeline. | Must raise `NotImplementedError` until a governed runtime implementation pass. |
+| `invoke_kernel_runtime(kernel_intake)` | Produce the current candidate-only pre-writer invocation output from validated intake. | Returns the Phase R8 minimal candidate response object and stops before terminal response validation and writers. |
 | `validate_kernel_response(task_object)` | Check a kernel-produced response before artifact writing. | May be a future schema-validation boundary; must not fabricate task objects. |
 | `write_response_artifact(task_object, destination)` | Write a schema-valid canonical response artifact. | Must remain unimplemented or placeholder-only until response writing is explicitly approved. |
 | `write_failure_artifact(failure, destination)` | Write a blocking kernel exchange failure artifact. | Must remain unimplemented or placeholder-only until failure writing is explicitly approved. |
@@ -198,7 +198,7 @@ Required placeholder behavior:
 The most important future placeholder is:
 
 ```text
-invoke_kernel_runtime(envelope_or_intake) -> NotImplementedError
+invoke_kernel_runtime(kernel_intake) -> candidate-only response object
 ```
 
 until a governed runtime implementation pass explicitly replaces it.
@@ -237,7 +237,7 @@ The following changes require a governed pass before scaffold implementation:
 - allowing `blocking == false` for failure artifacts;
 - allowing macro-side generated canonical task objects;
 - allowing response writing without schema validation;
-- replacing `NotImplementedError` with real runtime invocation;
+- broadening candidate-only invocation into real runtime invocation;
 - adding runtime artifact polling, cleanup, retries, or watchers;
 - broadening from `daily_us_core` fixture-safe behavior to generic production exchange.
 

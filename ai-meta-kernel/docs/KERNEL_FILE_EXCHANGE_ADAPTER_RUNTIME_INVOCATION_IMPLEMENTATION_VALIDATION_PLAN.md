@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the future validation coverage expected before a minimal runtime invocation implementation slice is opened.
+This note defines the validation coverage for the minimal runtime invocation implementation slice.
 
-It is a documentation-only validation plan. It does not create implementation tests, add helpers, modify wrapper behavior, implement runtime invocation, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+This validation plan is reflected by a standalone helper. It does not modify wrapper behavior, execute P0/P1, invoke the real P0-P10 runtime, generate canonical task objects from envelope evidence, validate runtime responses as runtime behavior, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Validation Plan Decision
 
-Current Phase R7 validation planning decision:
+Current Phase R8 validation decision:
 
 ```text
-plan_runtime_invocation_validation_before_implementation
+minimal_runtime_invocation_validated_by_standalone_helper_and_stops_before_writers
 ```
 
-Future validation must prove that invocation accepts only one validated `kernel_intake_context`, returns only a candidate kernel response object, and stops before all writer boundaries.
+Validation proves that invocation accepts only one validated `kernel_intake_context`, returns only a candidate kernel response object, and stops before all writer boundaries.
 
-## Future Success Path Checks
+## Success Path Checks
 
-Once invocation implementation is opened, validation should cover:
+The current standalone helper validates:
 
 - one validated `kernel_intake_context` input from the current mapper;
 - preservation of reader and mapper boundaries;
@@ -30,9 +30,9 @@ Once invocation implementation is opened, validation should cover:
 - no CLI success signal emitted;
 - no macro-side report unlock.
 
-## Future Failure Path Checks
+## Failure Path Checks
 
-Future validation should reject:
+The current standalone helper rejects:
 
 - non-object input;
 - malformed intake context;
@@ -44,11 +44,11 @@ Future validation should reject:
 - failure artifact input;
 - macro-generated kernel conclusions.
 
-Failure must remain local and explicit before a failure writer exists. It must not write response or failure artifacts.
+Failure remains local and explicit before a failure writer exists. It must not write response or failure artifacts.
 
 ## Candidate Response Validation Expectations
 
-Future validation should confirm that candidate responses are treated as candidates only.
+Validation confirms that candidate responses are treated as candidates only.
 
 Before any writer phase, separate governed response validation must check:
 
@@ -59,7 +59,7 @@ Before any writer phase, separate governed response validation must check:
 - no silent field renaming;
 - no writer-side inference of kernel conclusions.
 
-This plan does not add response validation behavior in Phase R7.
+This plan does not add response validation behavior in Phase R8.
 
 ## Stop-Before-Writer Guarantee
 
@@ -93,13 +93,25 @@ validation/kernel_intake_mapping_contract_checks.py
 validation/run_all_kernel_local_checks.py
 ```
 
-Phase R7 does not add a runtime invocation helper and does not add any standalone helper to the wrapper.
+The current invocation helper is:
+
+```text
+validation/kernel_runtime_invocation_contract_checks.py
+```
+
+Current success signal:
+
+```text
+kernel-runtime-invocation-contract-checks-ok
+```
+
+The helper remains standalone and is not included in `validation/run_all_kernel_local_checks.py`.
 
 ## Blocked In This Plan
 
 This validation plan does not add:
 
-- runtime invocation implementation;
+- runtime invocation beyond the minimal candidate-only implementation;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation from envelope evidence;
@@ -107,4 +119,3 @@ This validation plan does not add:
 - response/failure writers;
 - CLI behavior;
 - queue discovery, polling, retry, cleanup, scheduler behavior, report composition, CI, package migration, or external service calls.
-

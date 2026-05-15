@@ -74,10 +74,10 @@ Rationale:
 After Phase R6, the recommended next phase is:
 
 ```text
-Kernel-Side Runtime Invocation Minimal Implementation Slice
+Kernel-Side Response Validation Preparation Pass
 ```
 
-That phase may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees while still stopping before response validation as runtime behavior, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
+That phase should define how a candidate kernel response object will later be validated before any response writer or failure writer is opened, while still stopping before response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
 
 ## Explicitly Blocked Behaviors
 

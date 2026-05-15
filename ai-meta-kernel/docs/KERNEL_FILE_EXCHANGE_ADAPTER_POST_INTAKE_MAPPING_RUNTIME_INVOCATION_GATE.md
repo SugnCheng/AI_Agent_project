@@ -19,7 +19,7 @@ The repository is partially opened only for:
 - the Phase R2 minimal explicit-file runtime envelope reader; and
 - the Phase R5 minimal context-only envelope-to-intake mapper.
 
-Actual runtime invocation remains closed. Phase R7 adds runtime invocation preparation, but not implementation. A later task must explicitly open implementation with validation coverage and blocked-behavior rules.
+Terminal runtime invocation remains closed. Phase R7 added runtime invocation preparation, and Phase R8 adds only the minimal candidate-only invocation implementation. A later task must explicitly open terminal response validation or writer behavior with validation coverage and blocked-behavior rules.
 
 ## What R5 Unlocked
 
@@ -55,13 +55,13 @@ Phase R5 did not unlock:
 
 ## Next Boundary Decision
 
-After Phase R7, the next possible phase is:
+After Phase R8, the next possible phase is:
 
 ```text
-Kernel-Side Runtime Invocation Minimal Implementation Slice
+Kernel-Side Response Validation Preparation Pass
 ```
 
-That phase may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees.
+That phase should define how a candidate kernel response object will later be validated before any response writer or failure writer is opened.
 
 Do not select mapping hardening, wrapper inclusion, CLI planning, or response/failure writer preparation as the next phase unless a concrete gap appears. The current mapper helper already covers the R5 context-only scope, and wrapper behavior is intentionally unchanged.
 

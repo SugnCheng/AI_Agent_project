@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R7 runtime invocation preparation notes, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R8 runtime invocation implementation notes and helper, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -26,6 +26,7 @@ These documents describe the individually runnable validation helpers. Use them 
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` | Scaffold boundary checks for fixture reads, response validation, and fail-closed adapter placeholders. |
 | `validation/kernel_runtime_envelope_reader_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` | Standalone reader contract helper for the future runtime envelope reader surface. Success signal: `kernel-runtime-envelope-reader-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_intake_mapping_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Standalone intake mapping helper for the context-only mapper. Success signal: `kernel-intake-mapping-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
+| `validation/kernel_runtime_invocation_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Standalone runtime invocation helper for the candidate-only invocation boundary. Success signal: `kernel-runtime-invocation-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 
 ## Wrapper Contracts
 
@@ -93,15 +94,15 @@ These documents describe the Phase R5 minimal context-only mapper. Use them afte
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R5 validation plan reflected by the standalone mapper helper, including allowed field flow, excluded kernel conclusions, fail-closed behavior, and stop-before-runtime guarantees. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` | Phase R6 post-mapping gate note. Current decision: minimal reader and context-only mapper are implemented, while runtime invocation, canonical task object generation, writers, CLI, wrapper inclusion, and actual handoff remain closed. |
 
-## Runtime Invocation Preparation
+## Runtime Invocation Minimal Implementation
 
-These documents describe the Phase R7 preparation surface for the future kernel-owned runtime invocation boundary. Use them after the post-intake mapping runtime invocation gate and before writer-boundary docs.
+These documents describe the Phase R8 minimal candidate-only runtime invocation boundary. Use them after the post-intake mapping runtime invocation gate and before writer-boundary docs.
 
 | Document | What it is for |
 | --- | --- |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R7 boundary note for the future invocation path from one validated `kernel_intake_context` to one candidate kernel response object. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R7 output contract for future candidate response output and fail-closed invocation failure behavior before writers exist. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R7 validation plan for future invocation checks, including malformed intake rejection, candidate response expectations, and stop-before-writer guarantees. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R8 boundary note for the implemented candidate-only invocation path from one validated `kernel_intake_context` to one candidate kernel response object. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R8 output contract for candidate response output and fail-closed invocation failure behavior before writers exist. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R8 validation plan reflected by the standalone invocation helper, including malformed intake rejection, candidate response expectations, and stop-before-writer guarantees. |
 
 ## Writer-Boundary Planning And Contracts
 
@@ -140,10 +141,10 @@ These documents explain how the validation surface evolved and what decisions ha
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R5 boundary note for the implemented minimal context-only intake mapper. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R5 implementation output contract for current `kernel_intake_context` output. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R5 validation plan reflected by current standalone intake mapping checks. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` | Phase R6 runtime invocation gate after minimal context-only mapping. It records that runtime invocation preparation should precede implementation; Phase R7 now provides that preparation. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R7 runtime invocation implementation boundary preparation. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R7 runtime invocation candidate output contract. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R7 runtime invocation validation plan. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` | Phase R6 runtime invocation gate after minimal context-only mapping. It records that runtime invocation preparation should precede implementation; Phase R8 now provides the minimal candidate-only implementation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R8 runtime invocation implementation boundary note. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R8 runtime invocation candidate output contract. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R8 runtime invocation validation plan reflected by standalone checks. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response/failure writer boundaries before implementation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` | Planning note for future envelope-to-P0/P1 intake mapping before implementation. |
 
@@ -159,12 +160,12 @@ For current local validation behavior:
 6. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` and `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` when checking the future mapping concept.
 7. Read the three Phase R5 intake mapping implementation notes and run or inspect `validation/kernel_intake_mapping_contract_checks.py` when debugging the standalone mapper helper.
 8. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` when checking why runtime invocation remains closed and why runtime invocation preparation is the selected next phase.
-9. Read the three Phase R7 runtime invocation preparation notes when checking future invocation boundaries, candidate response expectations, and stop-before-writer rules.
+9. Read the three Phase R8 runtime invocation implementation notes and run or inspect `validation/kernel_runtime_invocation_contract_checks.py` when debugging the standalone invocation helper.
 10. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
 11. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
 12. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
 13. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current partial gate state for reader and context-only mapper only.
-14. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 reader implementation, post-reader handoff gate, Phase R5 mapper implementation, Phase R6 runtime invocation gate refresh, and Phase R7 invocation preparation.
+14. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 reader implementation, post-reader handoff gate, Phase R5 mapper implementation, Phase R6 runtime invocation gate refresh, and Phase R8 candidate-only invocation implementation.
 15. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
 16. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
 17. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
@@ -187,7 +188,7 @@ For planning or governance review:
 10. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` when envelope-to-P0/P1 intake mapping is in scope.
 11. Read the three Phase R5 intake mapping implementation notes before proposing runtime invocation.
 12. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` before opening runtime invocation preparation.
-13. Read the three Phase R7 runtime invocation preparation notes before proposing invocation implementation.
+13. Read the three Phase R8 runtime invocation implementation notes before proposing response validation or writer work.
 14. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` when response/failure writer boundaries are in scope.
 15. Read the relevant plan or reassessment note.
 16. Compare proposed changes against the related output contract drift rules.
@@ -247,14 +248,28 @@ kernel-intake-mapping-contract-checks-ok
 
 This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
 
-The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader helper coverage at the current milestone.
+Run the standalone runtime invocation contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_runtime_invocation_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-runtime-invocation-contract-checks-ok
+```
+
+This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
+
+The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, or runtime invocation helper coverage at the current milestone.
 
 ## Explicit Non-Goals
 
 This documentation index must not silently introduce:
 
-- runtime adapter invocation;
-- P0-P10 runtime invocation;
+- runtime adapter invocation beyond the minimal candidate-only invocation;
+- real P0-P10 runtime invocation;
 - canonical task object generation from envelopes;
 - P0/P1 intake preparation beyond context-only mapping;
 - response artifact writing;
@@ -264,7 +279,7 @@ This documentation index must not silently introduce:
 - intake mapping beyond the minimal context-only mapper;
 - treating Phase R5 context mapping as P0/P1 execution or runtime handoff authorization;
 - treating the post-intake mapping runtime invocation gate as runtime invocation implementation authorization;
-- treating Phase R7 runtime invocation preparation as runtime invocation implementation authorization;
+- treating Phase R8 candidate-only invocation as terminal response validation or writer authorization;
 - response validation as runtime behavior;
 - P0/P1 execution;
 - runtime envelope reader expansion beyond one explicit local file;
@@ -289,6 +304,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
+Implement a `Kernel-Side Response Validation Preparation Pass`.
 
-That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees. It must keep wrapper inclusion, response validation as runtime behavior, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should define how a candidate kernel response object will later be validated before any response writer or failure writer is opened. It must keep wrapper inclusion, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

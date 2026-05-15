@@ -186,6 +186,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
+Implement a `Kernel-Side Response Validation Preparation Pass`.
 
-That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees while keeping reader broadening, response validation as runtime behavior, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should define how a candidate kernel response object will later be validated before any response writer or failure writer is opened. It must keep reader broadening, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
