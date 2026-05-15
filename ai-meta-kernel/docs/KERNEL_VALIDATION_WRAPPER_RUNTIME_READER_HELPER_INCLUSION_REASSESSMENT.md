@@ -86,7 +86,7 @@ The following remain explicitly blocked at this milestone:
 - changing the wrapper helper order
 - modifying kernel contracts
 - implementing runtime envelope reading
-- implementing intake mapping
+- broadening intake mapping beyond the minimal context-only mapper
 - invoking P0/P1 or broader kernel runtime
 - writing response or blocking failure artifacts
 - adding queue discovery, polling, retry, cleanup, or CLI behavior

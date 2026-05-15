@@ -38,7 +38,7 @@ The existing helpers cover the first-slice validation contract as follows:
 | Failure fixture exists and parses as a JSON object | `kernel_file_exchange_fixture_checks.py`, `kernel_file_exchange_adapter_scaffold_checks.py` |
 | Failure fixture is blocking | `kernel_file_exchange_fixture_checks.py` |
 | Failure fixture has no canonical task object top-level fields | `kernel_file_exchange_fixture_checks.py` |
-| `prepare_kernel_intake` remains fail-closed | `kernel_file_exchange_adapter_scaffold_checks.py` |
+| `prepare_kernel_intake` remains context-only and stops before runtime | `kernel_file_exchange_adapter_scaffold_checks.py` |
 | `invoke_kernel_runtime` remains fail-closed | `kernel_file_exchange_adapter_scaffold_checks.py` |
 | `write_response_artifact` remains fail-closed | `kernel_file_exchange_adapter_scaffold_checks.py` |
 | `write_failure_artifact` remains fail-closed | `kernel_file_exchange_adapter_scaffold_checks.py` |

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from copy import deepcopy
 from typing import Any
 
 try:
@@ -144,17 +145,31 @@ def validate_envelope_intake(envelope: dict[str, Any]) -> dict[str, Any]:
 
 
 def prepare_kernel_intake(envelope: dict[str, Any]) -> dict[str, Any]:
-    """Future boundary for preparing kernel-owned P0/P1 intake.
+    """Prepare a context-only kernel intake object from one validated envelope.
 
-    This is intentionally blocked because converting an envelope into kernel
-    intake must be approved separately from this scaffold creation pass.
+    This boundary maps evidence and metadata only. It does not execute P0/P1,
+    invoke runtime, generate canonical task objects, or write artifacts.
     """
 
-    validate_envelope_intake(envelope)
-    raise NotImplementedError(
-        "Kernel intake preparation is intentionally not implemented in this "
-        "scaffold. A governed runtime implementation pass must define this boundary."
-    )
+    validated = validate_envelope_intake(envelope)
+    return {
+        "source_envelope": deepcopy(validated),
+        "operator_request": validated["operator_intent"],
+        "source_context": {
+            "source_project": validated["source_project"],
+            "profile_id": validated["profile_id"],
+            "run_mode": validated["run_mode"],
+            "report_target": validated["report_target"],
+            "regions": deepcopy(validated["regions"]),
+        },
+        "evidence_context": {
+            "evidence_bundle": deepcopy(validated["evidence_bundle"]),
+            "evidence_context": deepcopy(validated["evidence_context"]),
+        },
+        "expectation_context": deepcopy(validated["kernel_task_object_expectation"]),
+        "deferred_behavior_context": deepcopy(validated["deferred_runtime_behavior"]),
+        "mapping_stage": "kernel_intake_context_pre_runtime",
+    }
 
 
 def invoke_kernel_runtime(kernel_intake: dict[str, Any]) -> dict[str, Any]:

@@ -47,7 +47,6 @@ Failure checks must confirm that reader failures do not:
 
 - synthesize missing fields;
 - repair malformed input;
-- call `prepare_kernel_intake`;
 - call `invoke_kernel_runtime`;
 - write response artifacts;
 - write failure artifacts;
@@ -67,7 +66,7 @@ Current signal:
 kernel-runtime-envelope-reader-contract-checks-ok
 ```
 
-The current helper remains outside the main wrapper. Future extension or wrapper inclusion requires a governed pass that updates wrapper contracts, failure-path coverage, baseline, and index.
+The current helper remains outside the main wrapper. It does not validate the Phase R5 intake mapper; that surface is covered separately by `validation/kernel_intake_mapping_contract_checks.py`. Future extension or wrapper inclusion requires a governed pass that updates wrapper contracts, failure-path coverage, baseline, and index.
 
 ## Blocked In This Plan
 

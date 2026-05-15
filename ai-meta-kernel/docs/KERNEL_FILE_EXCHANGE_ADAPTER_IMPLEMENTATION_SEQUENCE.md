@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R4 now prepares the future envelope-to-intake mapping implementation boundary. This does not change the implementation order and does not open intake mapping code or later runtime boundaries.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
 
 ## Intended Implementation Order
 
@@ -84,7 +84,7 @@ Purpose:
 Current status:
 
 ```text
-intake_mapping_implementation_preparation_complete_but_mapping_code_closed
+minimal_context_only_intake_mapping_implemented_and_validated
 ```
 
 Depends on:
@@ -96,6 +96,7 @@ Depends on:
 - `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md`;
 - envelope guardrails that exclude canonical task object top-level fields.
+- `validation/kernel_intake_mapping_contract_checks.py`.
 
 Must still not include:
 
@@ -110,8 +111,8 @@ Must still not include:
 
 Additional governed pass required:
 
-- a minimal intake mapping implementation slice before code may emit `kernel_intake_context`.
-- any future helper or code change must still prove context-only output and stop before P0/P1 execution.
+- a governed pass before mapping output is broadened beyond context-only `kernel_intake_context`.
+- any future code change must still prove context-only output or explicitly govern the next boundary before P0/P1 execution.
 
 ## Step 3: Kernel Runtime Invocation Boundary
 
@@ -293,6 +294,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
+Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
 
-That pass may implement only the smallest context-only mapper from one validated envelope to one kernel-owned `kernel_intake_context`, while still keeping P0/P1 execution, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should record the completed context-only mapper and decide the next governed boundary before any P0/P1 execution, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution is opened.

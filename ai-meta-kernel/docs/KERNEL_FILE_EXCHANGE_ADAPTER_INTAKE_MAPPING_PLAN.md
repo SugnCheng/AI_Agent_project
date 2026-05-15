@@ -130,6 +130,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
+Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
 
-That pass may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while keeping P0/P1 execution, P0-P10 runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.
+That pass should record the completed context-only mapper and decide the next governed boundary while keeping P0/P1 execution, P0-P10 runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.

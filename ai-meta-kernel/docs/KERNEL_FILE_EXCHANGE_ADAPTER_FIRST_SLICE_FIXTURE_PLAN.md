@@ -105,7 +105,7 @@ The first slice must validate locally that:
 6. the failure fixture exists and parses as a JSON object;
 7. the failure fixture is blocking;
 8. the failure fixture does not include a partial canonical task object;
-9. `prepare_kernel_intake` remains fail-closed;
+9. `prepare_kernel_intake` remains context-only and stops before runtime;
 10. `invoke_kernel_runtime` remains fail-closed;
 11. `write_response_artifact` remains fail-closed;
 12. `write_failure_artifact` remains fail-closed.

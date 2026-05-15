@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the smallest acceptable future envelope-to-intake mapping implementation boundary for `ai-meta-kernel`.
+This note defines the smallest implemented envelope-to-intake mapping boundary for `ai-meta-kernel`.
 
-It is a preparation note only. It does not add intake mapping code, modify kernel contracts, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+This note records the Phase R5 minimal context-only mapper. It does not modify kernel contracts, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Planning Decision
 
-Current Phase R4 preparation decision:
+Current Phase R5 implementation decision:
 
 ```text
-prepare_minimal_envelope_to_intake_mapping_implementation_boundary_without_code
+minimal_envelope_to_intake_mapping_slice_implemented_context_only
 ```
 
-The future implementation slice may convert one validated `kernel_input_envelope` into one kernel-owned `kernel_intake_context`. It must stop before P0/P1 execution and before P0-P10 runtime invocation.
+The implemented slice converts one validated `kernel_input_envelope` into one kernel-owned `kernel_intake_context`. It stops before P0/P1 execution and before P0-P10 runtime invocation.
 
 ## Intended Input Boundary
 
-The future mapping implementation may accept exactly one validated `kernel_input_envelope` object.
+The mapping implementation accepts exactly one validated `kernel_input_envelope` object.
 
 The input must already satisfy the runtime reader and envelope guardrails:
 
@@ -42,7 +42,7 @@ The mapper must not accept:
 
 ## Intended Output Boundary
 
-The future mapping implementation may output exactly one kernel-owned context object:
+The mapping implementation outputs exactly one kernel-owned context object:
 
 ```text
 kernel_intake_context
@@ -52,7 +52,7 @@ This output is input context for future kernel-owned P0/P1 preparation. It is no
 
 ## Allowed Source Fields From Envelope
 
-The future mapper may carry these envelope fields only as evidence, metadata, request text, expectation context, or deferred-behavior context:
+The mapper carries these envelope fields only as evidence, metadata, request text, expectation context, or deferred-behavior context:
 
 | Envelope field | Allowed role |
 | --- | --- |
@@ -73,7 +73,7 @@ The original validated envelope should remain available as source context or an 
 
 ## Fields That Must Remain Excluded
 
-The future mapping output must not include or populate canonical task object fields:
+The mapping output must not include or populate canonical task object fields:
 
 - `schema_version`;
 - `task_id`;
@@ -101,7 +101,7 @@ Kernel-owned conclusions remain downstream of P0/P1 and P0-P10 runtime behavior,
 
 ## Stop-Before-P0/P1 Boundary
 
-The future implementation boundary must stop here:
+The implementation boundary stops here:
 
 ```text
 validated kernel_input_envelope
@@ -128,19 +128,20 @@ docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md
 docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md
 ```
 
-Those documents define the future mapping concept and output contract. This Phase R4 note fixes the smallest future implementation slice but does not authorize implementation in this phase.
+Those documents define the mapping concept and output contract. This Phase R5 note records the smallest implemented context-only slice.
 
 ## Relationship To Minimal Runtime Reader
 
-The Phase R2 runtime reader produces the validated envelope that a future mapper may accept. The reader still stops before mapping, and the standalone reader helper remains outside the main wrapper.
+The Phase R2 runtime reader produces the validated envelope that the Phase R5 minimal mapper accepts. The reader still stops before mapping, and the standalone reader helper remains outside the main wrapper.
 
-The future mapper must not broaden reader behavior, read files directly, discover queues, poll runtime directories, retry, clean up artifacts, or write terminal artifacts.
+The mapper does not broaden reader behavior, read files directly, discover queues, poll runtime directories, retry, clean up artifacts, or write terminal artifacts.
 
-## Files Requiring Refresh If Implementation Opens Later
+## Files Requiring Refresh If Implementation Broadens Later
 
-A future intake mapping implementation slice must refresh at minimum:
+A future intake mapping broadening slice must refresh at minimum:
 
 - `ai-meta-kernel/file_exchange_adapter_scaffold.py`
+- `ai-meta-kernel/validation/kernel_intake_mapping_contract_checks.py`
 - `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md`
 - `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md`
 - `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md`
@@ -149,13 +150,13 @@ A future intake mapping implementation slice must refresh at minimum:
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
 - `CROSS_PROJECT_INTEGRATION_STATUS.md`
 
-If a new helper is added, its output contract, standalone/wrapper relationship, and wrapper exclusion must also be documented before completion.
+If wrapper inclusion is proposed, the wrapper output contract, failure-path helper coverage, validation baseline, and documentation index must be updated before completion.
 
 ## Behaviors That Remain Blocked
 
-Phase R4 keeps the following blocked:
+Phase R5 keeps the following blocked:
 
-- intake mapping implementation code;
+- intake mapping beyond the minimal context-only mapper;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation;

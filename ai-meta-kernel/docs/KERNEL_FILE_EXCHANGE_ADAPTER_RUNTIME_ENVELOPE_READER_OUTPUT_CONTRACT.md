@@ -85,7 +85,7 @@ The successful output must not add or populate canonical task object fields, inc
 - `downstream_recommendation`;
 - `handoff`.
 
-The successful reader output is not a response artifact, failure artifact, canonical task object, intake context, runtime result, or reporting unlock.
+The successful reader output is not a response artifact, failure artifact, canonical task object, runtime result, or reporting unlock. A separate Phase R5 mapper may consume the validated envelope and produce a context-only `kernel_intake_context`.
 
 ## Failure Behavior
 
@@ -179,13 +179,13 @@ The following changes require a governed pass before implementation:
 - allowing response or failure artifacts as reader input;
 - allowing canonical task object fields inside reader output;
 - changing the stop boundary before intake mapping;
-- allowing reader output to be treated as `kernel_intake_context`;
+- allowing reader output itself to be treated as `kernel_intake_context`;
 - allowing reader output to unlock reporting;
 - broadening reader implementation code beyond the existing explicit-file scaffold boundary;
 - adding intake mapping code, P0/P1 or P0-P10 runtime execution, response validation, response writing, failure writing, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or external service calls.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
+Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
 
-That pass may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while keeping reader broadening, P0/P1 execution, P0-P10 runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should record the completed context-only mapper and decide the next governed boundary while keeping reader broadening, P0/P1 execution, P0-P10 runtime invocation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

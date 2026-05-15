@@ -1,9 +1,9 @@
 """Local checks for the future runtime envelope reader contract surface.
 
-This helper exercises only the current scaffold reader and intake guardrails.
+This helper exercises only the current scaffold reader and envelope guardrails.
 It does not create runtime artifacts, discover runtime queues, invoke kernel
-runtime, prepare intake, write artifacts, fetch sources, compose reports, or
-run scheduler behavior.
+runtime, write artifacts, fetch sources, compose reports, or run scheduler
+behavior.
 """
 
 from __future__ import annotations
@@ -137,11 +137,7 @@ def read_envelope_with_mocked_json(value: Any) -> dict[str, Any]:
         return scaffold.read_envelope_artifact(ENVELOPE_FIXTURE)
 
 
-def check_stop_before_intake(envelope: dict[str, Any]) -> None:
-    assert_not_implemented(
-        "prepare_kernel_intake",
-        lambda: scaffold.prepare_kernel_intake(envelope),
-    )
+def check_stop_before_runtime(envelope: dict[str, Any]) -> None:
     assert_not_implemented(
         "invoke_kernel_runtime",
         lambda: scaffold.invoke_kernel_runtime({"placeholder": "kernel_intake"}),
@@ -151,7 +147,7 @@ def check_stop_before_intake(envelope: dict[str, Any]) -> None:
 def main() -> None:
     envelope = check_successful_reader_output()
     check_reader_failures()
-    check_stop_before_intake(envelope)
+    check_stop_before_runtime(envelope)
 
     print("kernel-runtime-envelope-reader-contract-checks-ok")
 

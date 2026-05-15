@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This document snapshots the output contract for a future minimal envelope-to-intake mapping implementation slice.
+This document snapshots the output contract for the minimal envelope-to-intake mapping implementation slice.
 
-It is a developer-facing preparation contract only. It does not authorize intake mapping implementation in this phase, modify kernel contracts, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing implementation contract. It does not authorize mapping beyond the context-only slice, modify kernel contracts, execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, write response artifacts, write failure artifacts, add CLI behavior, broaden reader behavior, change wrapper behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Contract Decision
 
-Current Phase R4 implementation output contract decision:
+Current Phase R5 implementation output contract decision:
 
 ```text
-future_minimal_mapping_may_return_kernel_intake_context_only
+minimal_mapping_returns_kernel_intake_context_only
 ```
 
-The future minimal mapper may output one `kernel_intake_context` from one validated `kernel_input_envelope`. The output must remain evidence/context for kernel-owned reasoning and must stop before P0/P1 execution.
+The minimal mapper outputs one `kernel_intake_context` from one validated `kernel_input_envelope`. The output remains evidence/context for kernel-owned reasoning and stops before P0/P1 execution.
 
 ## Allowed Future Output
 
-A successful future minimal mapping implementation may output:
+A successful minimal mapping implementation outputs:
 
 ```text
 one_kernel_owned_kernel_intake_context
@@ -34,11 +34,11 @@ Governance-level shape expectations:
 - `deferred_behavior_context`: blocked/deferred behavior notes from `deferred_runtime_behavior`;
 - `mapping_stage`: marker that the object stops at intake mapping and has not entered P0/P1 or P0-P10 runtime.
 
-This shape is a governed expectation for a future implementation, not a new kernel contract.
+This shape is the current minimal mapper output and is not a new kernel contract.
 
 ## Outputs That Remain Prohibited
 
-The future minimal mapper must not output:
+The minimal mapper must not output:
 
 - canonical task object;
 - kernel response artifact;
@@ -75,9 +75,9 @@ Those fields remain owned by kernel runtime reasoning after a separately governe
 
 ## Failure Behavior
 
-Future mapping failures must fail closed.
+Mapping failures must fail closed.
 
-The future mapper must reject:
+The mapper rejects:
 
 - non-object mapping input;
 - unvalidated envelope input;
@@ -123,4 +123,4 @@ The following require a governed pass before implementation:
 
 ## Explicit Non-Authorization
 
-This contract does not authorize intake mapping code in Phase R4. It prepares the future implementation boundary only.
+This contract authorizes only the implemented minimal context-only mapper. It does not authorize P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, wrapper inclusion, or actual handoff.

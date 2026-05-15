@@ -92,8 +92,8 @@ Wrapper inclusion must not silently introduce:
 - artifact polling or watcher behavior;
 - retry/backoff behavior;
 - cleanup automation;
-- intake mapping implementation;
-- `kernel_intake_context` construction;
+- intake mapping broadening beyond the minimal context-only mapper;
+- treating `kernel_intake_context` construction as wrapper behavior;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation from envelope evidence;

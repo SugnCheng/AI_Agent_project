@@ -2,23 +2,23 @@
 
 ## Purpose
 
-This note defines the validation plan for a future minimal envelope-to-intake mapping implementation slice.
+This note defines the validation coverage for the minimal envelope-to-intake mapping implementation slice.
 
-It is a documentation-only validation plan. It does not add implementation tests, modify runtime code, change wrapper behavior, execute P0/P1, invoke P0-P10 runtime, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+This validation plan is reflected by a standalone helper. It does not change wrapper behavior, execute P0/P1, invoke P0-P10 runtime, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Validation Plan Decision
 
-Current Phase R4 validation plan decision:
+Current Phase R5 validation decision:
 
 ```text
-future_intake_mapping_validation_must_prove_context_only_output_and_stop_before_runtime
+minimal_intake_mapping_validated_by_standalone_helper_and_stops_before_runtime
 ```
 
-Future validation must prove that a mapper can convert one validated envelope into context only, without generating kernel conclusions or crossing into runtime execution.
+Validation proves that the mapper converts one validated envelope into context only, without generating kernel conclusions or crossing into runtime execution.
 
 ## Required Future Checks
 
-Once implementation is opened, future local checks should validate:
+The current standalone helper validates:
 
 - one validated envelope input is accepted;
 - allowed envelope fields flow only into approved context roles;
@@ -33,7 +33,7 @@ Once implementation is opened, future local checks should validate:
 
 ## Success Path Validation
 
-The success path should use one reader-validated `kernel_input_envelope` and confirm that the mapper returns one `kernel_intake_context`.
+The success path uses one reader-validated `kernel_input_envelope` and confirms that the mapper returns one `kernel_intake_context`.
 
 The expected output should preserve evidence, provenance, operator request text, expectation metadata, and deferred-behavior context without adding canonical task object fields or runtime conclusions.
 
@@ -55,7 +55,7 @@ Failure checks must also confirm the mapper does not repair input, synthesize mi
 
 ## Stop-Before-Runtime Guarantee
 
-Future validation should make the stop boundary explicit:
+Validation makes the stop boundary explicit:
 
 ```text
 validated kernel_input_envelope
@@ -75,25 +75,33 @@ The validation surface must not cross into:
 
 ## Relationship To Existing Helpers
 
-The current reader helper remains:
+The current intake mapping helper is:
+
+```text
+validation/kernel_intake_mapping_contract_checks.py
+```
+
+Current success signal:
+
+```text
+kernel-intake-mapping-contract-checks-ok
+```
+
+The helper remains standalone and is not included in `validation/run_all_kernel_local_checks.py`.
+
+The reader helper remains separate:
 
 ```text
 validation/kernel_runtime_envelope_reader_contract_checks.py
 ```
 
-It validates reader and envelope guardrails only. It does not validate a mapper because mapping code is not implemented in Phase R4.
-
-A future mapper helper may be added only through a governed implementation pass. If added, it should remain local-only and deterministic, and its wrapper relationship must be documented before completion.
-
 ## Blocked In This Plan
 
-This validation plan does not add:
+This validation surface does not add:
 
-- implementation tests in Phase R4;
-- intake mapping implementation;
+- wrapper inclusion;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - response/failure writers;
 - CLI behavior;
-- wrapper inclusion;
 - queue discovery, polling, retry, cleanup, scheduler, report composition, CI, package migration, or external service calls.

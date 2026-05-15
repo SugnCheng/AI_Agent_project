@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the post-reader handoff gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, the Phase R4 intake mapping implementation preparation surface, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the post-reader handoff gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -26,6 +26,7 @@ The current kernel-side standalone helpers are:
 | `validation/kernel_file_exchange_fixture_checks.py` | Checks the governed static `daily_us_core` file-exchange envelope, response, and failure fixtures. | `kernel-file-exchange-fixture-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md` |
 | `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Checks the current file-exchange adapter scaffold boundary and confirms blocked placeholder functions remain fail-closed. | `kernel-file-exchange-adapter-scaffold-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` |
 | `validation/kernel_runtime_envelope_reader_contract_checks.py` | Checks the runtime envelope reader contract surface against the current minimal reader and intake guardrails without opening intake mapping or runtime invocation. | `kernel-runtime-envelope-reader-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` |
+| `validation/kernel_intake_mapping_contract_checks.py` | Checks the minimal context-only envelope-to-intake mapper without P0/P1 execution, runtime invocation, or artifact writing. | `kernel-intake-mapping-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
 
 These helpers remain canonical standalone checks.
 
@@ -66,7 +67,7 @@ Current coverage is provided by:
 | Helper | First-slice coverage |
 | --- | --- |
 | `validation/kernel_file_exchange_fixture_checks.py` | Validates fixture existence, JSON object shape, governed `daily_us_core` values, response schema validity, blocking failure shape, and forbidden canonical task object leakage in envelope/failure fixtures. |
-| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures and confirms `prepare_kernel_intake`, `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
+| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures, confirms `prepare_kernel_intake` returns context-only intake, and confirms `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
 
 This surface is local-only and deterministic. It does not scan runtime artifact directories, discover live work, mutate fixtures, generate artifacts, or call runtime code.
 
@@ -132,7 +133,7 @@ The helper covers:
 - rejection of a non-`kernel_input_envelope` artifact type;
 - rejection of a failure artifact passed as envelope input;
 - rejection of top-level canonical task object field leakage;
-- confirmation that `prepare_kernel_intake` and `invoke_kernel_runtime` remain blocked with `NotImplementedError`.
+- confirmation that `invoke_kernel_runtime` remains blocked with `NotImplementedError`.
 
 The helper remains standalone. It is not currently included in `validation/run_all_kernel_local_checks.py`.
 
@@ -265,7 +266,7 @@ At the current stage, this means:
 - the reader rejects response artifacts, failure artifacts, and top-level canonical task object field leakage;
 - actual runtime handoff remains closed;
 - intake mapping, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, queue discovery, polling, retry, cleanup, scheduler behavior, reporting, CI, package migration, and external services remain blocked;
-- Phase R4 completed intake mapping implementation preparation without opening reader broadening, wrapper inclusion, CLI planning, or actual handoff.
+- Phase R5 completed context-only intake mapping without opening reader broadening, wrapper inclusion, CLI planning, or actual handoff.
 
 ## Current Writer-Boundary Planning And Output Contract Surface
 
@@ -354,12 +355,12 @@ At the current stage, these documents do not mean:
 - mapping output can unlock reporting;
 - mapping output can be treated as a response artifact.
 
-## Current Intake-Mapping Implementation Preparation Surface
+## Current Intake-Mapping Minimal Implementation Surface
 
-The current Phase R4 preparation status is:
+The current Phase R5 implementation status is:
 
 ```text
-envelope_to_intake_mapping_implementation_preparation_baseline
+envelope_to_intake_mapping_minimal_implementation_slice_complete
 ```
 
 It is documented in:
@@ -372,19 +373,18 @@ docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.
 
 At the current stage, these documents mean:
 
-- the smallest future envelope-to-intake mapping implementation boundary is prepared;
-- the future input boundary is one validated `kernel_input_envelope`;
-- the future output boundary is one kernel-owned `kernel_intake_context`;
-- allowed envelope fields may flow only as evidence, metadata, operator request text, source context, expectation context, or deferred-behavior context;
+- the smallest envelope-to-intake mapping implementation boundary exists in `file_exchange_adapter_scaffold.py`;
+- the input boundary is one validated `kernel_input_envelope`;
+- the output boundary is one kernel-owned `kernel_intake_context`;
+- allowed envelope fields flow only as evidence, metadata, operator request text, source context, expectation context, or deferred-behavior context;
 - canonical task object fields and kernel-owned conclusions remain excluded;
-- the future mapping boundary must stop before P0/P1 execution and P0-P10 runtime invocation;
+- the mapping boundary stops before P0/P1 execution and P0-P10 runtime invocation;
+- `validation/kernel_intake_mapping_contract_checks.py` validates the mapper as a standalone helper;
 - no wrapper behavior changed;
-- `kernel-local-validation-checks-ok` still does not include reader helper coverage.
+- `kernel-local-validation-checks-ok` still does not include standalone reader helper or standalone intake-mapping helper coverage.
 
 At the current stage, these documents do not mean:
 
-- intake mapping code exists;
-- `prepare_kernel_intake` returns `kernel_intake_context`;
 - P0/P1 execution exists;
 - P0-P10 runtime invocation exists;
 - canonical task object generation exists;
@@ -490,6 +490,18 @@ Expected final success signal:
 kernel-runtime-envelope-reader-contract-checks-ok
 ```
 
+Run the intake mapping contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_intake_mapping_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-intake-mapping-contract-checks-ok
+```
+
 ## What Success-Path Validation Means
 
 A successful local wrapper run means:
@@ -500,12 +512,12 @@ A successful local wrapper run means:
 - the first-slice adapter fixture validation surface is covered by the existing fixture and scaffold helpers;
 - the helper-free first-slice coverage decision remains valid for the current `daily_us_core` static fixture set;
 - the writer-boundary plan and output contract are documented as future governed surfaces, not implemented behavior;
-- the intake-mapping plan and output contract are documented as future governed surfaces, not implemented behavior;
-- the Phase R4 intake mapping implementation preparation documents are recorded as future implementation governance, not implemented behavior;
+- the intake-mapping plan and output contract are documented as governed surfaces, with only the Phase R5 context-only mapper implemented;
+- the Phase R5 intake mapping minimal implementation exists and is validated by a standalone helper;
 - the runtime envelope reader output contract and standalone helper are documented as governed reader surfaces;
 - the Phase R2 minimal runtime reader implementation exists and remains bounded to one explicit local envelope path;
-- the post-reader handoff gate remains closed and Phase R4 completed its intake mapping implementation preparation recommendation;
-- the intake mapping implementation preparation baseline exists, while mapping code remains closed;
+- the post-reader handoff gate remains closed even though context-only mapping now exists;
+- the intake mapping minimal implementation baseline exists, while P0/P1 and P0-P10 runtime remain closed;
 - the runtime reader wrapper inclusion gate is documented and keeps the reader helper standalone;
 - the TASK 114 runtime reader wrapper inclusion reassessment keeps the reader helper standalone for the next milestone;
 - all three helpers passed in the governed order;
@@ -515,7 +527,7 @@ It is the current success-path local validation baseline signal only.
 
 It does not exercise wrapper child-failure paths, missing-helper paths, or the standalone runtime envelope reader contract helper. Those surfaces are covered separately by their focused helpers.
 
-In particular, `kernel-local-validation-checks-ok` does not include `validation/kernel_runtime_envelope_reader_contract_checks.py` at the current milestone. The reader helper remains separately runnable and reports `kernel-runtime-envelope-reader-contract-checks-ok` when its standalone contract checks pass.
+In particular, `kernel-local-validation-checks-ok` does not include `validation/kernel_runtime_envelope_reader_contract_checks.py` or `validation/kernel_intake_mapping_contract_checks.py` at the current milestone. Those helpers remain separately runnable and report `kernel-runtime-envelope-reader-contract-checks-ok` and `kernel-intake-mapping-contract-checks-ok` when their standalone contract checks pass.
 
 ## What Failure-Path Validation Means
 
@@ -552,7 +564,7 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - intake-mapping planning has opened P0/P1 intake construction or runtime invocation.
 - runtime envelope reader planning has opened runtime artifact queue discovery, runtime directory scanning, or reader expansion beyond the explicit-file implementation.
 - the post-reader handoff gate has opened intake mapping implementation, runtime invocation, response/failure writers, CLI, or actual handoff.
-- the intake mapping implementation preparation baseline has opened mapping code, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, or actual handoff.
+- the intake mapping minimal implementation baseline has opened P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, or actual handoff.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -561,7 +573,7 @@ The current validation baseline must not silently introduce:
 - runtime adapter invocation;
 - P0-P10 runtime invocation;
 - canonical task object generation from envelopes;
-- kernel intake preparation;
+- P0/P1 intake preparation beyond context-only mapping;
 - response artifact writing;
 - failure artifact writing;
 - runtime artifact reads beyond the explicit-file reader or writes;
@@ -673,10 +685,9 @@ The intake-mapping planning and output contract surfaces also must not silently 
 - mapping output bypassing P0-P10 runtime;
 - direct population of kernel-owned reasoning fields from macro evidence.
 
-The Phase R4 intake mapping implementation preparation surface also must not silently introduce:
+The Phase R5 intake mapping minimal implementation surface also must not silently introduce:
 
-- intake mapping implementation code;
-- `prepare_kernel_intake` returning `kernel_intake_context`;
+- intake mapping beyond the minimal context-only mapper;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation;
@@ -742,9 +753,10 @@ The following changes require a governed pass before implementation:
 - adding response or failure writer implementation;
 - changing the intake-mapping planning decision;
 - changing the intake-mapping output contract decision;
-- changing the Phase R4 intake mapping implementation preparation decision;
-- changing the future intake mapping implementation output contract;
-- changing the future intake mapping implementation validation plan;
+- changing the Phase R5 intake mapping minimal implementation decision;
+- changing the intake mapping implementation output contract;
+- changing the intake mapping implementation validation plan;
+- changing the intake mapping helper path or success signal;
 - changing allowed envelope inputs for intake mapping;
 - changing acceptable intake-context output fields;
 - allowing canonical task object fields in mapping output;
@@ -759,13 +771,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_post_reader_handoff_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts_plus_intake_mapping_implementation_preparation
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_post_reader_handoff_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a post-reader handoff gate that keeps actual handoff closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep that helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, governed intake-mapping planning/output contracts, and Phase R4 intake mapping implementation preparation documents while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a post-reader handoff gate that keeps actual handoff closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
+Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
 
-That pass may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while keeping wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope unless separately governed.
+That pass should record the completed context-only mapper and decide the next governed boundary before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, or actual kernel runtime handoff is opened.

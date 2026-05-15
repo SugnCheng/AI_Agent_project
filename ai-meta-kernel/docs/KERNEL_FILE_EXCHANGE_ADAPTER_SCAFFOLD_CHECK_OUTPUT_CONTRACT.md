@@ -40,7 +40,7 @@ The helper currently performs these checks:
 | --- | --- | --- |
 | 1 | Envelope boundary | `read_envelope_artifact` reads the governed envelope fixture and `validate_envelope_intake` accepts it. |
 | 2 | Response validation boundary | `read_json_object` reads the governed response fixture and `validate_kernel_response` accepts it against `meta-layer/TASK_OBJECT_SCHEMA.json`. |
-| 3 | Kernel intake placeholder | `prepare_kernel_intake` remains fail-closed with `NotImplementedError`. |
+| 3 | Kernel intake mapping boundary | `prepare_kernel_intake` returns a context-only `kernel_intake_context` and stops before runtime. |
 | 4 | Kernel runtime placeholder | `invoke_kernel_runtime` remains fail-closed with `NotImplementedError`. |
 | 5 | Response writer placeholder | `write_response_artifact` remains fail-closed with `NotImplementedError`. |
 | 6 | Failure writer placeholder | `write_failure_artifact` remains fail-closed with `NotImplementedError`. |
@@ -66,7 +66,7 @@ It does not mean:
 
 - actual kernel runtime invocation exists;
 - P0-P10 is executable;
-- kernel intake preparation exists;
+- context-only kernel intake mapping exists, but P0/P1 execution does not;
 - response artifacts can be written;
 - failure artifacts can be written;
 - downstream reporting is unlocked;
@@ -90,7 +90,7 @@ Typical failure categories:
 - invalid response JSON;
 - response failing `validate_kernel_response`;
 - missing failure fixture;
-- blocked boundary unexpectedly returning instead of raising `NotImplementedError`;
+- blocked runtime or writer boundary unexpectedly returning instead of raising `NotImplementedError`;
 - missing `jsonschema` dependency when response schema validation is required;
 - scaffold module import failure.
 
@@ -120,11 +120,11 @@ The following changes require a governed pass before implementation:
 - broadening the check beyond the committed static fixture set;
 - suppressing failure details;
 - allowing warnings to pass where errors are currently required;
-- allowing blocked boundaries to return successfully;
-- replacing `NotImplementedError` expectations with runtime behavior;
+- allowing runtime or writer blocked boundaries to return successfully;
+- replacing runtime or writer `NotImplementedError` expectations with runtime behavior;
 - adding response artifact writing;
 - adding failure artifact writing;
-- adding kernel intake preparation;
+- broadening kernel intake mapping beyond context-only output;
 - adding P0-P10 runtime invocation;
 - adding runtime artifact directory reads;
 - adding artifact polling, cleanup, or retry behavior;

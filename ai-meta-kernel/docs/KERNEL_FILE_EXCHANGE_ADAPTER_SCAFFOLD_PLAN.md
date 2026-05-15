@@ -52,7 +52,7 @@ The smallest acceptable future scaffold boundary is:
 | --- | --- | --- |
 | `read_envelope_artifact(path)` | Read and parse one envelope artifact path. | May parse local JSON and return object-like envelope data, or remain a stub if the implementation pass chooses stricter no-read behavior. |
 | `validate_envelope_intake(envelope)` | Apply envelope guardrails before kernel intake. | Should validate shape and guardrails only; must not create a canonical task object. |
-| `prepare_kernel_intake(envelope)` | Prepare a kernel-owned P0/P1 intake input from the envelope. | May return a minimal intake placeholder or raise `NotImplementedError` until the runtime boundary is approved. |
+| `prepare_kernel_intake(envelope)` | Prepare a kernel-owned context-only intake input from the envelope. | Returns the Phase R5 minimal `kernel_intake_context` and stops before P0/P1 execution and P0-P10 runtime invocation. |
 | `invoke_kernel_runtime(kernel_intake)` | Invoke the real kernel runtime pipeline. | Must raise `NotImplementedError` until a governed runtime implementation pass. |
 | `validate_kernel_response(task_object)` | Check a kernel-produced response before artifact writing. | May be a future schema-validation boundary; must not fabricate task objects. |
 | `write_response_artifact(task_object, destination)` | Write a schema-valid canonical response artifact. | Must remain unimplemented or placeholder-only until response writing is explicitly approved. |
@@ -175,7 +175,7 @@ The failure writer stub must not:
 
 ## Placeholder And NotImplementedError Rules
 
-The future scaffold may use placeholders or `NotImplementedError` for boundaries that are intentionally not implemented.
+The scaffold may use placeholders or `NotImplementedError` for boundaries that are intentionally not implemented.
 
 Allowed placeholder areas:
 

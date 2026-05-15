@@ -60,9 +60,9 @@ Phase R2 did not unlock:
 - CLI or local invocation orchestration;
 - macro-side reporting unlock.
 
-## Next Boundary Decision
+## Current Boundary Decision
 
-Phase R4 opens intake mapping preparation, not reader hardening, wrapper inclusion, or CLI planning.
+Phase R4 opened intake mapping preparation, and Phase R5 implemented the minimal context-only intake mapper. Reader hardening, wrapper inclusion, CLI planning, P0/P1 execution, and P0-P10 runtime invocation remain separate governed boundaries.
 
 Rationale:
 
@@ -71,19 +71,19 @@ Rationale:
 - CLI planning should wait until reader, intake mapping, invocation, and terminal artifacts have clearer local behavior;
 - intake mapping is the next sequence step after a validated envelope exists.
 
-After Phase R4, the recommended next phase is:
+After Phase R5, the recommended next phase is:
 
 ```text
-Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice
+Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass
 ```
 
-That phase may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while still stopping before P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
+That phase should record the completed context-only mapper and decide the next governed boundary while still stopping before P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
 
 ## Explicitly Blocked Behaviors
 
 This gate keeps the following blocked:
 
-- intake mapping implementation;
+- intake mapping beyond the minimal context-only mapper;
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - canonical task object generation;

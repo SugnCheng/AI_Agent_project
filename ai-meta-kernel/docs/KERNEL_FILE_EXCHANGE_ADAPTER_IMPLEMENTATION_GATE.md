@@ -14,14 +14,14 @@ Current decision:
 runtime_adapter_implementation_gate_partially_opened_for_minimal_reader_only
 ```
 
-The Phase R2 minimal runtime reader slice is implemented. Phase R4 prepares the future envelope-to-intake mapping implementation boundary without opening mapping code. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
-The gate remains closed for actual runtime handoff because intake mapping implementation, P0/P1 execution, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because P0/P1 execution, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-envelope_to_intake_mapping_implementation_preparation_baseline
+envelope_to_intake_mapping_minimal_implementation_slice_complete
 ```
 
 Current post-reader handoff gate:
@@ -48,12 +48,12 @@ The following prerequisites are now satisfied because of the recent governance w
 | Phase R2 minimal reader implementation | `file_exchange_adapter_scaffold.py` reads exactly one explicit local envelope path, parses JSON, validates the envelope object, rejects response/failure artifacts and canonical task leakage, returns the validated envelope, and stops before intake. |
 | Phase R2 reader implementation output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md` records current minimal reader output and failure semantics. |
 | Phase R2 reader implementation validation | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md` is reflected by the standalone helper `validation/kernel_runtime_envelope_reader_contract_checks.py`. |
-| Post-reader handoff gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` records that the minimal explicit-file reader is implemented, actual handoff remains closed, and the next governed opening should be intake mapping implementation preparation. |
+| Post-reader handoff gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` records that the minimal explicit-file reader is implemented and actual handoff remains closed. Phase R5 has since implemented the context-only intake mapper. |
 | Writer-boundary planning | Future response writer and blocking failure writer responsibilities are planned without implementation. |
 | Writer-boundary output contract | Future writer naming, pre-write validation, blocking failure semantics, and mutual exclusivity are governed. |
 | Intake-mapping planning | The future envelope-to-P0/P1 intake mapping boundary is planned as kernel-owned context mapping only. |
 | Intake-mapping output contract | Allowed envelope inputs, acceptable future intake context, excluded kernel-owned conclusions, and the stop boundary before runtime invocation are governed. |
-| Phase R4 intake mapping implementation preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` define the future minimal context-only mapper boundary without adding code. |
+| Phase R5 intake mapping minimal implementation | `file_exchange_adapter_scaffold.py` now maps one validated `kernel_input_envelope` into one context-only `kernel_intake_context`; `validation/kernel_intake_mapping_contract_checks.py` validates the standalone mapping contract. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, writer-boundary governance, and intake-mapping governance. |
 
 ## Existing Satisfied Prerequisites
@@ -68,7 +68,7 @@ The following earlier prerequisites remain satisfied:
 | Macro envelope path | Macro agent can build and write governed kernel input envelope artifacts. |
 | Macro response read path | Macro agent can read and classify standard, restricted, blocked, and failure fixture states. |
 | Kernel adapter contract | Kernel-side adapter boundary, ownership, response/failure responsibilities, and drift rules are documented. |
-| Kernel scaffold boundary | Current scaffold keeps runtime invocation, intake preparation, response writing, and failure writing fail-closed. |
+| Kernel scaffold boundary | Current scaffold keeps runtime invocation, response writing, and failure writing fail-closed while allowing context-only intake mapping. |
 | Kernel validation surface | Static contract checks, file-exchange fixture checks, adapter scaffold checks, wrapper checks, and wrapper failure-path checks exist. |
 
 ## Unsatisfied Prerequisites
@@ -77,9 +77,9 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 
 | Missing prerequisite | Why it blocks implementation |
 | --- | --- |
-| Runtime envelope reader expansion | The minimal reader exists, but queue discovery, polling, CLI behavior, intake mapping, runtime invocation, and artifact writing remain blocked. |
+| Runtime envelope reader expansion | The minimal reader exists, but queue discovery, polling, CLI behavior, runtime invocation, and artifact writing remain blocked. |
 | Runtime reader wrapper inclusion | The standalone reader helper remains outside the main wrapper; adding it to `CHECKS` requires a separate governed wrapper pass. |
-| Intake mapping implementation | The mapping contract exists, but no code may yet produce `kernel_intake_context`. |
+| Intake mapping broadening | The minimal context-only mapper exists, but mapping must not produce kernel conclusions or cross into runtime. |
 | P0/P1 and P0-P10 runtime invocation path | The adapter still has no governed runtime entrypoint into the kernel pipeline. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
 | Response writer implementation | The writer contract exists, but response artifact writing remains blocked. |
@@ -109,24 +109,24 @@ Next possible openings were reassessed as follows:
 
 | Candidate next opening | Current decision |
 | --- | --- |
-| Intake mapping preparation / implementation | Preparation is now complete in Phase R4. Implementation still requires a separate governed minimal slice. |
+| Intake mapping preparation / implementation | Minimal context-only implementation is now complete in Phase R5. Any broadening still requires a separate governed pass. |
 | Reader validation hardening | Defer unless reader scope changes or a specific coverage gap appears. The standalone helper currently covers the required explicit-file reader surface. |
 | Wrapper inclusion reassessment | Defer. The reader helper remains standalone and `kernel-local-validation-checks-ok` still does not include reader helper coverage. |
 | Local invocation / CLI planning | Defer until reader, intake mapping, runtime invocation, and terminal artifact boundaries are better defined. |
 
-The next governed opening may be a minimal intake mapping implementation slice only. It should not implement P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, or actual handoff.
+The next governed opening must be a post-mapping baseline and runtime invocation gate refresh. It should not implement P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, or actual handoff.
 
-## Phase R4 Preparation Status
+## Phase R5 Implementation Status
 
-Current Phase R4 status:
+Current Phase R5 status:
 
 ```text
-envelope_to_intake_mapping_implementation_preparation_baseline
+envelope_to_intake_mapping_minimal_implementation_slice_complete
 ```
 
-The future minimal mapper boundary is now prepared, but not implemented. A later implementation slice may be considered only if it remains limited to one validated `kernel_input_envelope` input and one context-only `kernel_intake_context` output.
+The minimal mapper boundary is now implemented and validated by a standalone helper. The implementation is limited to one validated `kernel_input_envelope` input and one context-only `kernel_intake_context` output.
 
-That future slice must still not execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, validate runtime responses, write response/failure artifacts, add CLI behavior, broaden reader behavior, or change wrapper behavior.
+The implemented slice does not execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, validate runtime responses, write response/failure artifacts, add CLI behavior, broaden reader behavior, or change wrapper behavior.
 
 ## What Must Remain Blocked
 
@@ -136,8 +136,8 @@ The current gate must continue to block:
 - adding `validation/kernel_runtime_envelope_reader_contract_checks.py` to `validation/run_all_kernel_local_checks.py`;
 - treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - runtime envelope artifact queue discovery;
-- intake mapping implementation;
-- treating Phase R4 preparation as intake mapping code;
+- intake mapping beyond the minimal context-only mapper;
+- treating Phase R5 context mapping as runtime invocation;
 - P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
@@ -187,7 +187,7 @@ This gate note must not silently introduce:
 - treating standalone reader-helper success as wrapper success;
 - P0-P10 runtime execution;
 - canonical task object generation from envelopes;
-- treating Phase R4 preparation as authorization to emit `kernel_intake_context`;
+- treating Phase R5 context mapping as authorization for P0/P1 execution;
 - response artifact writing;
 - failure artifact writing;
 - live fetching;
@@ -204,6 +204,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
+Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
 
-That pass may implement only the smallest context-only mapper from one validated envelope to one kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.
+That pass should record the completed context-only mapper and decide the next governed boundary before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, or actual handoff execution is opened.

@@ -65,10 +65,10 @@ def check_response_boundary() -> dict:
 def check_blocked_boundaries(envelope: dict, response: dict) -> None:
     failure = scaffold.read_json_object(FAILURE_FIXTURE, "failure fixture")
 
-    assert_raises_not_implemented(
-        "prepare_kernel_intake",
-        lambda: scaffold.prepare_kernel_intake(envelope),
-    )
+    kernel_intake = scaffold.prepare_kernel_intake(envelope)
+    if kernel_intake.get("mapping_stage") != "kernel_intake_context_pre_runtime":
+        raise AssertionError("prepare_kernel_intake should stop before runtime")
+
     assert_raises_not_implemented(
         "invoke_kernel_runtime",
         lambda: scaffold.invoke_kernel_runtime({"placeholder": "kernel_intake"}),

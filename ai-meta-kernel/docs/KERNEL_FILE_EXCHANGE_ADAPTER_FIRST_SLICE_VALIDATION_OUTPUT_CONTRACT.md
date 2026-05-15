@@ -41,7 +41,7 @@ The first slice may validate that:
 7. the failure fixture exists and parses as a JSON object;
 8. the failure fixture is a blocking kernel exchange failure;
 9. the failure fixture does not contain partial canonical task object content;
-10. `prepare_kernel_intake` remains intentionally unimplemented;
+10. `prepare_kernel_intake` remains context-only and stops before runtime;
 11. `invoke_kernel_runtime` remains intentionally unimplemented;
 12. `write_response_artifact` remains intentionally unimplemented;
 13. `write_failure_artifact` remains intentionally unimplemented.
