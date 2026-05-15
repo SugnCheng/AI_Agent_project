@@ -62,7 +62,7 @@ Phase R2 did not unlock:
 
 ## Next Boundary Decision
 
-The next governed phase should open intake mapping preparation, not reader hardening, wrapper inclusion, or CLI planning.
+Phase R4 opens intake mapping preparation, not reader hardening, wrapper inclusion, or CLI planning.
 
 Rationale:
 
@@ -71,13 +71,13 @@ Rationale:
 - CLI planning should wait until reader, intake mapping, invocation, and terminal artifacts have clearer local behavior;
 - intake mapping is the next sequence step after a validated envelope exists.
 
-The recommended next phase is:
+After Phase R4, the recommended next phase is:
 
 ```text
-Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass
+Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice
 ```
 
-That phase should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while still stopping before P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
+That phase may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while still stopping before P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
 
 ## Explicitly Blocked Behaviors
 

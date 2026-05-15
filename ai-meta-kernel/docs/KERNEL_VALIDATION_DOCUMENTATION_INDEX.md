@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R4 intake mapping implementation preparation notes, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -90,6 +90,16 @@ These documents describe the future envelope-to-P0/P1 intake mapping boundary. U
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` | Planning note for the future envelope-to-P0/P1 intake mapping boundary, including allowed envelope field flow and blocked behavior before implementation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` | Output contract for future intake mapping: allowed inputs, acceptable `kernel_intake_context` output, excluded canonical fields, stop boundary, blocked behaviors, and governed change triggers. |
 
+## Intake-Mapping Implementation Preparation
+
+These documents describe the Phase R4 preparation package for a future minimal context-only mapper. Use them after the reader implementation and post-reader handoff gate, before any implementation proposal.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R4 boundary plan for a future mapper from one validated `kernel_input_envelope` to one kernel-owned `kernel_intake_context`. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R4 output contract for future minimal mapping output. It excludes canonical task objects, response/failure artifacts, P0/P1 results, runtime results, and report eligibility. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R4 validation plan for future mapper checks, including allowed field flow, excluded kernel conclusions, fail-closed behavior, and stop-before-runtime guarantees. |
+
 ## Baseline, Reassessment, And Planning Notes
 
 These documents explain how the validation surface evolved and what decisions have already been bounded.
@@ -110,11 +120,14 @@ These documents explain how the validation surface evolved and what decisions ha
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_PLAN.md` | Planning note for adapter scaffold boundary validation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` | Planning note for the first acceptable adapter fixture validation slice. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Sequencing note for future runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure writer, local invocation, and artifact policy work. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` | Output contract for the first future runtime adapter implementation-sequence boundary. It remains non-implementation governance. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` | Output contract for the runtime reader boundary and stop-before-intake guarantee. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R2 boundary note for the implemented minimal reader slice. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R2 output contract for the implemented minimal reader slice. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R2 validation plan reflected by current standalone reader checks. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` | Post-reader handoff gate after Phase R2. It records that the minimal explicit-file reader is implemented but intake mapping, runtime invocation, writers, CLI, wrapper inclusion, and actual handoff remain closed. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_BOUNDARY_PLAN.md` | Phase R4 boundary plan for the future minimal context-only intake mapper. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Phase R4 implementation output contract for future `kernel_intake_context` output. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` | Phase R4 validation plan for future intake mapping implementation checks. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` | Planning note for future response/failure writer boundaries before implementation. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` | Planning note for future envelope-to-P0/P1 intake mapping before implementation. |
 
@@ -127,35 +140,37 @@ For current local validation behavior:
 3. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_OUTPUT_CONTRACT.md` when checking minimal reader output expectations.
 4. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_IMPLEMENTATION_VALIDATION_PLAN.md` when checking current standalone implementation validation coverage.
 5. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` when checking why actual handoff remains closed after the minimal reader implementation.
-6. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
-7. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
-8. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
-9. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 minimal implementation surface, and post-reader handoff gate.
-10. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
-11. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
-12. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
-13. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
-14. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking future runtime adapter implementation order.
-15. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` when checking future intake-context expectations and blocked mapping behavior.
-16. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
-17. Read the specific standalone helper contract only when debugging that helper.
+6. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` and `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_OUTPUT_CONTRACT.md` when checking the future mapping concept.
+7. Read the three Phase R4 intake mapping implementation preparation notes before proposing mapping code.
+8. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
+9. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
+10. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
+11. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 minimal implementation surface, post-reader handoff gate, and Phase R4 preparation.
+12. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
+13. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
+14. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
+15. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
+16. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking future runtime adapter implementation order.
+17. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md` when checking future writer expectations and blocked writer behavior.
+18. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
 1. Read `docs/KERNEL_VALIDATION_BASELINE.md`.
 2. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_FIXTURE_PLAN.md` for the first-slice adapter fixture strategy when adapter fixture validation is in scope.
 3. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when future runtime adapter implementation order is in scope.
-4. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` when the first future runtime reader boundary is in scope.
+4. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` when the runtime reader boundary is in scope.
 5. Read the three Phase R2 runtime reader implementation notes before proposing reader expansion or the next boundary.
 6. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_READER_HANDOFF_GATE.md` before opening any post-reader boundary.
 7. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` before proposing wrapper inclusion for the standalone reader helper.
 8. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` before changing the next-milestone standalone decision.
 9. Read `docs/KERNEL_VALIDATION_BASELINE.md` to confirm the current baseline status and blocked behavior surface.
 10. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_PLAN.md` when envelope-to-P0/P1 intake mapping is in scope.
-11. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` when response/failure writer boundaries are in scope.
-12. Read the relevant plan or reassessment note.
-13. Compare proposed changes against the related output contract drift rules.
-14. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
+11. Read the three Phase R4 intake mapping implementation preparation notes before proposing a minimal mapper.
+12. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_PLAN.md` when response/failure writer boundaries are in scope.
+13. Read the relevant plan or reassessment note.
+14. Compare proposed changes against the related output contract drift rules.
+15. Treat runtime behavior, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
 
 ## Current Local Commands
 
@@ -212,6 +227,7 @@ This documentation index must not silently introduce:
 - response writer implementation;
 - failure writer implementation;
 - intake mapping implementation;
+- treating Phase R4 intake mapping implementation preparation as implementation authorization;
 - P0/P1 execution;
 - runtime envelope reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff authorization;
@@ -235,6 +251,6 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass`.
+Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
 
-That pass should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.
+That pass may implement only the smallest context-only mapper from one validated envelope into one kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.

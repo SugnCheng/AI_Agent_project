@@ -14,14 +14,14 @@ Current decision:
 runtime_adapter_implementation_gate_partially_opened_for_minimal_reader_only
 ```
 
-The Phase R2 minimal runtime reader slice is implemented. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and future intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. Phase R4 prepares the future envelope-to-intake mapping implementation boundary without opening mapping code. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
-The gate remains closed for actual runtime handoff because intake mapping implementation, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because intake mapping implementation, P0/P1 execution, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-runtime_envelope_reader_minimal_implementation_slice_complete
+envelope_to_intake_mapping_implementation_preparation_baseline
 ```
 
 Current post-reader handoff gate:
@@ -53,6 +53,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Writer-boundary output contract | Future writer naming, pre-write validation, blocking failure semantics, and mutual exclusivity are governed. |
 | Intake-mapping planning | The future envelope-to-P0/P1 intake mapping boundary is planned as kernel-owned context mapping only. |
 | Intake-mapping output contract | Allowed envelope inputs, acceptable future intake context, excluded kernel-owned conclusions, and the stop boundary before runtime invocation are governed. |
+| Phase R4 intake mapping implementation preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_VALIDATION_PLAN.md` define the future minimal context-only mapper boundary without adding code. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, writer-boundary governance, and intake-mapping governance. |
 
 ## Existing Satisfied Prerequisites
@@ -108,12 +109,24 @@ Next possible openings were reassessed as follows:
 
 | Candidate next opening | Current decision |
 | --- | --- |
-| Intake mapping preparation / implementation | Prepare next. It is the next implementation-sequence boundary after a validated envelope exists, but code should still require a governed preparation pass before implementation. |
+| Intake mapping preparation / implementation | Preparation is now complete in Phase R4. Implementation still requires a separate governed minimal slice. |
 | Reader validation hardening | Defer unless reader scope changes or a specific coverage gap appears. The standalone helper currently covers the required explicit-file reader surface. |
 | Wrapper inclusion reassessment | Defer. The reader helper remains standalone and `kernel-local-validation-checks-ok` still does not include reader helper coverage. |
 | Local invocation / CLI planning | Defer until reader, intake mapping, runtime invocation, and terminal artifact boundaries are better defined. |
 
-The next governed phase should be intake mapping implementation preparation only. It should not implement P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, or actual handoff.
+The next governed opening may be a minimal intake mapping implementation slice only. It should not implement P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, or actual handoff.
+
+## Phase R4 Preparation Status
+
+Current Phase R4 status:
+
+```text
+envelope_to_intake_mapping_implementation_preparation_baseline
+```
+
+The future minimal mapper boundary is now prepared, but not implemented. A later implementation slice may be considered only if it remains limited to one validated `kernel_input_envelope` input and one context-only `kernel_intake_context` output.
+
+That future slice must still not execute P0/P1, invoke P0-P10 runtime, generate canonical task objects, validate runtime responses, write response/failure artifacts, add CLI behavior, broaden reader behavior, or change wrapper behavior.
 
 ## What Must Remain Blocked
 
@@ -123,7 +136,8 @@ The current gate must continue to block:
 - adding `validation/kernel_runtime_envelope_reader_contract_checks.py` to `validation/run_all_kernel_local_checks.py`;
 - treating `kernel-runtime-envelope-reader-contract-checks-ok` as part of `kernel-local-validation-checks-ok`;
 - runtime envelope artifact queue discovery;
-- P0/P1 intake mapping implementation;
+- intake mapping implementation;
+- treating Phase R4 preparation as intake mapping code;
 - P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
@@ -155,7 +169,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 2. Current wrapper failure-path validation still passes.
 3. Macro unified local validation still passes.
 4. Any reader broadening pass preserves the existing explicit-file, fail-closed baseline or updates it through governed review.
-5. A governed implementation pass defines how `kernel_intake_context` code will be validated before runtime invocation.
+5. A governed minimal mapping implementation pass defines and validates context-only `kernel_intake_context` creation before runtime invocation.
 6. The future P0/P1 or P0-P10 invocation entrypoint is defined as kernel-owned behavior.
 7. Response state validation is governed before any response artifact writer is implemented.
 8. Blocking failure writer implementation is governed separately from response writer implementation.
@@ -173,6 +187,7 @@ This gate note must not silently introduce:
 - treating standalone reader-helper success as wrapper success;
 - P0-P10 runtime execution;
 - canonical task object generation from envelopes;
+- treating Phase R4 preparation as authorization to emit `kernel_intake_context`;
 - response artifact writing;
 - failure artifact writing;
 - live fetching;
@@ -189,6 +204,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Envelope-To-Intake Mapping Implementation Preparation Pass`.
+Implement a `Kernel-Side Envelope-To-Intake Mapping Minimal Implementation Slice`.
 
-That pass should prepare the implementation boundary and validation plan for converting one validated envelope into a kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.
+That pass may implement only the smallest context-only mapper from one validated envelope to one kernel-owned `kernel_intake_context`, while still avoiding wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution unless separately governed.
