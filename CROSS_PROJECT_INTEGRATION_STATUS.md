@@ -19,7 +19,7 @@ Current cross-project status:
 file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation, response writer, and failure writer remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation, response writer, and failure writer remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -71,6 +71,7 @@ Already in place:
 - post-intake mapping runtime invocation gate confirming actual runtime invocation remains closed after the minimal mapper slice;
 - Phase R8 minimal runtime invocation implementation returning candidate-only pre-writer response objects from validated `kernel_intake_context`;
 - Phase R10 minimal local response validation implementation for the current candidate-only response boundary;
+- Phase R11 post-response-validation writer gate confirming response/failure writers remain closed;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -110,7 +111,13 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_post_intake_mapping_runtime_invocation_gate_plus_writer_boundary_governed_but_handoff_unimplemented
+first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_post_response_validation_writer_gate_plus_writer_boundary_governed_but_handoff_unimplemented
+```
+
+Current Phase R11 post-response-validation writer gate status:
+
+```text
+post_response_validation_writer_gate_refreshed
 ```
 
 Current Phase R10 response validation implementation status:
@@ -204,6 +211,15 @@ Current response validation implementation status:
 - confirms validation output remains local and pre-writer until a response writer exists;
 - keeps terminal schema validation, response/failure writers, CLI behavior, macro reporting unlock, and actual handoff absent.
 
+Current post-response-validation writer gate status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md`;
+- records that minimal local response validation is implemented;
+- confirms validated response output remains local, pre-writer, and non-terminal;
+- confirms kernel side still does not write response or failure artifacts;
+- selects combined terminal writer preparation as the next governed phase;
+- keeps CLI behavior, macro reporting unlock, and actual handoff absent.
+
 Current runtime reader governance status:
 
 - governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md`;
@@ -244,7 +260,7 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
-- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
+- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, Phase R11 post-response-validation writer gate, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
 
 ## Remaining Runtime Handoff Gaps
 
@@ -255,13 +271,14 @@ Before actual runtime handoff, the following gaps remain:
 3. Keep the Phase R8 candidate-only runtime invocation from being treated as terminal response validation or writer authorization.
 4. Produce terminal canonical task objects only inside `ai-meta-kernel` after separately governed runtime/validation boundaries.
 5. Keep the Phase R10 local response validation output from being treated as terminal `TASK_OBJECT_SCHEMA` validation or writer authorization.
-6. Implement response artifact writing only after schema and response-state validation.
-7. Implement blocking kernel failure artifact writing for invocation, parsing, schema validation, or response state validation failures.
-8. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation.
-9. Preserve restricted and blocked response semantics before macro-side reporting.
-10. Define the operator review checkpoint for restricted and blocked outputs.
-11. Decide runtime artifact retention, fixture promotion, and cleanup policy.
-12. Define any CLI or invocation boundary separately from scheduler/reporting behavior.
+6. Prepare response and failure writer boundaries together before any terminal artifact writer implementation.
+7. Implement response artifact writing only after schema and response-state validation.
+8. Implement blocking kernel failure artifact writing for invocation, parsing, schema validation, or response state validation failures.
+9. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation.
+10. Preserve restricted and blocked response semantics before macro-side reporting.
+11. Define the operator review checkpoint for restricted and blocked outputs.
+12. Decide runtime artifact retention, fixture promotion, and cleanup policy.
+13. Define any CLI or invocation boundary separately from scheduler/reporting behavior.
 
 ## Explicitly Blocked Behaviors
 
@@ -282,6 +299,7 @@ The current cross-project baseline must not silently introduce:
 - treating the post-intake mapping runtime invocation gate as P0/P1 or P0-P10 runtime invocation implementation authorization;
 - treating Phase R8 candidate-only runtime invocation as terminal response validation or writer authorization;
 - treating Phase R10 local response validation as terminal schema validation or writer authorization;
+- treating Phase R11 writer gate refresh as writer implementation authorization;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
 - treating the post-reader handoff gate as actual handoff authorization;
@@ -299,6 +317,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Post-Response-Validation Writer Gate Refresh Pass`.
+Implement a `Kernel-Side Terminal Writer Preparation Pass`.
 
-That pass should record that minimal local response validation exists, confirm response/failure writers remain closed, and select the next governed writer-preparation or writer-implementation boundary. It must keep wrapper inclusion, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, and actual handoff execution out of scope unless separately governed.
+That pass should prepare response writer and blocking failure writer boundaries together, because they share terminal-artifact mutual exclusivity. It must not implement writers, wrapper inclusion, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution.

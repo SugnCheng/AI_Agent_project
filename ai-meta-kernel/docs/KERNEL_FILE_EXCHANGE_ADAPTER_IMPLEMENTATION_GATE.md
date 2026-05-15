@@ -21,7 +21,7 @@ The gate remains closed for actual runtime handoff because terminal `TASK_OBJECT
 Current implementation baseline:
 
 ```text
-response_validation_minimal_local_validation_slice_complete
+post_response_validation_writer_gate_refreshed
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -59,6 +59,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Phase R8 runtime invocation minimal implementation | `file_exchange_adapter_scaffold.py` now accepts one validated `kernel_intake_context` and returns one candidate-only pre-writer response object; `validation/kernel_runtime_invocation_contract_checks.py` validates the standalone invocation contract. |
 | Phase R9/R10 response validation boundary | `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_VALIDATION_PLAN.md` now record the implemented minimal local response validation boundary. |
 | Phase R10 response validation minimal implementation | `file_exchange_adapter_scaffold.py` now validates one current R8 candidate response as local pre-writer output; `validation/kernel_response_validation_contract_checks.py` validates the standalone response validation contract. |
+| Phase R11 post-response-validation writer gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` records that local response validation is implemented while response/failure writers, CLI, macro reporting, and actual handoff remain closed. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -122,9 +123,10 @@ Next possible openings were reassessed as follows:
 | Minimal runtime invocation implementation | Complete in Phase R8 as candidate-only and pre-writer. |
 | Response validation preparation | Complete in Phase R9. |
 | Minimal response validation implementation | Complete in Phase R10 as local candidate-only validation with strict stop-before-writer constraints. |
-| Post-response-validation writer gate | Selected as the next possible governed opening before any writer preparation or implementation. |
+| Post-response-validation writer gate | Complete in Phase R11; response/failure writers remain closed. |
+| Combined terminal writer preparation | Selected as the next possible governed opening because response and failure writers share terminal-artifact mutual exclusivity. |
 
-Response validation implementation is now minimally complete for the current R8 candidate contract. The next governed opening should reassess writer readiness before any response or failure writer is prepared.
+Response validation implementation is now minimally complete for the current R8 candidate contract, and the post-response-validation writer gate is refreshed. The next governed opening should prepare response and failure writer boundaries together before any writer implementation is attempted.
 
 ## Phase R5 Implementation Status
 
@@ -196,6 +198,18 @@ The minimal response validation boundary is now implemented and validated by a s
 
 The implemented slice does not validate the current candidate as terminal `TASK_OBJECT_SCHEMA` output, write response/failure artifacts, add CLI behavior, broaden reader behavior, broaden intake mapping, broaden runtime invocation, unlock macro reporting, or execute actual runtime handoff.
 
+## Phase R11 Writer Gate Status
+
+Current Phase R11 status:
+
+```text
+post_response_validation_writer_gate_refreshed
+```
+
+The post-response-validation writer gate is refreshed. The repository remains partially opened only for the minimal explicit-file reader, context-only mapper, candidate-only invocation, and local pre-writer response validation.
+
+Response writer implementation, failure writer implementation, CLI behavior, macro report unlock, and actual runtime handoff remain closed.
+
 ## What Must Remain Blocked
 
 The current gate must continue to block:
@@ -208,6 +222,7 @@ The current gate must continue to block:
 - treating Phase R5 context mapping as runtime invocation;
 - treating Phase R8 candidate-only invocation as terminal response validation or writer authorization;
 - treating Phase R10 local response validation as terminal `TASK_OBJECT_SCHEMA` validation or writer authorization;
+- treating Phase R11 writer gate refresh as writer implementation authorization;
 - real P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
@@ -274,6 +289,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Post-Response-Validation Writer Gate Refresh Pass`.
+Implement a `Kernel-Side Terminal Writer Preparation Pass`.
 
-That pass should record that minimal local response validation exists, confirm response/failure writers remain closed, and select the next governed writer-preparation or writer-implementation boundary. It must keep wrapper inclusion, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should prepare response writer and blocking failure writer boundaries together, because they share terminal-artifact mutual exclusivity. It must not implement writers, wrapper inclusion, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, or actual handoff execution.
