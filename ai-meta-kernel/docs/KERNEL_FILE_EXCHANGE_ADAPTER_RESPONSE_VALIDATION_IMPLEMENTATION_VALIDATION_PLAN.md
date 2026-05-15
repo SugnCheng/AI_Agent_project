@@ -2,77 +2,78 @@
 
 ## Purpose
 
-This note defines the future validation coverage expected before a minimal response validation implementation slice is opened.
+This note records the validation coverage for the Phase R10 minimal response validation implementation slice.
 
-It is a documentation-only validation plan. It does not create implementation tests, add helpers, modify wrapper behavior, implement response validation, modify `meta-layer/TASK_OBJECT_SCHEMA.json`, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing validation plan for the implemented local validator. It does not add wrapper behavior, modify `meta-layer/TASK_OBJECT_SCHEMA.json`, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Validation Plan Decision
 
-Current Phase R9 validation planning decision:
+Current Phase R10 validation decision:
 
 ```text
-plan_response_validation_before_implementation
+validate_current_candidate_response_as_local_pre_writer_output
 ```
 
-Future validation must prove that response validation accepts only one candidate kernel response object, returns only a local validated response object, and stops before all writer boundaries.
+Validation must prove that response validation accepts only one current R8 candidate response object, returns only one local validated pre-writer response object, and stops before all writer boundaries.
 
-## Future Success Path Checks
+## Success Path Checks
 
-Once response validation implementation is opened, validation should cover:
+The standalone helper validates:
 
-- one candidate response input;
-- candidate provenance from `invoke_kernel_runtime()` or an equivalent governed kernel-owned invocation boundary;
-- candidate response object shape;
-- schema validation against `meta-layer/TASK_OBJECT_SCHEMA.json` if the candidate is canonical-task-object-shaped;
-- response-state and handoff expectation checks;
-- validated response object returned as a local object;
-- no response artifact written;
-- no failure artifact written;
-- no CLI success signal emitted;
-- no macro-side report unlock.
+- valid candidate response from `invoke_kernel_runtime()` produces one locally validated response object;
+- validated output remains pre-writer and non-terminal;
+- validated output contains no written response artifact path;
+- validated output contains no written failure artifact path;
+- validated output contains no report eligibility signal;
+- validated output contains no macro-side report unlock;
+- the source candidate is preserved as an isolated copy;
+- the helper reports `kernel-response-validation-contract-checks-ok`.
 
-## Future Failure Path Checks
+## Failure Path Checks
 
-Future validation should reject:
+The standalone helper rejects:
 
 - non-object input;
 - malformed candidate response;
 - terminal response artifact input;
 - terminal failure artifact input;
-- response artifact path input;
-- failure artifact path input;
-- macro-produced canonical task object input;
-- candidate response missing governed response-state expectations;
-- candidate response that cannot pass `TASK_OBJECT_SCHEMA.json` when schema validation is required.
+- candidate response with response artifact path fields;
+- candidate response with failure artifact path fields;
+- candidate response with `terminal_artifact_written == True`;
+- candidate response with `response_writer_called == True`;
+- candidate response with `failure_writer_called == True`;
+- candidate response with `macro_report_unlock == True`;
+- candidate response with CLI success, report eligibility, external service, or written artifact fields.
 
-Failure must remain local and explicit before a failure writer exists. It must not write response or failure artifacts.
+Failure remains local and explicit before a failure writer exists. It does not write response or failure artifacts.
 
-## Response-State Validation Expectations
+## Current Response-State Expectations
 
-Future validation should define and check response-state expectations before writer implementation.
+R10 validates the current candidate-only state, not terminal `TASK_OBJECT_SCHEMA` output.
 
-At minimum, the future validation plan should preserve:
+At minimum, the implemented validator preserves:
 
-- standard, restricted, blocked, and failed/rejected semantics;
-- no reporting unlock from invalid or unvalidated candidates;
-- no silent repair of missing status or handoff fields;
-- no schema repair or field renaming;
-- no writer-side inference of kernel conclusions.
+- candidate type is `kernel_runtime_candidate_response`;
+- candidate state is `pre_writer_non_terminal`;
+- invocation stage is `kernel_runtime_invocation_candidate_only`;
+- writer-called markers are false;
+- macro report unlock remains false;
+- current context fields remain present and object/list/string shaped as required.
 
-This plan does not add response validation behavior in Phase R9.
+If a future candidate becomes canonical-task-object-shaped, schema and response-state validation must be governed separately before any writer can run.
 
 ## Stop-Before-Writer Guarantee
 
-Validation must prove this boundary:
+Validation proves this boundary:
 
 ```text
 candidate kernel response object
 -> response validation
--> schema/state validated response object
+-> local validated pre-writer response object
 -> stop
 ```
 
-It must also prove:
+It also proves:
 
 - no artifact writing;
 - no response writer calls;
@@ -83,6 +84,12 @@ It must also prove:
 
 ## Relationship To Existing Helpers
 
+The response validation helper is standalone:
+
+```text
+validation/kernel_response_validation_contract_checks.py
+```
+
 Existing helpers remain unchanged:
 
 ```text
@@ -92,17 +99,16 @@ validation/kernel_runtime_invocation_contract_checks.py
 validation/run_all_kernel_local_checks.py
 ```
 
-Phase R9 does not add a response validation helper and does not add any standalone helper to the wrapper.
+R10 does not add the response validation helper to the wrapper and does not change `kernel-local-validation-checks-ok`.
 
 ## Blocked In This Plan
 
 This validation plan does not add:
 
-- response validation implementation;
+- terminal `TASK_OBJECT_SCHEMA` response validation;
 - response artifact writing;
 - failure artifact writing;
 - terminal artifact generation;
 - CLI behavior;
 - macro report unlock;
 - queue discovery, polling, retry, cleanup, scheduler behavior, report composition, CI, package migration, or external service calls.
-

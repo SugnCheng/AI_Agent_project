@@ -11,17 +11,17 @@ It is a developer-facing gate note only. It does not implement runtime handoff, 
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_partially_opened_for_minimal_reader_and_context_only_mapper
+runtime_adapter_implementation_gate_partially_opened_through_local_response_validation
 ```
 
-The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local candidate-response validation slice. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
-The gate remains closed for actual runtime handoff because P0/P1 execution, P0-P10 invocation path, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because terminal `TASK_OBJECT_SCHEMA` response validation, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-response_validation_implementation_preparation_baseline
+response_validation_minimal_local_validation_slice_complete
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -57,7 +57,8 @@ The following prerequisites are now satisfied because of the recent governance w
 | Post-intake mapping runtime invocation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` records that the minimal reader and mapper are implemented, while runtime invocation, canonical task object generation, writers, CLI, wrapper inclusion, and actual handoff remain closed. |
 | Phase R7 runtime invocation preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` prepared the invocation boundary before implementation. |
 | Phase R8 runtime invocation minimal implementation | `file_exchange_adapter_scaffold.py` now accepts one validated `kernel_intake_context` and returns one candidate-only pre-writer response object; `validation/kernel_runtime_invocation_contract_checks.py` validates the standalone invocation contract. |
-| Phase R9 response validation preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_VALIDATION_PLAN.md` prepare the future response validation boundary without implementation. |
+| Phase R9/R10 response validation boundary | `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_VALIDATION_PLAN.md` now record the implemented minimal local response validation boundary. |
+| Phase R10 response validation minimal implementation | `file_exchange_adapter_scaffold.py` now validates one current R8 candidate response as local pre-writer output; `validation/kernel_response_validation_contract_checks.py` validates the standalone response validation contract. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -88,7 +89,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
 | Response writer implementation | The writer contract exists, but response artifact writing remains blocked. |
 | Blocking failure writer implementation | The failure writer contract exists, but failure artifact writing remains blocked. |
-| Response state validation implementation | Future runtime responses still need governed state validation before any write. |
+| Terminal response state validation implementation | Future canonical runtime responses still need governed terminal state validation before any write. |
 | CLI or invocation boundary | No local command boundary has been defined for runtime adapter execution. |
 | Operator review checkpoint | Restricted and blocked outputs still need a defined review surface before reporting unlocks. |
 | Runtime artifact retention policy | Generated artifact retention, fixture promotion, and cleanup remain governed future decisions. |
@@ -107,7 +108,7 @@ The Phase R2 reader implementation slice is complete and remains bounded to one 
 
 ## Post-Reader Gate Reassessment
 
-The current gate is partially opened only for the completed minimal explicit-file reader and completed minimal context-only mapper. Actual runtime handoff remains closed.
+The current gate is partially opened only for the completed minimal explicit-file reader, completed minimal context-only mapper, completed minimal candidate-only invocation, and completed minimal local response validation. Actual runtime handoff remains closed.
 
 Next possible openings were reassessed as follows:
 
@@ -119,10 +120,11 @@ Next possible openings were reassessed as follows:
 | Local invocation / CLI planning | Defer until reader, intake mapping, runtime invocation, and terminal artifact boundaries are better defined. |
 | Runtime invocation preparation | Complete in Phase R7. The Phase R8 candidate-only invocation implementation now exists. |
 | Minimal runtime invocation implementation | Complete in Phase R8 as candidate-only and pre-writer. |
-| Response validation preparation | Complete in Phase R9. The boundary is defined, but response validation code remains unimplemented. |
-| Minimal response validation implementation | Selected as the next possible governed opening, with strict stop-before-writer constraints. |
+| Response validation preparation | Complete in Phase R9. |
+| Minimal response validation implementation | Complete in Phase R10 as local candidate-only validation with strict stop-before-writer constraints. |
+| Post-response-validation writer gate | Selected as the next possible governed opening before any writer preparation or implementation. |
 
-Response validation preparation is now complete. The next governed opening may be the minimal response validation implementation slice, but only if it preserves local validated output, fail-closed behavior, and stop-before-writer guarantees.
+Response validation implementation is now minimally complete for the current R8 candidate contract. The next governed opening should reassess writer readiness before any response or failure writer is prepared.
 
 ## Phase R5 Implementation Status
 
@@ -180,7 +182,19 @@ response_validation_implementation_preparation_baseline
 
 Response validation implementation preparation now exists. The future boundary is planned as one candidate kernel response object input to one schema/state validated response object output, stopping before response writing, failure writing, CLI behavior, macro reporting, and actual handoff.
 
-The gate remains closed for response validation implementation until a separate governed implementation slice is opened.
+Phase R10 has since opened only the minimal local candidate-response validation slice.
+
+## Phase R10 Implementation Status
+
+Current Phase R10 status:
+
+```text
+response_validation_minimal_local_validation_slice_complete
+```
+
+The minimal response validation boundary is now implemented and validated by a standalone helper. The implementation is limited to one current R8 candidate response input and one local pre-writer validated response output.
+
+The implemented slice does not validate the current candidate as terminal `TASK_OBJECT_SCHEMA` output, write response/failure artifacts, add CLI behavior, broaden reader behavior, broaden intake mapping, broaden runtime invocation, unlock macro reporting, or execute actual runtime handoff.
 
 ## What Must Remain Blocked
 
@@ -193,12 +207,12 @@ The current gate must continue to block:
 - intake mapping beyond the minimal context-only mapper;
 - treating Phase R5 context mapping as runtime invocation;
 - treating Phase R8 candidate-only invocation as terminal response validation or writer authorization;
-- treating Phase R9 response validation preparation as response validation implementation;
+- treating Phase R10 local response validation as terminal `TASK_OBJECT_SCHEMA` validation or writer authorization;
 - real P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
 - failure artifact writing;
-- response state validation behavior that is not yet governed by implementation;
+- response writer behavior;
 - CLI command design;
 - artifact polling or watcher behavior;
 - retry/backoff behavior;
@@ -260,6 +274,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Response Validation Minimal Implementation Slice`.
+Implement a `Kernel-Side Post-Response-Validation Writer Gate Refresh Pass`.
 
-That pass may implement only the minimal response validation boundary if it preserves one candidate response input, local validated response output, fail-closed validation failure behavior, and stop-before-writer guarantees. It must keep wrapper inclusion, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should record that minimal local response validation exists, confirm response/failure writers remain closed, and select the next governed writer-preparation or writer-implementation boundary. It must keep wrapper inclusion, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

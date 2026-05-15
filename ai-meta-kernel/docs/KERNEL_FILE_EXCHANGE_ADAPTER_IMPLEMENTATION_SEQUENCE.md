@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepares the future response validation boundary. This does not open response validation implementation, response/failure writers, CLI behavior, or actual handoff.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. This does not open response/failure writers, CLI behavior, macro reporting, or actual handoff.
 
 ## Intended Implementation Order
 
@@ -150,15 +150,15 @@ Must still not include:
 
 Additional governed pass required:
 
-- a response validation preparation pass before candidate responses are validated as terminal runtime output or passed to writers.
+- a post-response-validation writer gate before any validated local response is treated as writer-ready or passed to writers.
 
 ## Step 4: Kernel Response Validation Boundary
 
 Purpose:
 
-- validate the candidate kernel response as a JSON object;
-- validate it against `meta-layer/TASK_OBJECT_SCHEMA.json`;
-- validate response state and handoff semantics before any terminal artifact is written.
+- validate the current candidate kernel response as a JSON object;
+- validate the current candidate-only / pre-writer / non-terminal response markers;
+- return one local validated response object before any terminal artifact is written.
 
 Depends on:
 
@@ -172,12 +172,13 @@ Depends on:
 Current status:
 
 ```text
-response_validation_implementation_preparation_exists_but_validation_unimplemented
+minimal_local_response_validation_implemented_and_validated
 ```
 
 Must still not include:
 
 - response artifact writing before validation passes;
+- terminal `TASK_OBJECT_SCHEMA` response validation for the current non-canonical candidate;
 - partial task object repair;
 - silent field renaming;
 - failure artifact writing without governed failure semantics;
@@ -185,7 +186,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a minimal response validation implementation pass before any candidate response is treated as validated or passed to writers.
+- a post-response-validation writer gate or response writer preparation pass before any validated local response is passed to writers.
 
 ## Step 5: Response Writer Boundary
 
@@ -313,6 +314,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Response Validation Minimal Implementation Slice`.
+Implement a `Kernel-Side Post-Response-Validation Writer Gate Refresh Pass`.
 
-That pass may implement only the minimal response validation boundary if it preserves one candidate response input, local validated response output, fail-closed validation failure behavior, and stop-before-writer guarantees. It must keep response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
+That pass should record that minimal local response validation exists, confirm response/failure writers remain closed, and select the next governed writer-preparation or writer-implementation boundary. It must keep response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

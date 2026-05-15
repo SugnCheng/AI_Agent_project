@@ -1,9 +1,10 @@
 """Fail-closed scaffold for future kernel-side file exchange adapter boundaries.
 
 This module is intentionally narrow. It may read and validate one local kernel
-input envelope and produce one local candidate response from a validated intake
-context, but it does not execute the real P0-P10 runtime, generate canonical
-task objects from envelopes, or write response/failure artifacts.
+input envelope, produce one local candidate response from a validated intake
+context, and validate that candidate as local pre-writer output, but it does
+not execute the real P0-P10 runtime, generate canonical task objects from
+envelopes, or write response/failure artifacts.
 """
 
 from __future__ import annotations
@@ -63,6 +64,35 @@ KERNEL_INTAKE_CONTEXT_REQUIRED_FIELDS = {
     "expectation_context",
     "deferred_behavior_context",
     "mapping_stage",
+}
+
+CANDIDATE_RESPONSE_REQUIRED_FIELDS = {
+    "candidate_type",
+    "candidate_version",
+    "candidate_state",
+    "invocation_stage",
+    "source_context",
+    "operator_request",
+    "evidence_context",
+    "expectation_context",
+    "deferred_behavior_context",
+    "source_mapping_stage",
+    "terminal_artifact_written",
+    "response_writer_called",
+    "failure_writer_called",
+    "macro_report_unlock",
+}
+
+FORBIDDEN_RESPONSE_VALIDATION_FIELDS = {
+    "response_artifact_path",
+    "failure_artifact_path",
+    "report_eligibility",
+    "macro_report_eligibility",
+    "downstream_reporting_allowed",
+    "written_response_artifact",
+    "written_failure_artifact",
+    "cli_success_signal",
+    "external_service_result",
 }
 
 
@@ -274,6 +304,90 @@ def invoke_kernel_runtime(kernel_intake: dict[str, Any]) -> dict[str, Any]:
             "not validated as terminal TASK_OBJECT_SCHEMA response",
             "stop before response validation and writers",
         ],
+    }
+
+
+def validate_candidate_response(candidate: dict[str, Any]) -> dict[str, Any]:
+    """Validate the current local candidate response before any writer boundary.
+
+    This boundary validates only the Phase R8 candidate-only response contract.
+    It does not validate terminal TASK_OBJECT_SCHEMA output, write artifacts,
+    call writers, or unlock macro-side reporting.
+    """
+
+    candidate = _require_object(candidate, "candidate")
+
+    if candidate.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid candidate response validation input"
+        )
+
+    if candidate.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid candidate response validation input"
+        )
+
+    missing = sorted(CANDIDATE_RESPONSE_REQUIRED_FIELDS.difference(candidate))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"candidate response missing required fields: {missing}"
+        )
+
+    expected_markers = {
+        "candidate_type": "kernel_runtime_candidate_response",
+        "candidate_state": "pre_writer_non_terminal",
+        "invocation_stage": "kernel_runtime_invocation_candidate_only",
+        "terminal_artifact_written": False,
+        "response_writer_called": False,
+        "failure_writer_called": False,
+        "macro_report_unlock": False,
+    }
+    for field, expected in expected_markers.items():
+        if candidate.get(field) != expected:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"candidate response {field} must be {expected!r}"
+            )
+
+    leaked_fields = sorted(FORBIDDEN_RESPONSE_VALIDATION_FIELDS.intersection(candidate))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "candidate response must not contain terminal output fields: "
+            f"{leaked_fields}"
+        )
+
+    if not isinstance(candidate.get("operator_request"), str) or not candidate["operator_request"].strip():
+        raise KernelFileExchangeAdapterScaffoldError(
+            "candidate response operator_request must be a non-empty string"
+        )
+
+    for field in (
+        "source_context",
+        "evidence_context",
+        "expectation_context",
+    ):
+        if not isinstance(candidate.get(field), dict):
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"candidate response {field} must be a JSON object"
+            )
+
+    if not isinstance(candidate.get("deferred_behavior_context"), list):
+        raise KernelFileExchangeAdapterScaffoldError(
+            "candidate response deferred_behavior_context must be a list"
+        )
+
+    if candidate.get("source_mapping_stage") != "kernel_intake_context_pre_runtime":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "candidate response source_mapping_stage must be kernel_intake_context_pre_runtime"
+        )
+
+    return {
+        "validated_response_type": "kernel_candidate_response_validation",
+        "validated_response_state": "validated_pre_writer_non_terminal",
+        "source_candidate": deepcopy(candidate),
+        "response_writer_allowed": False,
+        "failure_writer_allowed": False,
+        "macro_report_unlock": False,
+        "validation_stage": "candidate_response_validated_pre_writer",
     }
 
 
