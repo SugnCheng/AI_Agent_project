@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the post-response-validation writer gate, the Phase R12 terminal writer preparation surface, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the post-response-validation writer gate, the Phase R12 terminal writer preparation surface, the Phase R13 terminal writer implementation gate, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -349,6 +349,44 @@ At the current stage, these documents do not mean:
 - macro-side report unlock exists;
 - actual runtime handoff is open;
 - standalone helpers are wrapper-included.
+
+## Current Terminal Writer Implementation Gate
+
+The current Phase R13 gate status is:
+
+```text
+terminal_writer_implementation_gate_refreshed
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_GATE.md
+```
+
+Selected implementation strategy:
+
+```text
+response_writer_minimal_implementation_first_then_failure_writer
+```
+
+At the current stage, this gate means:
+
+- terminal writer implementation strategy is selected;
+- response writer should be implemented first because a local validated pre-writer response input already exists;
+- failure writer should remain a later governed slice because blocking failure input classification is not yet implemented;
+- no writer code has been added;
+- response writer remains unimplemented;
+- failure writer remains unimplemented;
+- terminal artifact writing remains blocked;
+- standalone helpers remain outside the main wrapper.
+
+At the current stage, this gate does not mean:
+
+- response artifacts may be written;
+- failure artifacts may be written;
+- macro-side reporting may unlock;
+- CLI behavior or actual runtime handoff is open.
 
 ## Current Intake-Mapping Planning And Output Contract Surface
 
@@ -1026,13 +1064,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a post-response-validation writer gate that keeps response and failure writers closed, Phase R12 terminal writer preparation that keeps writer implementation blocked, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps terminal invocation and writers closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a post-response-validation writer gate that keeps response and failure writers closed, Phase R12 terminal writer preparation that keeps writer implementation blocked, a Phase R13 terminal writer implementation gate that selects response writer first, then failure writer, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps terminal invocation and writers closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Terminal Writer Implementation Gate Pass`.
+Implement a `Kernel-Side Response Writer Minimal Implementation Slice`.
 
-That pass should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices. It must not implement writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual kernel runtime handoff.
+That pass may implement only the minimal response writer path from one local validated pre-writer response object to one written kernel response artifact. It must keep failure writer implementation, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, and actual kernel runtime handoff out of scope unless separately governed.

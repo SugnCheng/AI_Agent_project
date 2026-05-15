@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. This does not open response/failure writers, CLI behavior, macro reporting, or actual handoff.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. This does not open response/failure writers, CLI behavior, macro reporting, or actual handoff.
 
 ## Intended Implementation Order
 
@@ -216,7 +216,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a terminal writer implementation gate before response writer implementation is opened.
+- a minimal response writer implementation pass before response artifacts can be written.
 
 ## Step 6: Blocking Failure Writer Boundary
 
@@ -244,7 +244,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a terminal writer implementation gate before blocking failure writer implementation is opened.
+- a post-response-writer gate before blocking failure writer implementation is opened.
 
 ## Step 7: Local Invocation Boundary
 
@@ -320,6 +320,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Terminal Writer Implementation Gate Pass`.
+Implement a `Kernel-Side Response Writer Minimal Implementation Slice`.
 
-That pass should decide whether the first writer implementation opening is a combined minimal terminal writer slice or separate response-writer / failure-writer slices. It must not implement writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution.
+That pass may implement only the minimal response writer path from one local validated pre-writer response object to one written kernel response artifact. It must keep failure writer implementation, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, and actual handoff execution out of scope unless separately governed.
