@@ -19,7 +19,7 @@ The repository is partially opened only for:
 - the Phase R2 minimal explicit-file runtime envelope reader; and
 - the Phase R5 minimal context-only envelope-to-intake mapper.
 
-Actual runtime invocation remains closed. The next governed boundary should be runtime invocation preparation, not implementation, unless a later task explicitly opens implementation with validation coverage and blocked-behavior rules.
+Actual runtime invocation remains closed. Phase R7 adds runtime invocation preparation, but not implementation. A later task must explicitly open implementation with validation coverage and blocked-behavior rules.
 
 ## What R5 Unlocked
 
@@ -55,13 +55,13 @@ Phase R5 did not unlock:
 
 ## Next Boundary Decision
 
-The next phase should open:
+After Phase R7, the next possible phase is:
 
 ```text
-Kernel-Side Runtime Invocation Preparation Pass
+Kernel-Side Runtime Invocation Minimal Implementation Slice
 ```
 
-That phase should define the future kernel-owned runtime invocation boundary, expected invocation input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors. It should not implement invocation code.
+That phase may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees.
 
 Do not select mapping hardening, wrapper inclusion, CLI planning, or response/failure writer preparation as the next phase unless a concrete gap appears. The current mapper helper already covers the R5 context-only scope, and wrapper behavior is intentionally unchanged.
 
@@ -130,4 +130,3 @@ A governed pass is required before:
 - implementing response or failure writers;
 - adding CLI or local invocation orchestration;
 - changing `kernel-local-validation-checks-ok` meaning.
-

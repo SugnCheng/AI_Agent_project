@@ -21,7 +21,7 @@ The gate remains closed for actual runtime handoff because P0/P1 execution, P0-P
 Current implementation baseline:
 
 ```text
-envelope_to_intake_mapping_minimal_implementation_slice_complete
+runtime_invocation_implementation_preparation_baseline
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -55,6 +55,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Intake-mapping output contract | Allowed envelope inputs, acceptable future intake context, excluded kernel-owned conclusions, and the stop boundary before runtime invocation are governed. |
 | Phase R5 intake mapping minimal implementation | `file_exchange_adapter_scaffold.py` now maps one validated `kernel_input_envelope` into one context-only `kernel_intake_context`; `validation/kernel_intake_mapping_contract_checks.py` validates the standalone mapping contract. |
 | Post-intake mapping runtime invocation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md` records that the minimal reader and mapper are implemented, while runtime invocation, canonical task object generation, writers, CLI, wrapper inclusion, and actual handoff remain closed. |
+| Phase R7 runtime invocation preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md` prepare the future invocation boundary without implementation. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -81,7 +82,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | Runtime envelope reader expansion | The minimal reader exists, but queue discovery, polling, CLI behavior, runtime invocation, and artifact writing remain blocked. |
 | Runtime reader wrapper inclusion | The standalone reader helper remains outside the main wrapper; adding it to `CHECKS` requires a separate governed wrapper pass. |
 | Intake mapping broadening | The minimal context-only mapper exists, but mapping must not produce kernel conclusions or cross into runtime. |
-| P0/P1 and P0-P10 runtime invocation path | The adapter still has no governed runtime entrypoint into the kernel pipeline. |
+| P0/P1 and P0-P10 runtime invocation implementation | The adapter has preparation docs for the future invocation boundary, but no invocation implementation. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
 | Response writer implementation | The writer contract exists, but response artifact writing remains blocked. |
 | Blocking failure writer implementation | The failure writer contract exists, but failure artifact writing remains blocked. |
@@ -114,9 +115,10 @@ Next possible openings were reassessed as follows:
 | Reader validation hardening | Defer unless reader scope changes or a specific coverage gap appears. The standalone helper currently covers the required explicit-file reader surface. |
 | Wrapper inclusion reassessment | Defer. The reader helper remains standalone and `kernel-local-validation-checks-ok` still does not include reader helper coverage. |
 | Local invocation / CLI planning | Defer until reader, intake mapping, runtime invocation, and terminal artifact boundaries are better defined. |
-| Runtime invocation preparation | Select as the next governed phase. It should define the invocation boundary before code is implemented. |
+| Runtime invocation preparation | Complete in Phase R7. The boundary is defined, but invocation code remains unimplemented. |
+| Minimal runtime invocation implementation | Selected as the next possible governed opening, with strict stop-before-writer constraints. |
 
-The next governed opening must be runtime invocation preparation. It should not implement P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI behavior, or actual handoff.
+Runtime invocation preparation is now complete. The next governed opening may be the minimal runtime invocation implementation slice, but only if it preserves candidate-only output, fail-closed behavior, and stop-before-writer guarantees.
 
 ## Phase R5 Implementation Status
 
@@ -140,6 +142,18 @@ post_intake_mapping_runtime_invocation_gate_refreshed
 
 The post-intake mapping runtime invocation gate is refreshed. The repository remains partially opened only for the minimal explicit-file reader and context-only mapper. Runtime invocation, canonical task object generation, response/failure writers, CLI behavior, wrapper inclusion for standalone helpers, and actual handoff remain closed.
 
+## Phase R7 Preparation Status
+
+Current Phase R7 status:
+
+```text
+runtime_invocation_implementation_preparation_baseline
+```
+
+Runtime invocation implementation preparation now exists. The future boundary is planned as one validated `kernel_intake_context` input to one candidate kernel response object output, stopping before response validation as runtime behavior, response writing, failure writing, CLI behavior, and actual handoff.
+
+The gate remains closed for runtime invocation implementation until a separate governed implementation slice is opened.
+
 ## What Must Remain Blocked
 
 The current gate must continue to block:
@@ -150,6 +164,7 @@ The current gate must continue to block:
 - runtime envelope artifact queue discovery;
 - intake mapping beyond the minimal context-only mapper;
 - treating Phase R5 context mapping as runtime invocation;
+- treating Phase R7 runtime invocation preparation as runtime invocation implementation;
 - P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing;
@@ -216,6 +231,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
+Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
 
-That pass should define the future runtime invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, or actual handoff execution is opened.
+That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees. It must keep wrapper inclusion, response validation as runtime behavior, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope unless separately governed.

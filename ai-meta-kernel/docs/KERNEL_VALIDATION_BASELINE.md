@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the Phase R7 runtime invocation preparation surface, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -427,6 +427,46 @@ At the current stage, this gate does not mean:
 - response/failure writers exist;
 - CLI or actual runtime handoff is open.
 
+## Current Runtime Invocation Preparation Surface
+
+The current Phase R7 preparation status is:
+
+```text
+runtime_invocation_implementation_preparation_baseline
+```
+
+It is documented in:
+
+```text
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md
+docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md
+```
+
+At the current stage, these documents mean:
+
+- the future runtime invocation boundary is planned before implementation;
+- the intended input is one validated `kernel_intake_context`;
+- the intended output is one candidate kernel response object;
+- candidate output may be canonical task object shaped only if produced by future kernel-owned runtime reasoning;
+- candidate output remains pre-writer and must later pass `TASK_OBJECT_SCHEMA` validation before any response writer can run;
+- invocation failure must remain local and explicit in the future invocation slice;
+- failure writer behavior remains a separate future boundary;
+- minimal reader and context-only mapper remain implemented;
+- runtime invocation remains unimplemented;
+- no wrapper behavior changed;
+- `kernel-local-validation-checks-ok` still does not include reader or intake mapping helper coverage.
+
+At the current stage, these documents do not mean:
+
+- runtime invocation code exists;
+- P0/P1 execution exists;
+- P0-P10 runtime invocation exists;
+- canonical task object generation from envelope evidence exists;
+- response validation as runtime behavior exists;
+- response/failure writers exist;
+- CLI or actual runtime handoff is open.
+
 ## Current Local Validation Wrapper
 
 Implemented wrapper:
@@ -555,6 +595,7 @@ A successful local wrapper run means:
 - the post-reader handoff gate remains closed even though context-only mapping now exists;
 - the intake mapping minimal implementation baseline exists, while P0/P1 and P0-P10 runtime remain closed;
 - the post-intake mapping runtime invocation gate is refreshed and keeps invocation implementation closed;
+- the Phase R7 runtime invocation preparation surface exists while invocation implementation remains closed;
 - the runtime reader wrapper inclusion gate is documented and keeps the reader helper standalone;
 - the TASK 114 runtime reader wrapper inclusion reassessment keeps the reader helper standalone for the next milestone;
 - all three helpers passed in the governed order;
@@ -603,6 +644,7 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - the post-reader handoff gate has opened intake mapping implementation, runtime invocation, response/failure writers, CLI, or actual handoff.
 - the intake mapping minimal implementation baseline has opened P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, or actual handoff.
 - the post-intake mapping runtime invocation gate has opened P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, or actual handoff.
+- the runtime invocation preparation surface has implemented runtime invocation, response validation, response/failure writers, CLI, or actual handoff.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -751,6 +793,22 @@ The post-intake mapping runtime invocation gate also must not silently introduce
 - treating standalone helper success as wrapper success;
 - actual runtime handoff.
 
+The Phase R7 runtime invocation preparation surface also must not silently introduce:
+
+- runtime invocation implementation;
+- P0/P1 execution;
+- P0-P10 runtime invocation;
+- canonical task object generation from envelope evidence;
+- response validation as runtime behavior;
+- response artifact writing;
+- failure artifact writing;
+- CLI behavior;
+- wrapper behavior changes;
+- reader broadening;
+- mapper broadening;
+- treating candidate response planning as response artifact writing;
+- treating invocation preparation as actual runtime handoff.
+
 ## Changes Requiring A Governed Pass
 
 The following changes require a governed pass before implementation:
@@ -811,6 +869,9 @@ The following changes require a governed pass before implementation:
 - changing the intake mapping helper path or success signal;
 - changing the post-intake mapping runtime invocation gate decision;
 - treating the post-intake mapping runtime invocation gate as authorization for runtime invocation implementation;
+- changing the Phase R7 runtime invocation preparation decision;
+- treating runtime invocation preparation as implementation authorization;
+- changing the future invocation input or candidate output boundary;
 - changing allowed envelope inputs for intake mapping;
 - changing acceptable intake-context output fields;
 - allowing canonical task object fields in mapping output;
@@ -825,13 +886,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_runtime_invocation_preparation_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps invocation implementation closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps invocation implementation closed, a Phase R7 runtime invocation preparation surface that defines future candidate response boundaries without implementation, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
+Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
 
-That pass should define the future runtime invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, or actual kernel runtime handoff is opened.
+That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees. It must keep wrapper inclusion, response validation as runtime behavior, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual kernel runtime handoff out of scope unless separately governed.

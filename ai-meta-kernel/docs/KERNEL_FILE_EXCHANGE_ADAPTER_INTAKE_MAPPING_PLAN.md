@@ -130,6 +130,6 @@ The following changes require a governed pass before implementation:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
+Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
 
-That pass should define the future runtime invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors while keeping P0/P1 execution, P0-P10 runtime invocation implementation, canonical task object generation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.
+That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees while keeping response validation as runtime behavior, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, external service calls, and actual handoff execution out of scope.

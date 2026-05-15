@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepares the future runtime invocation implementation boundary. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
 
 ## Intended Implementation Order
 
@@ -125,8 +125,17 @@ Purpose:
 Depends on:
 
 - intake mapping implementation;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_BOUNDARY_PLAN.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_VALIDATION_PLAN.md`;
 - a defined kernel-owned P0/P1 or P0-P10 invocation entrypoint;
 - unchanged canonical kernel contracts.
+
+Current status:
+
+```text
+runtime_invocation_implementation_preparation_exists_but_invocation_unimplemented
+```
 
 Must still not include:
 
@@ -140,7 +149,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a runtime invocation preparation pass and output contract before any invocation path is implemented or exposed.
+- a minimal runtime invocation implementation pass before any invocation path is implemented or exposed.
 
 ## Step 4: Kernel Response Validation Boundary
 
@@ -294,6 +303,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
+Implement a `Kernel-Side Runtime Invocation Minimal Implementation Slice`.
 
-That pass should define the future invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors before any P0/P1 execution, P0-P10 invocation implementation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution is opened.
+That pass may implement only the minimal kernel-owned invocation boundary if it preserves one validated `kernel_intake_context` input, candidate response output, fail-closed local failure behavior, and stop-before-writer guarantees. It must keep response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, and actual handoff execution out of scope unless separately governed.
