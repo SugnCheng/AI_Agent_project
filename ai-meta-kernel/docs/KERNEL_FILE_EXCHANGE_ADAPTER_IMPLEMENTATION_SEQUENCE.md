@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. This does not change the implementation order and does not open P0/P1 execution or later runtime boundaries.
 
 ## Intended Implementation Order
 
@@ -71,7 +71,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a separate governed pass before reader behavior is broadened beyond one explicit local file or before envelope-to-intake mapping is opened.
+- a separate governed pass before reader behavior is broadened beyond one explicit local file.
 
 ## Step 2: Envelope-To-Intake Mapping Boundary
 
@@ -140,7 +140,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a runtime invocation output contract before any invocation path is implemented or exposed.
+- a runtime invocation preparation pass and output contract before any invocation path is implemented or exposed.
 
 ## Step 4: Kernel Response Validation Boundary
 
@@ -294,6 +294,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
+Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
 
-That pass should record the completed context-only mapper and decide the next governed boundary before any P0/P1 execution, P0-P10 invocation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution is opened.
+That pass should define the future invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors before any P0/P1 execution, P0-P10 invocation implementation, response validation, response/failure writers, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, or actual handoff execution is opened.

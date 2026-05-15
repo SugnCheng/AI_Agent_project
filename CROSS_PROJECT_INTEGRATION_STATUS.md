@@ -19,7 +19,7 @@ Current cross-project status:
 file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, post-reader handoff gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, P0-P10 runtime invocation, response writer, and failure writer remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -68,6 +68,7 @@ Already in place:
 - Phase R2 minimal runtime envelope reader implementation;
 - post-reader handoff gate confirming actual runtime handoff remains closed after the minimal reader slice;
 - Phase R5 minimal context-only envelope-to-intake mapping implementation;
+- post-intake mapping runtime invocation gate confirming actual runtime invocation remains closed after the minimal mapper slice;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -106,7 +107,13 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_writer_boundary_governed_but_handoff_unimplemented
+first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_post_intake_mapping_runtime_invocation_gate_plus_writer_boundary_governed_but_handoff_unimplemented
+```
+
+Current post-intake mapping runtime invocation gate status:
+
+```text
+post_intake_mapping_runtime_invocation_gate_refreshed
 ```
 
 Current Phase R2 reader implementation status:
@@ -152,6 +159,13 @@ Current intake-mapping governance status:
 - envelope fields flow only as evidence, metadata, request text, source context, expectation context, or deferred-behavior context;
 - canonical task object fields remain excluded from mapping output;
 - P0/P1 execution remains absent.
+
+Current post-intake mapping runtime invocation gate status:
+
+- governed by `ai-meta-kernel/docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_INTAKE_MAPPING_RUNTIME_INVOCATION_GATE.md`;
+- records that the minimal explicit-file reader and minimal context-only mapper are implemented;
+- confirms runtime invocation, canonical task object generation, response/failure writers, CLI behavior, wrapper inclusion, and actual handoff remain closed;
+- selects runtime invocation preparation as the next governed phase, without opening runtime invocation implementation.
 
 Current runtime reader governance status:
 
@@ -226,6 +240,7 @@ The current cross-project baseline must not silently introduce:
 - macro-side kernel response artifact writing;
 - kernel-side intake mapping beyond the minimal context-only mapper;
 - treating Phase R5 context mapping as P0/P1 execution or runtime handoff;
+- treating the post-intake mapping runtime invocation gate as P0/P1 or P0-P10 runtime invocation implementation authorization;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
 - treating the post-reader handoff gate as actual handoff authorization;
@@ -243,6 +258,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass`.
+Implement a `Kernel-Side Runtime Invocation Preparation Pass`.
 
-That pass should record the completed context-only mapper and decide the next governed boundary before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution is opened.
+That pass should define the future runtime invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors before any wrapper inclusion, P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, CI, scheduler behavior, live fetching, report composition, package migration, or actual handoff execution is opened.

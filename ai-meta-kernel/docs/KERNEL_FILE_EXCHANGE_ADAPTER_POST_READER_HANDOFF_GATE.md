@@ -71,13 +71,13 @@ Rationale:
 - CLI planning should wait until reader, intake mapping, invocation, and terminal artifacts have clearer local behavior;
 - intake mapping is the next sequence step after a validated envelope exists.
 
-After Phase R5, the recommended next phase is:
+After Phase R6, the recommended next phase is:
 
 ```text
-Kernel-Side Intake Mapping Baseline Refresh And Runtime Invocation Gate Pass
+Kernel-Side Runtime Invocation Preparation Pass
 ```
 
-That phase should record the completed context-only mapper and decide the next governed boundary while still stopping before P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
+That phase should define the future runtime invocation boundary, expected `kernel_intake_context` input, expected candidate response output, failure semantics, validation plan, and blocked writer/CLI/reporting behaviors while still stopping before P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, scheduler behavior, reporting, CI, package migration, external services, or actual runtime handoff.
 
 ## Explicitly Blocked Behaviors
 
