@@ -1,9 +1,9 @@
 """Standalone checks for blocking failure classification.
 
 This helper exercises only the local pre-writer blocking failure classification
-boundary. It is intentionally outside the main wrapper and does not implement
-failure writing, write artifacts, unlock macro reporting, emit CLI behavior, or
-execute handoff.
+boundary. It is intentionally outside the main wrapper and does not broaden
+failure writing, write artifacts from classification, unlock macro reporting,
+emit CLI behavior, or execute handoff.
 """
 
 from __future__ import annotations
@@ -140,15 +140,14 @@ def check_fail_closed_inputs() -> None:
         )
 
 
-def check_failure_writer_remains_blocked() -> None:
+def check_classification_remains_pre_writer() -> None:
     classified = scaffold.classify_blocking_failure(build_failure_source("reader"))
 
-    try:
-        scaffold.write_failure_artifact(classified, Path("local") / "kernel_failure.example.json")
-    except NotImplementedError:
-        pass
-    else:
-        raise AssertionError("failure writer must remain blocked")
+    if classified.get("failure_artifact_written") is not False:
+        raise AssertionError("classification output must remain pre-writer")
+
+    if classified.get("terminal_artifact_written") is not False:
+        raise AssertionError("classification output must not be terminal")
 
 
 def check_wrapper_remains_unchanged() -> None:
@@ -162,7 +161,7 @@ def check_wrapper_remains_unchanged() -> None:
 def main() -> None:
     check_valid_stage_classification()
     check_fail_closed_inputs()
-    check_failure_writer_remains_blocked()
+    check_classification_remains_pre_writer()
     check_wrapper_remains_unchanged()
 
     print("kernel-blocking-failure-classification-contract-checks-ok")

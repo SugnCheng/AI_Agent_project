@@ -4,7 +4,7 @@
 
 This note defines the intended future implementation order for the kernel-side file exchange adapter runtime path in `ai-meta-kernel`.
 
-It is a developer-facing sequencing note only. It does not modify kernel contracts, invoke real P0-P10 runtime, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing sequencing note only. It does not modify kernel contracts, invoke real P0-P10 runtime, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Sequencing Decision
 
@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R15 refreshes the post-response-writer failure writer gate and selects blocking failure classification preparation before failure writer implementation. This does not open failure writer, CLI behavior, macro reporting, or actual handoff.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. This does not open CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -27,9 +27,11 @@ The future implementation order should be:
 3. Kernel runtime invocation boundary.
 4. Kernel response validation boundary.
 5. Response writer boundary.
-6. Blocking failure writer boundary.
-7. Local invocation boundary.
-8. Runtime artifact retention and cleanup policy.
+6. Blocking failure classification boundary.
+7. Blocking failure writer boundary.
+8. Local terminal writer dry-run gate.
+9. Local invocation boundary.
+10. Runtime artifact retention and cleanup policy.
 
 This order is intentionally narrow. It prevents writer behavior, CLI behavior, scheduler behavior, reporting behavior, and cleanup automation from arriving before the kernel can locally validate the inputs and outputs it owns.
 
@@ -226,9 +228,41 @@ Must still not include:
 
 Additional governed pass required:
 
-- the Phase R15 post-response-writer failure writer gate is refreshed; blocking failure classification preparation is now required before blocking failure writer implementation is opened.
+- a local terminal writer dry-run gate before response/failure writer availability is treated as orchestration readiness.
 
-## Step 6: Blocking Failure Writer Boundary
+## Step 6: Blocking Failure Classification Boundary
+
+Purpose:
+
+- classify one local blocking failure source before failure writing;
+- preserve governed failure stages;
+- keep classification local, pre-writer, and non-terminal.
+
+Current status:
+
+```text
+blocking_failure_classification_implemented_and_validated
+```
+
+Depends on:
+
+- governed reader, intake mapping, invocation, response validation, and response writer failure stages;
+- `validation/kernel_blocking_failure_classification_contract_checks.py`.
+
+Must still not include:
+
+- failure artifact writing;
+- terminal writer calls;
+- CLI behavior;
+- queue discovery, polling, retry, or cleanup;
+- macro report unlock;
+- actual handoff.
+
+Additional governed pass required:
+
+- none for the minimal classification boundary; any broadening of failure stages or fields requires a separate governed pass.
+
+## Step 7: Blocking Failure Writer Boundary
 
 Purpose:
 
@@ -239,21 +273,20 @@ Purpose:
 Current status:
 
 ```text
-failure_writer_blocked_pending_blocking_failure_classification_preparation
+minimal_failure_writer_implemented_and_validated
 ```
 
 Depends on:
 
-- runtime reader, intake mapping, invocation, response validation, and response writer failure points being explicitly classified;
-- a governed classified blocking failure input boundary prepared before writer implementation;
+- a governed classified blocking failure input boundary;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN.md`.
+- `validation/kernel_failure_writer_contract_checks.py`.
 
 Must still not include:
 
-- failure classification embedded inside writer code;
 - non-blocking failure artifacts;
 - partial canonical task object content in failure artifacts;
 - both response and failure artifacts for one invocation;
@@ -262,10 +295,43 @@ Must still not include:
 
 Additional governed pass required:
 
-- a blocking failure classification preparation pass before blocking failure writer implementation is opened.
-- a separate failure writer implementation pass after the classified blocking failure input surface is governed.
+- a local terminal writer dry-run gate before writer availability is treated as orchestration readiness.
 
-## Step 7: Local Invocation Boundary
+## Step 8: Local Terminal Writer Dry-Run Gate
+
+Purpose:
+
+- define how to exercise the existing minimal response writer and minimal failure writer in a governed local dry run;
+- prove response/failure terminal selection expectations without adding CLI behavior or runtime handoff;
+- keep the dry run local, explicit, and deterministic.
+
+Current status:
+
+```text
+local_terminal_writer_dry_run_gate_closed
+```
+
+Depends on:
+
+- implemented and validated minimal response writer;
+- implemented and validated blocking failure classification;
+- implemented and validated minimal failure writer.
+
+Must still not include:
+
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- artifact cleanup;
+- macro report unlock;
+- actual handoff.
+
+Additional governed pass required:
+
+- a local terminal writer dry-run gate before local invocation or CLI behavior is proposed.
+
+## Step 9: Local Invocation Boundary
 
 Purpose:
 
@@ -292,7 +358,7 @@ Additional governed pass required:
 
 - a local invocation or CLI output contract before any command boundary is added.
 
-## Step 8: Runtime Artifact Retention And Cleanup Policy
+## Step 10: Runtime Artifact Retention And Cleanup Policy
 
 Purpose:
 
@@ -339,6 +405,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Blocking Failure Classification Preparation Pass`.
+Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
 
-That pass should define the smallest governed classified blocking failure input boundary for the future failure writer without adding failure writer code, failure artifact writing, CLI behavior, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should define how to exercise the existing minimal response writer and minimal failure writer locally without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.

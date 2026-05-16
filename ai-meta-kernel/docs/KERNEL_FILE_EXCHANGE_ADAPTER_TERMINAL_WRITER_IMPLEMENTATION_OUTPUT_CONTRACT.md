@@ -4,7 +4,7 @@
 
 This document snapshots the output contract for terminal writer implementation slices.
 
-It records that the minimal response writer is implemented in Phase R14. It does not authorize failure writer code, failure artifact writing, CLI behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
+It records that the minimal response writer is implemented in Phase R14 and the minimal failure writer is implemented in Phase R19. It does not authorize local orchestration, CLI behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, macro report unlock, or actual runtime handoff.
 
 ## Contract Decision
 
@@ -25,6 +25,12 @@ Current Phase R14 response writer status:
 
 ```text
 response_writer_minimal_implementation_slice_complete
+```
+
+Current Phase R19 failure writer status:
+
+```text
+failure_writer_minimal_implementation_slice_complete
 ```
 
 ## Current Minimal Response Writer Output
@@ -51,17 +57,17 @@ The current response artifact must:
 - use an explicit local destination that does not already exist;
 - not write or prepare a failure artifact.
 
-## Future Failure Writer Output
+## Current Minimal Failure Writer Output
 
-The future failure writer may output:
+The current R19 minimal failure writer may output:
 
 ```text
 one_written_blocking_kernel_exchange_failure_artifact
 ```
 
-Only after a local classified blocking failure input is accepted by a governed writer implementation boundary.
+Only after a local classified blocking failure input is accepted by the R19 writer boundary.
 
-The future failure artifact must:
+The current failure artifact must:
 
 - be produced by `ai-meta-kernel` or a thin kernel-owned adapter boundary;
 - be a JSON object;
@@ -131,6 +137,6 @@ The following require a governed pass before implementation:
 - adding failure writer code;
 - adding CLI, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, or external service calls.
 
-## Explicit Non-Authorization
+## Current Milestone Limit
 
-This contract records the R14 minimal response writer output only. It does not authorize failure writer implementation, response writer broadening, CLI behavior, macro report unlock, or actual runtime handoff.
+This contract records the R14 minimal response writer output and the R19 minimal failure writer output. It does not authorize response writer broadening, failure writer broadening, local terminal writer dry-run orchestration, CLI behavior, macro report unlock, or actual runtime handoff.

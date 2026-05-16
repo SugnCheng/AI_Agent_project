@@ -52,6 +52,12 @@ Recommended next phase:
 Terminal Writers Milestone Sync And Local Dry Run Gate
 ```
 
+Milestone sync final state:
+
+```text
+terminal_writers_milestone_sync_and_local_dry_run_gate_ready
+```
+
 ## Explicitly Blocked Behaviors
 
 This gate keeps the following blocked:

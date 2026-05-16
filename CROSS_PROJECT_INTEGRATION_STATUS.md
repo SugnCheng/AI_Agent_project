@@ -16,10 +16,10 @@ This document does not add runtime behavior, live fetching, scheduler runtime, r
 Current cross-project status:
 
 ```text
-file_based_exchange_governance_aligned_but_runtime_handoff_not_implemented
+terminal_writers_milestone_synced_but_runtime_handoff_not_implemented
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate governance, Phase R14 minimal response writer implementation, Phase R15 post-response-writer failure writer gate governance, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation, blocking failure classification implementation, failure writer, CLI, macro report unlock, and actual handoff remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate governance, Phase R14 minimal response writer implementation, Phase R17 minimal blocking failure classification implementation, Phase R19 minimal failure writer implementation, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation for canonical outputs, local terminal writer dry-run orchestration, CLI, macro report unlock, and actual handoff remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -76,6 +76,8 @@ Already in place:
 - Phase R13 terminal writer implementation gate selecting response writer first, then failure writer;
 - Phase R14 minimal explicit-destination response writer implementation with standalone helper coverage;
 - Phase R15 post-response-writer failure writer gate selecting blocking failure classification preparation before failure writer implementation;
+- Phase R17 minimal blocking failure classification implementation;
+- Phase R19 minimal explicit-destination failure writer implementation with standalone helper coverage;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -89,10 +91,10 @@ Still absent on the kernel side:
 - P0-P10 runtime execution implementation;
 - canonical task object production from envelope evidence;
 - response writer broadening beyond the R14 minimal explicit-destination local artifact writer;
-- blocking failure artifact writer implementation;
+- terminal writer dry-run orchestration;
 - CLI or invocation boundary;
 - terminal `TASK_OBJECT_SCHEMA` response validation for canonical responses;
-- runtime artifact validation beyond static fixtures, scaffold checks, and preparation notes.
+- runtime artifact validation beyond static fixtures, scaffold checks, and focused standalone helper coverage.
 
 ## File-Based Exchange Alignment
 
@@ -110,24 +112,38 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 | Fixture distinction | Static fixtures are reviewable examples; runtime artifacts are generated local material and not committed by default. |
 | Restricted / blocked semantics | Macro side validates standard, restricted, blocked, and failure states before downstream unlock. |
 
+Current terminal writer availability does not equal cross-project orchestration readiness. The kernel side can now write one local response artifact and one local failure artifact through explicit local writer boundaries, but the macro side still does not consume actual runtime terminal artifacts from a live kernel invocation. Macro report unlock and actual handoff remain blocked.
+
 ## Current Runtime-Governance Status
 
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_post_response_writer_failure_writer_gate_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_handoff_unimplemented
+first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_minimal_blocking_failure_classification_plus_minimal_failure_writer_plus_terminal_writers_milestone_sync_plus_handoff_unimplemented
 ```
 
-Current Phase R15 post-response-writer failure writer gate status:
+Current terminal writers milestone status:
 
 ```text
-post_response_writer_failure_writer_gate_refreshed
+terminal_writers_milestone_sync_and_local_dry_run_gate_ready
 ```
 
-Selected next failure-writer prerequisite:
+Recommended next kernel-side phase:
 
 ```text
-blocking_failure_classification_preparation_pass
+Kernel-Side Local Terminal Writer Dry Run Gate
+```
+
+Current Phase R19 failure writer implementation status:
+
+```text
+failure_writer_minimal_implementation_slice_complete
+```
+
+Current Phase R17 blocking failure classification status:
+
+```text
+blocking_failure_classification_minimal_implementation_slice_complete
 ```
 
 Current Phase R14 response writer implementation status:
@@ -212,11 +228,13 @@ Current writer-boundary governance status:
 - selected strategy is response writer first, then failure writer;
 - Phase R14 minimal response writer writes one explicit local response artifact from one local validated pre-writer response object;
 - standalone response writer helper `ai-meta-kernel/validation/kernel_response_writer_contract_checks.py` reports `kernel-response-writer-contract-checks-ok`;
-- Phase R15 records that failure writer implementation should not proceed until a classified blocking failure input surface is prepared;
-- future blocking failure writer must emit `blocking == true` failure artifacts when a valid response cannot be produced;
+- Phase R17 minimal blocking failure classification returns one pre-writer classified blocking failure object;
+- standalone blocking failure classification helper `ai-meta-kernel/validation/kernel_blocking_failure_classification_contract_checks.py` reports `kernel-blocking-failure-classification-contract-checks-ok`;
+- Phase R19 minimal failure writer writes one explicit local kernel exchange failure artifact from one classified blocking failure object;
+- standalone failure writer helper `ai-meta-kernel/validation/kernel_failure_writer_contract_checks.py` reports `kernel-failure-writer-contract-checks-ok`;
 - one envelope invocation should eventually produce exactly one terminal artifact: response or blocking failure;
-- full response/failure writer mutual-exclusivity remains incomplete until the failure writer exists;
-- failure writer implementation remains absent.
+- full response/failure writer mutual-exclusivity orchestration remains incomplete until a local dry-run gate exists;
+- terminal writer availability does not equal orchestration readiness.
 
 Current intake-mapping governance status:
 
@@ -304,10 +322,12 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/kernel_runtime_invocation_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_response_validation_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_response_writer_contract_checks.py`
+- `ai-meta-kernel/validation/kernel_blocking_failure_classification_contract_checks.py`
+- `ai-meta-kernel/validation/kernel_failure_writer_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
-- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, Phase R14 minimal response writer implementation, Phase R11 post-response-validation writer gate, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
+- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, Phase R14 minimal response writer implementation, Phase R17 blocking failure classification implementation, Phase R19 minimal failure writer implementation, Phase R11 post-response-validation writer gate, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
 
 ## Remaining Runtime Handoff Gaps
 
@@ -321,9 +341,9 @@ Before actual runtime handoff, the following gaps remain:
 6. Keep Phase R12 terminal writer preparation from being treated as writer implementation.
 7. Keep Phase R13 terminal writer implementation gate from being treated as writer implementation.
 8. Keep Phase R14 minimal response writer from being treated as full terminal writer mutual exclusivity, macro report unlock, CLI, or handoff.
-9. Prepare and implement a classified blocking failure input surface before failure writer implementation.
-10. Implement blocking kernel failure artifact writing for invocation, parsing, schema validation, or response state validation failures after classification is governed.
-11. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation.
+9. Keep Phase R17 blocking failure classification from being treated as failure artifact writing, macro report unlock, CLI, or handoff.
+10. Keep Phase R19 minimal failure writer from being treated as terminal writer orchestration, macro report unlock, CLI, or handoff.
+11. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation, to be exercised only after a governed local dry-run gate exists.
 12. Preserve restricted and blocked response semantics before macro-side reporting.
 13. Define the operator review checkpoint for restricted and blocked outputs.
 14. Decide runtime artifact retention, fixture promotion, and cleanup policy.
@@ -351,8 +371,10 @@ The current cross-project baseline must not silently introduce:
 - treating Phase R11 writer gate refresh as writer implementation authorization;
 - treating Phase R12 terminal writer preparation as writer implementation authorization;
 - treating Phase R13 terminal writer implementation gate as writer implementation;
-- treating Phase R14 response writer implementation as failure writer implementation, macro report unlock, CLI, or actual handoff;
-- treating Phase R15 post-response-writer failure writer gate as blocking failure classification implementation, failure writer implementation, or failure artifact writing;
+- treating Phase R14 response writer implementation as full terminal writer orchestration, macro report unlock, CLI, or actual handoff;
+- treating Phase R15 post-response-writer failure writer gate as current terminal writer milestone status;
+- treating Phase R17 blocking failure classification as failure artifact writing, macro report unlock, CLI, or actual handoff;
+- treating Phase R19 failure writer implementation as terminal writer orchestration readiness, macro report unlock, CLI, or actual handoff;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
 - treating the post-reader handoff gate as actual handoff authorization;
@@ -361,7 +383,7 @@ The current cross-project baseline must not silently introduce:
 - kernel-side P0/P1 execution;
 - kernel-side real P0-P10 runtime invocation;
 - kernel-side response artifact writing outside the R14 minimal explicit-destination writer boundary;
-- kernel-side failure artifact writing;
+- kernel-side failure artifact writing outside the R19 minimal explicit-destination failure writer boundary;
 - treating intake mapping output as a response artifact;
 - kernel contract renaming or schema drift;
 - hidden runtime handoff;
@@ -370,6 +392,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Blocking Failure Classification Preparation Pass`.
+Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
 
-That pass should define the smallest governed classified blocking failure input boundary for the future failure writer without adding wrapper inclusion, failure writer code, failure artifact writing, CLI, CI, scheduler behavior, live fetching, report composition, package migration, macro report unlock, or actual handoff execution.
+That pass should define how to exercise the existing minimal response writer and minimal failure writer locally without adding wrapper inclusion, CLI, queue discovery, polling, retry, cleanup, CI, scheduler behavior, live fetching, report composition, package migration, macro report unlock, or actual handoff execution.
