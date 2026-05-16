@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. This does not open dry-run implementation, CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. This does not open local invocation, CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -30,8 +30,9 @@ The future implementation order should be:
 6. Blocking failure classification boundary.
 7. Blocking failure writer boundary.
 8. Local terminal writer dry-run gate.
-9. Local invocation boundary.
-10. Runtime artifact retention and cleanup policy.
+9. Terminal writer dry-run milestone sync.
+10. Local invocation boundary.
+11. Runtime artifact retention and cleanup policy.
 
 This order is intentionally narrow. It prevents writer behavior, CLI behavior, scheduler behavior, reporting behavior, and cleanup automation from arriving before the kernel can locally validate the inputs and outputs it owns.
 
@@ -308,7 +309,7 @@ Purpose:
 Current status:
 
 ```text
-local_terminal_writer_dry_run_gate_prepared
+local_terminal_writer_dry_run_minimal_implementation_complete_and_post_gate_refreshed
 ```
 
 Depends on:
@@ -319,6 +320,8 @@ Depends on:
 
 Must still not include:
 
+- real artifact writing from dry-run;
+- local invocation boundary;
 - CLI behavior;
 - queue discovery;
 - polling or watcher behavior;
@@ -329,9 +332,47 @@ Must still not include:
 
 Additional governed pass required:
 
-- local terminal writer dry-run minimal implementation before local invocation or CLI behavior is proposed.
+- terminal writer dry-run milestone sync before local invocation or CLI behavior is proposed.
 
-## Step 9: Local Invocation Boundary
+## Step 9: Terminal Writer Dry-Run Milestone Sync
+
+Purpose:
+
+- record that terminal writer local surfaces are now dry-run testable;
+- preserve the distinction between dry-run candidates and real artifact writes;
+- keep local invocation and CLI planning closed until the milestone is synced.
+
+Current status:
+
+```text
+post_local_terminal_writer_dry_run_gate_refreshed
+```
+
+Depends on:
+
+- implemented and validated minimal response writer;
+- implemented and validated blocking failure classification;
+- implemented and validated minimal failure writer;
+- implemented and validated minimal local terminal writer dry-run boundary;
+- refreshed post-local-terminal-writer-dry-run gate.
+
+Must still not include:
+
+- local invocation boundary;
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- artifact cleanup;
+- macro report unlock;
+- actual handoff;
+- full runtime orchestration.
+
+Additional governed pass required:
+
+- local invocation boundary planning before any command boundary is added.
+
+## Step 10: Local Invocation Boundary
 
 Purpose:
 
@@ -344,6 +385,7 @@ Depends on:
 - implemented and validated intake mapping;
 - implemented and validated runtime invocation;
 - implemented and validated response/failure terminal artifact behavior.
+- completed terminal writer dry-run milestone sync.
 
 Must still not include:
 
@@ -358,7 +400,7 @@ Additional governed pass required:
 
 - a local invocation or CLI output contract before any command boundary is added.
 
-## Step 10: Runtime Artifact Retention And Cleanup Policy
+## Step 11: Runtime Artifact Retention And Cleanup Policy
 
 Purpose:
 
@@ -405,6 +447,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Local Terminal Writer Dry Run Minimal Implementation Slice`.
+Perform a `Kernel-Side Terminal Writer Dry Run Milestone Sync Pass`.
 
-That pass should minimally exercise the existing response and failure writer paths locally without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should record the completed dry-run milestone before any local invocation or CLI planning, without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
