@@ -11,8 +11,20 @@ It is a planning gate only. It does not implement dry-run orchestration code, wr
 Current gate decision:
 
 ```text
-local_terminal_writer_dry_run_gate_prepared
+local_terminal_writer_dry_run_minimal_implementation_slice_complete
 ```
+
+## Minimal Implementation Slice
+
+The minimal local terminal writer dry-run implementation slice now exists.
+
+It provides a local-only dry-run boundary that checks one validated pre-writer
+response input and one classified blocking failure input, produces response and
+failure artifact candidates, and explicitly preserves the rule that a single
+invocation may produce only one terminal artifact.
+
+The slice does not write real artifacts, add CLI behavior, discover queues,
+poll, retry, clean up artifacts, unlock macro reporting, or execute handoff.
 
 ## Current Available Writer Surfaces
 
@@ -54,8 +66,8 @@ Future dry-run output candidates are:
 
 This phase does not:
 
-- implement dry-run orchestration code;
-- write artifacts;
+- implement runtime orchestration beyond the minimal local dry-run boundary;
+- write real artifacts;
 - add CLI behavior;
 - unlock macro reporting;
 - implement actual handoff.

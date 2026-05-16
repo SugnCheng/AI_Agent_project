@@ -172,6 +172,33 @@ FORBIDDEN_FAILURE_WRITER_INPUT_FIELDS = FORBIDDEN_BLOCKING_FAILURE_SOURCE_FIELDS
     }
 )
 
+FORBIDDEN_TERMINAL_DRY_RUN_MARKER_FIELDS = {
+    "cli_behavior_added",
+    "cli_success_signal",
+    "actual_handoff",
+    "actual_handoff_executed",
+    "handoff_marker",
+    "macro_report_eligibility",
+    "report_eligibility",
+    "downstream_reporting_allowed",
+    "scheduler_result",
+    "queue_discovery",
+    "polling_behavior",
+    "watcher_behavior",
+    "retry_behavior",
+    "backoff_behavior",
+    "cleanup_behavior",
+}
+
+FORBIDDEN_TERMINAL_DRY_RUN_TRUE_FIELDS = {
+    "macro_report_unlock",
+    "terminal_artifact_written",
+    "response_artifact_written",
+    "failure_artifact_written",
+    "response_writer_called",
+    "failure_writer_called",
+}
+
 
 class KernelFileExchangeAdapterScaffoldError(ValueError):
     """Raised when scaffold boundary validation fails."""
@@ -666,6 +693,126 @@ def validate_failure_writer_input(classified_failure: dict[str, Any]) -> dict[st
         )
 
     return classified_failure
+
+
+def _iter_nested_items(value: Any) -> Any:
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            yield key, nested
+            yield from _iter_nested_items(nested)
+    elif isinstance(value, list):
+        for nested in value:
+            yield from _iter_nested_items(nested)
+
+
+def _reject_terminal_dry_run_broadening_markers(value: dict[str, Any], label: str) -> None:
+    leaked = sorted(
+        {
+            key
+            for key, _ in _iter_nested_items(value)
+            if key in FORBIDDEN_TERMINAL_DRY_RUN_MARKER_FIELDS
+        }
+    )
+    if leaked:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"{label} must not contain CLI, handoff, reporting, scheduler, queue, polling, retry, or cleanup markers: "
+            f"{leaked}"
+        )
+
+    true_markers = sorted(
+        {
+            key
+            for key, nested in _iter_nested_items(value)
+            if key in FORBIDDEN_TERMINAL_DRY_RUN_TRUE_FIELDS and nested is True
+        }
+    )
+    if true_markers:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"{label} must remain pre-writer and locked: {true_markers}"
+        )
+
+
+def dry_run_terminal_writers(
+    response_input: dict[str, Any],
+    failure_input: dict[str, Any],
+) -> dict[str, Any]:
+    """Exercise local response and failure terminal writer branches as dry-run candidates.
+
+    This dry-run is deterministic and local-only. It validates the current
+    response and failure writer inputs, returns artifact candidates, and states
+    that only one terminal artifact may be produced by any single future
+    invocation. It does not write files, discover queues, poll, retry, clean up,
+    add CLI behavior, unlock macro reporting, or execute handoff.
+    """
+
+    response_input = _require_object(response_input, "response_input")
+    failure_input = _require_object(failure_input, "failure_input")
+
+    if response_input.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid terminal writer dry-run response input"
+        )
+    if response_input.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid terminal writer dry-run response input"
+        )
+    if failure_input.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid terminal writer dry-run failure input"
+        )
+    if failure_input.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid terminal writer dry-run failure input"
+        )
+
+    _reject_terminal_dry_run_broadening_markers(response_input, "response_input")
+    _reject_terminal_dry_run_broadening_markers(failure_input, "failure_input")
+
+    validated_response = validate_response_writer_input(response_input)
+    classified_failure = validate_failure_writer_input(failure_input)
+
+    response_artifact_candidate = {
+        "artifact_type": "kernel_response",
+        "artifact_state": "dry_run_response_artifact_candidate",
+        "source_validated_response": deepcopy(validated_response),
+        "terminal_artifact_written": False,
+        "response_writer_called": False,
+        "failure_writer_called": False,
+        "macro_report_unlock": False,
+        "writer_stage": "response_writer_minimal_local_dry_run_candidate",
+        "dry_run_branch_id": "response_terminal_writer_branch",
+        "single_invocation_terminal_artifact_count": 1,
+    }
+    failure_artifact_candidate = {
+        "artifact_type": "kernel_exchange_failure",
+        "artifact_state": "dry_run_failure_artifact_candidate",
+        "blocking": True,
+        "source_classified_failure": deepcopy(classified_failure),
+        "terminal_artifact_written": False,
+        "response_writer_called": False,
+        "failure_writer_called": False,
+        "macro_report_unlock": False,
+        "writer_stage": "failure_writer_minimal_local_dry_run_candidate",
+        "dry_run_branch_id": "failure_terminal_writer_branch",
+        "single_invocation_terminal_artifact_count": 1,
+    }
+
+    return {
+        "dry_run_type": "local_terminal_writer_dry_run",
+        "dry_run_state": "completed_pre_orchestration",
+        "dry_run_stage": "terminal_writer_dry_run_minimal_local",
+        "response_path_checked": True,
+        "failure_path_checked": True,
+        "mutual_exclusivity_required": True,
+        "dual_write_for_single_invocation_allowed": False,
+        "single_invocation_may_produce_only_one_terminal_artifact": True,
+        "macro_report_unlock": False,
+        "cli_behavior_added": False,
+        "actual_handoff_executed": False,
+        "terminal_artifact_written": False,
+        "response_artifact_candidate": response_artifact_candidate,
+        "failure_artifact_candidate": failure_artifact_candidate,
+    }
 
 
 def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:
