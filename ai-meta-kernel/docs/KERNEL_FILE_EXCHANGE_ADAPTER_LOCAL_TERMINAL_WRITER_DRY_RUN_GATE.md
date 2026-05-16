@@ -2,9 +2,13 @@
 
 ## Purpose
 
-This note prepares the local terminal writer dry-run gate after the minimal response writer and minimal failure writer slices.
+This note tracks the local terminal writer dry-run gate after the minimal
+response writer and minimal failure writer slices.
 
-It is a planning gate only. It does not implement dry-run orchestration code, write artifacts, add CLI behavior, unlock macro reporting, or execute actual handoff.
+R21 prepared the planning gate. R22 completed the minimal local dry-run
+implementation slice. The gate still does not represent full runtime
+orchestration, write real artifacts from the dry-run, add CLI behavior, unlock
+macro reporting, or execute actual handoff.
 
 ## Gate Decision
 
@@ -39,7 +43,8 @@ The failure writer remains bounded to one R17 classified blocking failure object
 
 ## Dry-Run Gate Purpose
 
-The future local dry-run gate may validate, locally and without orchestration, that:
+The completed minimal local dry-run validates, locally and without full
+orchestration, that:
 
 - one response path can be exercised;
 - one failure path can be exercised;
@@ -47,20 +52,27 @@ The future local dry-run gate may validate, locally and without orchestration, t
 - `macro_report_unlock` remains false;
 - no CLI / retry / polling / cleanup / handoff behavior is introduced.
 
-## Future Dry-Run Input Candidates
+## R21 Planning Context
 
-Future dry-run input candidates are:
+R21 identified dry-run input and output candidates only. At that point, the
+gate had not yet implemented the local dry-run boundary.
+
+## R22 Completed Dry-Run Inputs
+
+The minimal local dry-run implementation now accepts:
 
 - one R10 validated pre-writer response object;
 - one R17 classified blocking failure object.
 
-## Future Dry-Run Output Candidates
+## R22 Completed Dry-Run Outputs
 
-Future dry-run output candidates are:
+The minimal local dry-run implementation now returns:
 
 - one local response artifact candidate;
 - one local failure artifact candidate;
 - never both for the same invocation.
+
+These are dry-run candidates only. The dry-run does not write real artifacts.
 
 ## Explicit Non-Implementation
 
@@ -72,23 +84,26 @@ This phase does not:
 - unlock macro reporting;
 - implement actual handoff.
 
-## Required Future Validation Themes
+## Completed Validation Themes
 
-Future validation should prove:
+The minimal dry-run validation now proves:
 
-- response path writes only response artifact;
-- failure path writes only failure artifact;
+- response path remains response-only at the dry-run boundary;
+- failure path remains failure-only at the dry-run boundary;
 - no response/failure dual-write for one invocation;
-- existing destination rejected;
-- missing parent rejected;
 - `macro_report_unlock` remains false;
 - standalone helpers remain outside wrapper.
+
+Future hardening or gate refresh work may refine documentation and validation
+coverage, but should not broaden the dry-run into CLI behavior, queue
+discovery, polling, retry, cleanup, macro report unlock, actual handoff, or
+full runtime orchestration.
 
 ## Explicitly Blocked Behaviors
 
 This gate keeps the following blocked:
 
-- dry-run orchestration implementation;
+- full runtime orchestration completion;
 - response writer broadening;
 - failure writer broadening;
 - CLI behavior;
@@ -102,5 +117,5 @@ This gate keeps the following blocked:
 Recommended next phase:
 
 ```text
-Local Terminal Writer Dry Run Minimal Implementation Slice
+Post-Local-Terminal-Writer-Dry-Run Gate Refresh Pass
 ```
