@@ -16,10 +16,12 @@ This document does not add runtime behavior, live fetching, scheduler runtime, r
 Current cross-project status:
 
 ```text
-terminal_writers_milestone_synced_but_runtime_handoff_not_implemented
+terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
 ```
 
-The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate governance, Phase R14 minimal response writer implementation, Phase R17 minimal blocking failure classification implementation, Phase R19 minimal failure writer implementation, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation for canonical outputs, local terminal writer dry-run orchestration, CLI, macro report unlock, and actual handoff remain unimplemented.
+The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate governance, Phase R14 minimal response writer implementation, Phase R17 minimal blocking failure classification implementation, Phase R19 minimal failure writer implementation, R22 minimal local terminal writer dry-run implementation, R23 post-dry-run gate refresh, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance.
+
+The kernel side can now dry-run local terminal writer paths and produce response/failure artifact candidates only. That dry-run does not write real runtime artifacts, does not create a local invocation boundary, does not implement CLI, and does not execute actual handoff. P0/P1 execution, real P0-P10 runtime invocation, terminal `TASK_OBJECT_SCHEMA` response validation for canonical outputs, macro report unlock, local invocation, CLI, queue discovery, polling, retry, cleanup, scheduler behavior, report composition, and actual handoff remain unimplemented.
 
 ## Macro-Side Readiness
 
@@ -78,6 +80,9 @@ Already in place:
 - Phase R15 post-response-writer failure writer gate selecting blocking failure classification preparation before failure writer implementation;
 - Phase R17 minimal blocking failure classification implementation;
 - Phase R19 minimal explicit-destination failure writer implementation with standalone helper coverage;
+- R22 minimal local terminal writer dry-run implementation with standalone helper coverage;
+- R23 post-local-terminal-writer-dry-run gate refresh;
+- R24 terminal writer dry-run milestone sync;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -91,8 +96,9 @@ Still absent on the kernel side:
 - P0-P10 runtime execution implementation;
 - canonical task object production from envelope evidence;
 - response writer broadening beyond the R14 minimal explicit-destination local artifact writer;
-- terminal writer dry-run orchestration;
+- local invocation boundary;
 - CLI or invocation boundary;
+- real artifact writing from dry-run;
 - terminal `TASK_OBJECT_SCHEMA` response validation for canonical responses;
 - runtime artifact validation beyond static fixtures, scaffold checks, and focused standalone helper coverage.
 
@@ -112,26 +118,38 @@ The two projects are aligned on the v0.1 file-based exchange boundary:
 | Fixture distinction | Static fixtures are reviewable examples; runtime artifacts are generated local material and not committed by default. |
 | Restricted / blocked semantics | Macro side validates standard, restricted, blocked, and failure states before downstream unlock. |
 
-Current terminal writer availability does not equal cross-project orchestration readiness. The kernel side can now write one local response artifact and one local failure artifact through explicit local writer boundaries, but the macro side still does not consume actual runtime terminal artifacts from a live kernel invocation. Macro report unlock and actual handoff remain blocked.
+Current terminal writer availability and dry-run testability do not equal cross-project orchestration readiness. The kernel side can write one local response artifact and one local failure artifact through explicit local writer boundaries, and it can now dry-run response/failure terminal paths as artifact candidates only. The macro side still does not consume actual runtime terminal artifacts from a live kernel invocation. Macro report unlock and actual handoff remain blocked.
 
 ## Current Runtime-Governance Status
 
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_minimal_blocking_failure_classification_plus_minimal_failure_writer_plus_terminal_writers_milestone_sync_plus_handoff_unimplemented
+first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_minimal_blocking_failure_classification_plus_minimal_failure_writer_plus_minimal_terminal_writer_dry_run_plus_post_dry_run_gate_refresh_plus_terminal_writer_dry_run_milestone_sync_plus_local_invocation_boundary_ready_plus_handoff_unimplemented
 ```
 
 Current terminal writers milestone status:
 
 ```text
-terminal_writers_milestone_sync_and_local_dry_run_gate_ready
+terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
 ```
 
 Recommended next kernel-side phase:
 
 ```text
-Kernel-Side Local Terminal Writer Dry Run Gate
+Kernel-Side Local Invocation Boundary Preparation Pass
+```
+
+Current terminal writer dry-run implementation status:
+
+```text
+local_terminal_writer_dry_run_minimal_implementation_slice_complete
+```
+
+Current post-local-terminal-writer-dry-run gate status:
+
+```text
+post_local_terminal_writer_dry_run_gate_refreshed
 ```
 
 Current Phase R19 failure writer implementation status:
@@ -232,9 +250,11 @@ Current writer-boundary governance status:
 - standalone blocking failure classification helper `ai-meta-kernel/validation/kernel_blocking_failure_classification_contract_checks.py` reports `kernel-blocking-failure-classification-contract-checks-ok`;
 - Phase R19 minimal failure writer writes one explicit local kernel exchange failure artifact from one classified blocking failure object;
 - standalone failure writer helper `ai-meta-kernel/validation/kernel_failure_writer_contract_checks.py` reports `kernel-failure-writer-contract-checks-ok`;
+- R22 minimal local terminal writer dry-run returns response and failure artifact candidates without writing real artifacts;
+- standalone terminal writer dry-run helper `ai-meta-kernel/validation/kernel_terminal_writer_dry_run_contract_checks.py` reports `kernel-terminal-writer-dry-run-contract-checks-ok`;
 - one envelope invocation should eventually produce exactly one terminal artifact: response or blocking failure;
-- full response/failure writer mutual-exclusivity orchestration remains incomplete until a local dry-run gate exists;
-- terminal writer availability does not equal orchestration readiness.
+- dry-run mutual-exclusivity intent is validated locally with artifact candidates only;
+- terminal writer availability and dry-run testability do not equal local invocation, CLI, macro report unlock, actual handoff, or orchestration readiness.
 
 Current intake-mapping governance status:
 
@@ -324,10 +344,11 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/kernel_response_writer_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_blocking_failure_classification_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_failure_writer_contract_checks.py`
+- `ai-meta-kernel/validation/kernel_terminal_writer_dry_run_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
-- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, Phase R14 minimal response writer implementation, Phase R17 blocking failure classification implementation, Phase R19 minimal failure writer implementation, Phase R11 post-response-validation writer gate, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
+- kernel output contracts for standalone helpers, wrapper behavior, wrapper failure paths, adapter scaffold behavior, first-slice adapter fixture validation, runtime reader output, Phase R2 minimal reader implementation, Phase R5 minimal intake mapping implementation, Phase R8 minimal runtime invocation implementation, Phase R10 minimal response validation implementation, Phase R14 minimal response writer implementation, Phase R17 blocking failure classification implementation, Phase R19 minimal failure writer implementation, R22 local terminal writer dry-run implementation, R23 post-dry-run gate refresh, Phase R11 post-response-validation writer gate, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate, wrapper inclusion gate/reassessment, writer boundaries, and intake mapping.
 
 ## Remaining Runtime Handoff Gaps
 
@@ -343,11 +364,12 @@ Before actual runtime handoff, the following gaps remain:
 8. Keep Phase R14 minimal response writer from being treated as full terminal writer mutual exclusivity, macro report unlock, CLI, or handoff.
 9. Keep Phase R17 blocking failure classification from being treated as failure artifact writing, macro report unlock, CLI, or handoff.
 10. Keep Phase R19 minimal failure writer from being treated as terminal writer orchestration, macro report unlock, CLI, or handoff.
-11. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation, to be exercised only after a governed local dry-run gate exists.
-12. Preserve restricted and blocked response semantics before macro-side reporting.
-13. Define the operator review checkpoint for restricted and blocked outputs.
-14. Decide runtime artifact retention, fixture promotion, and cleanup policy.
-15. Define any CLI or invocation boundary separately from scheduler/reporting behavior.
+11. Preserve writer mutual exclusivity: one response artifact or one blocking failure artifact per invocation. The current dry-run validates this intent with artifact candidates only.
+12. Keep local dry-run artifact candidates distinct from real runtime terminal artifacts.
+13. Preserve restricted and blocked response semantics before macro-side reporting.
+14. Define the operator review checkpoint for restricted and blocked outputs.
+15. Decide runtime artifact retention, fixture promotion, and cleanup policy.
+16. Define any local invocation or CLI boundary separately from scheduler/reporting behavior.
 
 ## Explicitly Blocked Behaviors
 
@@ -375,6 +397,8 @@ The current cross-project baseline must not silently introduce:
 - treating Phase R15 post-response-writer failure writer gate as current terminal writer milestone status;
 - treating Phase R17 blocking failure classification as failure artifact writing, macro report unlock, CLI, or actual handoff;
 - treating Phase R19 failure writer implementation as terminal writer orchestration readiness, macro report unlock, CLI, or actual handoff;
+- treating R22 local terminal writer dry-run as real artifact writing, local invocation, CLI behavior, macro report unlock, or actual handoff;
+- treating terminal writer dry-run milestone sync as local invocation or orchestration readiness;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
 - treating the post-reader handoff gate as actual handoff authorization;
@@ -392,6 +416,6 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
+Perform a `Kernel-Side Local Invocation Boundary Preparation Pass`.
 
-That pass should define how to exercise the existing minimal response writer and minimal failure writer locally without adding wrapper inclusion, CLI, queue discovery, polling, retry, cleanup, CI, scheduler behavior, live fetching, report composition, package migration, macro report unlock, or actual handoff execution.
+That pass should prepare the local invocation boundary after the completed dry-run milestone without adding wrapper inclusion, CLI, queue discovery, polling, retry, cleanup, CI, scheduler behavior, live fetching, report composition, package migration, macro report unlock, actual handoff execution, or full runtime orchestration.

@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the Phase R14 minimal response writer implementation surface, the Phase R17 minimal blocking failure classification surface, the Phase R19 minimal failure writer implementation surface, the post-response-validation writer gate, the terminal writer milestone sync state, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the Phase R14 minimal response writer implementation surface, the Phase R17 minimal blocking failure classification surface, the Phase R19 minimal failure writer implementation surface, the R22 minimal local terminal writer dry-run surface, the R23 post-dry-run gate refresh, the R24 terminal writer dry-run milestone sync state, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -32,10 +32,24 @@ The current kernel-side standalone helpers are:
 | `validation/kernel_response_writer_contract_checks.py` | Checks the minimal explicit-destination response writer boundary without failure writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-response-writer-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
 | `validation/kernel_blocking_failure_classification_contract_checks.py` | Checks the minimal local blocking failure classification boundary without failure writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-blocking-failure-classification-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_BLOCKING_FAILURE_CLASSIFICATION_PREPARATION.md` |
 | `validation/kernel_failure_writer_contract_checks.py` | Checks the minimal explicit-destination failure writer boundary without response writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-failure-writer-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
+| `validation/kernel_terminal_writer_dry_run_contract_checks.py` | Checks the minimal local terminal writer dry-run boundary, artifact candidates, and mutual exclusivity intent without real artifact writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-terminal-writer-dry-run-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` |
 
 These helpers remain canonical standalone checks.
 
 They may be run individually for focused debugging even though a wrapper now exists.
+
+The standalone runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, and terminal writer dry-run helpers remain outside `validation/run_all_kernel_local_checks.py` unless a later governed wrapper pass explicitly changes that contract.
+
+The wrapper final success signal `kernel-local-validation-checks-ok` still does not include these standalone helper success signals:
+
+- `kernel-runtime-envelope-reader-contract-checks-ok`;
+- `kernel-intake-mapping-contract-checks-ok`;
+- `kernel-runtime-invocation-contract-checks-ok`;
+- `kernel-response-validation-contract-checks-ok`;
+- `kernel-response-writer-contract-checks-ok`;
+- `kernel-blocking-failure-classification-contract-checks-ok`;
+- `kernel-failure-writer-contract-checks-ok`;
+- `kernel-terminal-writer-dry-run-contract-checks-ok`.
 
 ## Current First-Slice Adapter Fixture Validation Surface
 
@@ -342,7 +356,7 @@ At the current stage, these documents mean:
 - response writer implementation exists only for the R14 minimal explicit-destination artifact writer;
 - failure writer implementation exists only for the R19 minimal explicit-destination artifact writer;
 - no wrapper behavior changed;
-- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, or response writer helper coverage.
+- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, response writer, blocking failure classification, failure writer, or terminal writer dry-run helper coverage.
 
 At the current stage, these documents do not mean:
 
@@ -541,10 +555,63 @@ The implemented failure writer surface covers:
 
 At the current stage, this does not mean:
 
-- local terminal writer dry-run orchestration exists;
-- response/failure writer selection for one real invocation is automated;
+- real response/failure writer selection for one local invocation is automated;
 - full end-to-end mutual exclusivity orchestration is complete;
 - CLI behavior, queue discovery, polling, retry, cleanup, macro report unlock, or actual handoff is open.
+
+## Current Local Terminal Writer Dry-Run Surface
+
+The current R22 dry-run status is:
+
+```text
+local_terminal_writer_dry_run_minimal_implementation_slice_complete
+```
+
+The post-dry-run gate status is:
+
+```text
+post_local_terminal_writer_dry_run_gate_refreshed
+```
+
+The terminal writer dry-run milestone sync status is:
+
+```text
+terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
+```
+
+The focused standalone helper is:
+
+```text
+validation/kernel_terminal_writer_dry_run_contract_checks.py
+```
+
+Current helper success signal:
+
+```text
+kernel-terminal-writer-dry-run-contract-checks-ok
+```
+
+The implemented dry-run surface covers:
+
+- one R10 validated pre-writer response object input;
+- one R17 classified blocking failure object input;
+- response artifact candidate path marked `kernel_response`;
+- failure artifact candidate path marked `kernel_exchange_failure`;
+- local mutual exclusivity intent validation;
+- rejection of non-object, malformed, artifact-shaped, unlocked, terminal, CLI, handoff, and report-eligibility inputs;
+- confirmation that the real response and failure writers are not called by the dry-run;
+- no wrapper inclusion for the standalone dry-run helper.
+
+At the current stage, this does not mean:
+
+- real artifact writing from dry-run exists;
+- local invocation boundary exists;
+- CLI behavior exists;
+- queue discovery, polling, retry, or cleanup exists;
+- macro report unlock exists;
+- actual handoff exists;
+- full runtime orchestration exists;
+- `kernel-local-validation-checks-ok` includes terminal writer dry-run helper coverage.
 
 ## Current Intake-Mapping Planning And Output Contract Surface
 
@@ -730,7 +797,7 @@ At the current stage, these documents mean:
 - minimal reader, context-only mapper, and candidate-only invocation remain implemented;
 - `validation/kernel_response_validation_contract_checks.py` validates the response validation boundary as a standalone helper;
 - no wrapper behavior changed;
-- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, or response writer helper coverage.
+- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, response writer, blocking failure classification, failure writer, or terminal writer dry-run helper coverage.
 
 At the current stage, these documents do not mean:
 
@@ -761,10 +828,11 @@ At the current stage, this gate means:
 - validated response output remains local, pre-writer, and non-terminal;
 - response writer implementation has since opened only for the R14 minimal explicit-destination writer boundary;
 - failure writer implementation has since opened only for the R19 minimal explicit-destination writer boundary;
+- local terminal writer dry-run has since opened only as the R22 artifact-candidate dry-run boundary;
 - CLI behavior remains blocked;
 - macro report unlock remains blocked;
 - actual runtime handoff remains blocked;
-- the next governed phase should define a local terminal writer dry-run gate because response and failure writers have mutual-exclusion requirements.
+- the next governed phase should prepare the local invocation boundary after terminal writer dry-run milestone sync.
 
 At the current stage, this gate does not mean:
 
@@ -967,7 +1035,8 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - the response validation surface has implemented terminal schema validation, failure writers, CLI, macro reporting, or actual handoff.
 - the response writer surface has implemented terminal writer orchestration, CLI, macro reporting, or actual handoff.
 - the blocking failure classification surface has implemented failure writing, CLI, macro reporting, or actual handoff.
-- the failure writer surface has implemented terminal writer dry-run orchestration, CLI, macro reporting, or actual handoff.
+- the failure writer surface has implemented local invocation, CLI, macro reporting, or actual handoff.
+- the terminal writer dry-run surface has implemented real artifact writing from dry-run, local invocation, CLI, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, or full runtime orchestration.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -1161,7 +1230,7 @@ The Phase R15 post-response-writer failure writer gate also must not silently in
 - treating the historical R15 gate as current terminal writer milestone status;
 - non-blocking failure artifacts;
 - response writer broadening beyond the R14 minimal explicit-destination writer;
-- full response/failure mutual exclusivity orchestration claims before a local dry-run gate exists;
+- full response/failure mutual exclusivity orchestration claims beyond the current local artifact-candidate dry-run;
 - CLI behavior;
 - macro-side report unlock;
 - wrapper inclusion for standalone helpers;
@@ -1188,6 +1257,17 @@ The Phase R19 failure writer surface must not silently introduce:
 - macro-side report unlock;
 - wrapper inclusion for standalone helpers;
 - actual runtime handoff.
+
+The R22 terminal writer dry-run surface must not silently introduce:
+
+- real artifact writing from dry-run;
+- local invocation boundary;
+- CLI behavior;
+- queue discovery, polling, retry, or cleanup;
+- macro-side report unlock;
+- actual runtime handoff;
+- full runtime orchestration;
+- wrapper inclusion for standalone helpers.
 
 ## Changes Requiring A Governed Pass
 
@@ -1260,6 +1340,11 @@ The following changes require a governed pass before implementation:
 - changing the Phase R14 response writer implementation decision;
 - changing the Phase R15 post-response-writer failure writer gate decision;
 - changing the response writer helper path or success signal;
+- changing the terminal writer dry-run helper path or success signal;
+- adding the terminal writer dry-run helper to the local wrapper;
+- treating terminal writer dry-run artifact candidates as real runtime artifacts;
+- treating terminal writer dry-run milestone sync as local invocation implementation;
+- changing the post-local-terminal-writer-dry-run gate decision;
 - adding the response writer helper to the local wrapper;
 - adding blocking failure classification implementation;
 - adding failure writer implementation;
@@ -1277,13 +1362,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_response_writer_minimal_implementation_plus_blocking_failure_classification_minimal_implementation_plus_failure_writer_minimal_implementation_plus_terminal_writers_milestone_sync_and_local_dry_run_gate_ready_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_response_writer_minimal_implementation_plus_blocking_failure_classification_minimal_implementation_plus_failure_writer_minimal_implementation_plus_terminal_writer_dry_run_minimal_implementation_plus_post_dry_run_gate_refreshed_plus_terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a bounded Phase R14 minimal response writer implementation with a standalone local helper, a bounded Phase R17 blocking failure classification implementation with a standalone local helper, and a bounded Phase R19 minimal failure writer implementation with a standalone local helper. The terminal writers milestone is ready for a local dry-run gate, while CLI behavior, queue discovery, polling, retry, cleanup, macro report unlock, full end-to-end mutual exclusivity orchestration, and actual handoff remain blocked. The governed wrapper inclusion gate and TASK 114 reassessment still keep standalone helpers outside the main wrapper unless a later governed wrapper pass changes that contract.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a bounded Phase R14 minimal response writer implementation with a standalone local helper, a bounded Phase R17 blocking failure classification implementation with a standalone local helper, a bounded Phase R19 minimal failure writer implementation with a standalone local helper, and a bounded R22 minimal local terminal writer dry-run implementation with a standalone local helper. The terminal writer dry-run milestone is synced and local invocation boundary preparation is the next governed phase, while local invocation, CLI behavior, queue discovery, polling, retry, cleanup, macro report unlock, full runtime orchestration, and actual handoff remain blocked. The governed wrapper inclusion gate and TASK 114 reassessment still keep standalone helpers outside the main wrapper unless a later governed wrapper pass changes that contract.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
+Perform a `Kernel-Side Local Invocation Boundary Preparation Pass`.
 
-That pass should decide how to exercise the existing minimal response writer and minimal failure writer in a local dry-run gate without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual kernel runtime handoff.
+That pass should prepare the local invocation boundary after the completed dry-run milestone without implementing CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, actual kernel runtime handoff, or full runtime orchestration.

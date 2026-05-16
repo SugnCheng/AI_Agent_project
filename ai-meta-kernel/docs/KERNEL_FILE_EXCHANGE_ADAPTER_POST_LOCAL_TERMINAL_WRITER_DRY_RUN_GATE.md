@@ -61,6 +61,18 @@ Recommended next phase:
 Terminal Writer Dry Run Milestone Sync Pass
 ```
 
+## Follow-On Milestone Sync Status
+
+The recommended follow-on pass is now reflected in the governance baseline as:
+
+```text
+terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
+```
+
+This does not revert the R22 minimal dry-run implementation status or the R23
+post-dry-run gate refresh. It only records that the next governed boundary may
+be prepared after this gate: local invocation boundary preparation.
+
 ## Explicitly Blocked Behaviors
 
 This gate keeps the following blocked:
