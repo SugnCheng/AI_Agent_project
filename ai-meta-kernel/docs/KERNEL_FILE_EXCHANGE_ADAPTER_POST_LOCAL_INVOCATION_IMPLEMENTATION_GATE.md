@@ -63,6 +63,24 @@ The next step should not be CLI, queue processing, scheduler integration,
 macro report unlock, or actual handoff. The next step should be milestone sync
 before any CLI, queue, or macro integration planning.
 
+## Milestone Sync Follow-Up
+
+Current follow-up status:
+
+```text
+local_invocation_milestone_synced_runtime_artifact_policy_ready
+```
+
+The phase selected by this gate is the Local Invocation Milestone Sync Pass.
+That sync records the completed R29 minimal local invocation implementation and
+the R30 post-local-invocation gate refresh without changing their completed
+status.
+
+The milestone sync does not add CLI behavior, queue discovery, polling, retry,
+cleanup automation, scheduler runtime, macro report unlock, actual handoff,
+wrapper inclusion, production cross-project exchange, or full runtime
+orchestration.
+
 ## Explicit Blocked Behaviors
 
 The following remain blocked:

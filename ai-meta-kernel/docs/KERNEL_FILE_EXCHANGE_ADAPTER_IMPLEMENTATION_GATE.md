@@ -11,7 +11,7 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-post_local_invocation_implementation_gate_refreshed
+local_invocation_milestone_synced_runtime_artifact_policy_ready
 ```
 
 The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepared the local terminal writer dry-run gate. R22 implemented the minimal local terminal writer dry-run boundary without real artifact writing. R23 refreshed the post-dry-run gate. R24 syncs the terminal writer dry-run milestone and marks the local invocation boundary as ready for preparation only. R25 prepares the local invocation boundary, intended inputs, intended outputs, stop conditions, and validation themes without implementing local invocation. R26 defines the local invocation boundary output contract, future result object shape, terminal path semantics, and failure routing expectations without implementing local invocation. R27 defines the local invocation boundary validation plan without implementing local invocation or helper code. R28 refreshed the local invocation implementation gate and authorized only a bounded minimal local invocation implementation slice. At that point, CLI remained blocked, queue discovery remained blocked, polling remained blocked, retry/backoff remained blocked, cleanup remained blocked, macro report unlock remained blocked, actual handoff remained blocked, wrapper inclusion remained blocked, and full runtime orchestration remained closed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
@@ -24,6 +24,15 @@ retry/backoff, cleanup, scheduler behavior, macro report unlock, actual
 handoff, wrapper inclusion, production cross-project exchange, and full runtime
 orchestration remain blocked.
 
+The local invocation milestone is now synced. The current completed kernel-side
+chain includes the minimal explicit-file reader, context-only intake mapper,
+candidate-only runtime invocation, local response validation, minimal response
+writer, blocking failure classification, minimal failure writer, terminal
+writer dry-run, local invocation boundary plan, local invocation output
+contract, local invocation validation plan, local invocation implementation
+gate, minimal local invocation implementation, and post-local-invocation gate
+refresh.
+
 The gate remains closed for actual runtime handoff because CLI, queue worker,
 scheduler, terminal `TASK_OBJECT_SCHEMA` response validation, operator review
 checkpoint, production cross-project exchange, and artifact retention policy
@@ -32,7 +41,7 @@ readiness remain unimplemented.
 Current implementation baseline:
 
 ```text
-post_local_invocation_implementation_gate_refreshed
+local_invocation_milestone_synced_runtime_artifact_policy_ready
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -88,6 +97,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | R28 local invocation implementation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` recorded that minimal local invocation implementation could open only as an explicit-input, explicit-output-policy, single-terminal-path slice, while CLI, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, wrapper inclusion, and full orchestration remained blocked. |
 | R29 local invocation minimal implementation | `file_exchange_adapter_scaffold.py` now exposes `invoke_local_adapter(...)`; `validation/kernel_local_invocation_contract_checks.py` validates the standalone local invocation contract. The slice is bounded to explicit envelope input, explicit output destination policy, one terminal path, and one local invocation result object. |
 | R30 post-local-invocation gate refresh | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` records that minimal local invocation exists while CLI, queue discovery, polling, retry, cleanup, scheduler behavior, macro report unlock, actual handoff, wrapper inclusion, production cross-project exchange, and full runtime orchestration remain blocked. |
+| Local invocation milestone sync | Current status: the minimal local invocation milestone is synced and the next governed phase is runtime artifact retention and cleanup policy preparation. This does not implement cleanup automation. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -394,7 +404,11 @@ terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
 
 The terminal writer dry-run milestone is synced. The current kernel-side chain now includes the minimal explicit-file reader, context-only intake mapper, candidate-only runtime invocation, local pre-writer response validation, minimal response writer, blocking failure classification, minimal failure writer, minimal local terminal writer dry-run, and post-dry-run gate refresh.
 
-This status makes local invocation boundary preparation the next governed phase. It does not implement local invocation, CLI behavior, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, or full runtime orchestration.
+At R24 this status made local invocation boundary preparation the next governed
+phase. It did not implement local invocation, CLI behavior, queue discovery,
+polling, retry, cleanup, macro report unlock, actual handoff, or full runtime
+orchestration. R29 has since implemented only the bounded minimal local
+invocation slice.
 
 ## R25 Local Invocation Boundary Preparation Status
 
@@ -486,6 +500,24 @@ The post-local-invocation gate is refreshed. Minimal local invocation is
 implementation-complete for the current bounded kernel-side slice, but the next
 step should be milestone sync before any CLI, queue worker, scheduler, macro
 integration, production exchange, or actual handoff planning.
+
+## Local Invocation Milestone Sync Status
+
+Current milestone sync status:
+
+```text
+local_invocation_milestone_synced_runtime_artifact_policy_ready
+```
+
+The local invocation milestone is synced. The minimal kernel-side local
+invocation boundary can run one explicit local envelope path with one explicit
+output destination policy and return one local invocation result object with
+exactly one selected terminal path.
+
+This milestone does not add CLI behavior, queue discovery, polling, retry,
+cleanup automation, scheduler runtime, macro report unlock, actual handoff,
+wrapper inclusion, production cross-project exchange, or full runtime
+orchestration.
 
 ## R26 Local Invocation Boundary Output Contract Status
 
@@ -591,10 +623,11 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Local Invocation Milestone Sync Pass`.
+Perform a `Kernel-Side Runtime Artifact Retention And Cleanup Policy Preparation Pass`.
 
-That pass should record the completed minimal local invocation milestone before
-any CLI, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler
-behavior, live fetching, report composition, package migration, external
-service calls, macro report unlock, actual handoff execution, production
-cross-project exchange, or full runtime orchestration planning.
+That pass should prepare policy for generated runtime artifact retention,
+review, fixture promotion, and cleanup decisions without implementing cleanup
+automation, CLI behavior, queue discovery, polling, retry, scheduler behavior,
+live fetching, report composition, package migration, external service calls,
+macro report unlock, actual handoff execution, production cross-project
+exchange, or full runtime orchestration.

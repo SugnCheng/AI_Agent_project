@@ -4,7 +4,7 @@
 
 This document is a developer-facing index for the current `ai-meta-kernel` validation documentation surface.
 
-It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R8 runtime invocation implementation notes and helper, Phase R10 response validation implementation notes and helper, post-response-validation writer gate, Phase R12 terminal writer preparation notes, Phase R13 terminal writer implementation gate, Phase R14 response writer implementation and helper, Phase R17 blocking failure classification implementation and helper, Phase R19 failure writer implementation and helper, R22 local terminal writer dry-run gate and helper, R23 post-dry-run gate, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
+It points to the current standalone helper contracts, wrapper contracts, wrapper failure-path contract, runtime reader wrapper inclusion gate and reassessment, first-slice adapter fixture validation notes, runtime envelope reader contract, helper, Phase R2 minimal implementation notes, post-reader handoff gate, Phase R5 intake mapping implementation notes and helper, post-intake mapping runtime invocation gate, Phase R8 runtime invocation implementation notes and helper, Phase R10 response validation implementation notes and helper, post-response-validation writer gate, Phase R12 terminal writer preparation notes, Phase R13 terminal writer implementation gate, Phase R14 response writer implementation and helper, Phase R17 blocking failure classification implementation and helper, Phase R19 failure writer implementation and helper, R22 local terminal writer dry-run gate and helper, R23 post-dry-run gate, local invocation boundary plan/output/validation/gate notes, R29 local invocation implementation and helper, R30 post-local-invocation gate, local invocation milestone sync status, writer-boundary notes, intake-mapping notes, baseline note, reassessment notes, and planning notes so developers can find the right validation document quickly.
 
 This index does not add runtime behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -32,6 +32,7 @@ These documents describe the individually runnable validation helpers. Use them 
 | `validation/kernel_blocking_failure_classification_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_BLOCKING_FAILURE_CLASSIFICATION_PREPARATION.md` | Standalone blocking failure classification helper for the local pre-writer classified failure boundary. Success signal: `kernel-blocking-failure-classification-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_failure_writer_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Standalone failure writer helper for the minimal explicit-destination kernel exchange failure artifact writer. Success signal: `kernel-failure-writer-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_terminal_writer_dry_run_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` | Standalone terminal writer dry-run helper for response/failure artifact candidates and mutual exclusivity intent. Success signal: `kernel-terminal-writer-dry-run-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
+| `validation/kernel_local_invocation_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_OUTPUT_CONTRACT.md` | Standalone local invocation helper for explicit envelope input, explicit output destination policy, one terminal path, and locked macro/handoff/CLI markers. Success signal: `kernel-local-invocation-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 
 ## Wrapper Contracts
 
@@ -138,6 +139,30 @@ These documents describe the response writer and blocking failure writer boundar
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` | R21/R22 local terminal writer dry-run gate and minimal implementation status. It records artifact candidates only, no real dry-run writes, no CLI, no macro unlock, and no actual handoff. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` | R23 post-dry-run gate refresh. It records that terminal writer local surfaces are dry-run testable while local invocation, CLI, macro unlock, actual handoff, and full orchestration remain closed. |
 
+## Local Invocation Boundary And Milestone
+
+These documents describe the planned, contracted, validated, implemented, and
+synced local invocation boundary. Use them after terminal writer dry-run
+milestone sync and before any runtime artifact retention or cleanup policy work.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_PLAN.md` | R25 local invocation boundary plan: explicit envelope input, deterministic local run, exactly one terminal path, and blocked CLI/queue/polling/retry/cleanup/macro unlock/handoff behavior. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_OUTPUT_CONTRACT.md` | R26 local invocation result object and response-versus-failure terminal path contract. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_VALIDATION_PLAN.md` | R27 validation plan for result shape, terminal path selection, failure routing, fail-closed policy rejection, locked downstream markers, and standalone helper stance. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R28/R29 implementation gate and completed minimal local invocation slice status. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R30 post-local-invocation gate refresh. It records that minimal local invocation exists but CLI, queue, scheduler, macro unlock, actual handoff, wrapper inclusion, production exchange, and full orchestration remain blocked. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current milestone sync and next phase: runtime artifact retention and cleanup policy preparation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current implementation order, with local invocation milestone sync complete and runtime artifact retention/cleanup policy preparation next. |
+
+| Helper | Success signal | Current status |
+| --- | --- | --- |
+| `validation/kernel_local_invocation_contract_checks.py` | `kernel-local-invocation-contract-checks-ok` | Standalone helper that exercises the bounded local invocation boundary. It is intentionally outside `validation/run_all_kernel_local_checks.py`. |
+
+This surface does not imply CLI, queue worker behavior, scheduler runtime,
+macro report unlock, actual handoff, production cross-project exchange, or
+full runtime orchestration.
+
 ## Baseline, Reassessment, And Planning Notes
 
 These documents explain how the validation surface evolved and what decisions have already been bounded.
@@ -208,17 +233,19 @@ For current local validation behavior:
 18. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_BLOCKING_FAILURE_CLASSIFICATION_FAILURE_WRITER_GATE.md` and run or inspect `validation/kernel_failure_writer_contract_checks.py` when checking the R19 minimal failure writer boundary.
 19. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` and run or inspect `validation/kernel_terminal_writer_dry_run_contract_checks.py` when checking the R22 local terminal writer dry-run boundary.
 20. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` when checking the R23 post-dry-run gate.
-21. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current terminal writer dry-run milestone sync and why local invocation boundary preparation is next.
-22. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is local invocation boundary preparation.
-23. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
-24. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
-25. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
-26. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the reassessment decision, Phase R2 reader implementation, post-reader handoff gate, Phase R5 mapper implementation, Phase R6 runtime invocation gate refresh, Phase R8 candidate-only invocation implementation, Phase R10 response validation implementation, Phase R11 writer gate, Phase R12 terminal writer preparation, Phase R13 writer implementation gate, Phase R14 response writer implementation, Phase R17 blocking failure classification, Phase R19 failure writer implementation, R22 local terminal writer dry-run implementation, R23 post-dry-run gate refresh, and R24 terminal writer dry-run milestone sync.
-27. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
-28. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
-29. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
-30. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
-31. Read the specific standalone helper contract only when debugging that helper.
+21. Read the local invocation boundary plan, output contract, validation plan, implementation gate, and post-local-invocation gate when checking the R25-R30 local invocation chain.
+22. Run or inspect `validation/kernel_local_invocation_contract_checks.py` when debugging the standalone local invocation helper. It is not part of the main wrapper.
+23. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current local invocation milestone sync and why runtime artifact retention and cleanup policy preparation is next.
+24. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is runtime artifact retention and cleanup policy preparation.
+25. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
+26. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
+27. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
+28. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the standalone helper set, wrapper meaning, minimal local invocation implementation, post-local-invocation gate, and local invocation milestone sync.
+29. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
+30. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
+31. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
+32. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_HELPER_COVERAGE.md` to confirm whether a new helper is needed.
+33. Read the specific standalone helper contract only when debugging that helper.
 
 For planning or governance review:
 
@@ -246,10 +273,11 @@ For planning or governance review:
 22. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_BLOCKING_FAILURE_CLASSIFICATION_FAILURE_WRITER_GATE.md` before changing failure writer behavior or historical terminal writer milestone status.
 23. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` before changing terminal writer dry-run behavior.
 24. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` before treating the dry-run milestone as readiness for any next boundary.
-25. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` and `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` before preparing the local invocation boundary.
-26. Read the relevant plan or reassessment note.
-27. Compare proposed changes against the related output contract drift rules.
-28. Treat runtime behavior, CLI, CI, fetching, scheduler, reporting, package migration, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
+25. Read the local invocation boundary plan, output contract, validation plan, implementation gate, and post-local-invocation gate before changing local invocation governance.
+26. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` and `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` before preparing runtime artifact retention and cleanup policy.
+27. Read the relevant plan or reassessment note.
+28. Compare proposed changes against the related output contract drift rules.
+29. Treat runtime behavior, CLI, CI, fetching, scheduler, reporting, package migration, production exchange, and handoff execution as out of scope unless a new governed pass explicitly changes that boundary.
 
 ## Current Local Commands
 
@@ -389,7 +417,21 @@ kernel-terminal-writer-dry-run-contract-checks-ok
 
 This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
 
-The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, or terminal writer dry-run helper coverage at the current milestone.
+Run the standalone local invocation contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_local_invocation_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-local-invocation-contract-checks-ok
+```
+
+This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
+
+The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, or local invocation helper coverage at the current milestone.
 
 ## Explicit Non-Goals
 
@@ -417,6 +459,7 @@ This documentation index must not silently introduce:
 - treating Phase R19 failure writer implementation as local terminal writer dry-run orchestration, macro report unlock, CLI behavior, or actual handoff;
 - treating R22 local terminal writer dry-run as real artifact writing, local invocation, CLI behavior, macro report unlock, or actual handoff;
 - treating R24 terminal writer dry-run milestone sync as local invocation implementation;
+- treating minimal local invocation as CLI behavior, queue worker behavior, scheduler runtime, macro report unlock, actual handoff, wrapper inclusion, production cross-project exchange, or full runtime orchestration;
 - terminal response validation as writer behavior;
 - P0/P1 execution;
 - runtime envelope reader expansion beyond one explicit local file;
@@ -441,6 +484,11 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Local Invocation Boundary Preparation Pass`.
+Perform a `Kernel-Side Runtime Artifact Retention And Cleanup Policy Preparation Pass`.
 
-That pass should prepare the local invocation boundary after the completed terminal writer dry-run milestone without implementing CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, actual handoff execution, or full runtime orchestration.
+That pass should prepare generated runtime artifact retention, review, fixture
+promotion, and cleanup policy without implementing cleanup automation, CLI
+behavior, queue discovery, polling, retry, scheduler behavior, live fetching,
+report composition, CI, package migration, external service calls, macro report
+unlock, actual handoff execution, production cross-project exchange, or full
+runtime orchestration.
