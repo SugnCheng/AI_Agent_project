@@ -2,15 +2,16 @@
 
 ## Purpose
 
-This note refreshes the implementation gate for the kernel-side local
-invocation boundary after the R25 boundary plan, R26 output contract, and R27
-validation plan.
+This note records the implementation gate for the kernel-side local invocation
+boundary after the R25 boundary plan, R26 output contract, R27 validation plan,
+R28 gate refresh, and R29 minimal implementation slice.
 
-It decides whether the next governed phase may open the minimal local
-invocation implementation slice. It does not implement local invocation code,
-validation helper code, CLI behavior, queue discovery, polling, retry, cleanup,
-scheduler behavior, macro report unlock, actual handoff, wrapper inclusion, or
-full runtime orchestration.
+The original R28 gate decided whether the next governed phase could open the
+minimal local invocation implementation slice. The current R29 state records
+that the bounded minimal slice now exists. This note does not claim CLI
+behavior, queue discovery, polling, retry, cleanup, scheduler behavior, macro
+report unlock, actual handoff, wrapper inclusion, or full runtime
+orchestration.
 
 ## Current Gate Decision
 
@@ -41,16 +42,17 @@ The following prerequisites are now in place:
 
 ## Implementation Readiness Assessment
 
-Minimal local invocation implementation may be opened next.
+Minimal local invocation implementation is now present at the bounded R29
+slice.
 
-That opening is allowed only if it remains bounded to explicit local input and
-explicit local output destination policy.
+The implemented boundary remains limited to explicit local input and explicit
+local output destination policy.
 
-That opening must not add CLI behavior, queue discovery, polling, retry,
-cleanup, macro report unlock, or actual handoff.
+It does not add CLI behavior, queue discovery, polling, retry, cleanup, macro
+report unlock, or actual handoff.
 
-Any future helper must remain standalone unless wrapper inclusion is separately
-governed.
+The standalone helper exists and remains outside the wrapper unless wrapper
+inclusion is separately governed.
 
 ## Completed Minimal Slice
 
@@ -65,9 +67,9 @@ The standalone validation helper is
 `validation/kernel_local_invocation_contract_checks.py`. It is intentionally
 not included in `validation/run_all_kernel_local_checks.py`.
 
-## Allowed Next Implementation Shape
+## Completed Implementation Shape
 
-The next implementation slice may include only:
+The completed minimal implementation slice includes only:
 
 - one explicit envelope path;
 - one explicit output destination policy;
@@ -78,6 +80,8 @@ The next implementation slice may include only:
 - `macro_report_unlock` false;
 - `actual_handoff_executed` false;
 - `cli_behavior_added` false.
+
+Full runtime orchestration is not complete.
 
 ## Blocked Behaviors
 
@@ -101,5 +105,5 @@ This gate keeps the following blocked:
 Recommended next phase:
 
 ```text
-Local Invocation Minimal Implementation Slice
+Post-Local-Invocation Implementation Gate Refresh Pass
 ```
