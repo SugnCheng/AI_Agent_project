@@ -11,17 +11,17 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_partially_opened_through_minimal_response_writer
+runtime_adapter_implementation_gate_partially_opened_through_failure_classification
 ```
 
-The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local candidate-response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R15 refreshes the post-response-writer failure writer gate and selects blocking failure classification preparation before failure writer implementation. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local candidate-response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R15 refreshes the post-response-writer failure writer gate and selects blocking failure classification preparation before failure writer implementation. Phase R17 implements the minimal local blocking failure classification boundary. The post-blocking-failure-classification failure writer gate is now refreshed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
 The gate remains closed for actual runtime handoff because terminal `TASK_OBJECT_SCHEMA` response validation, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-post_response_writer_failure_writer_gate_refreshed
+post_blocking_failure_classification_failure_writer_gate_refreshed
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -64,6 +64,8 @@ The following prerequisites are now satisfied because of the recent governance w
 | Phase R13 terminal writer implementation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_GATE.md` selects response writer first, then failure writer, without implementing either writer. |
 | Phase R14 response writer minimal implementation | `file_exchange_adapter_scaffold.py` now writes one explicit local response artifact from one R10 validated pre-writer response object; `validation/kernel_response_writer_contract_checks.py` validates the standalone response writer contract. |
 | Phase R15 post-response-writer failure writer gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_WRITER_FAILURE_WRITER_GATE.md` records that the minimal response writer is implemented, failure writer remains closed, and blocking failure classification preparation is required before failure writer implementation. |
+| Phase R17 blocking failure classification minimal implementation | `file_exchange_adapter_scaffold.py` now classifies one local blocking failure source object into one pre-writer classified blocking failure object; `validation/kernel_blocking_failure_classification_contract_checks.py` validates the standalone classification contract. |
+| Post-blocking-failure-classification failure writer gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_BLOCKING_FAILURE_CLASSIFICATION_FAILURE_WRITER_GATE.md` records that the failure writer input surface now exists, failure writer remains unimplemented in this phase, and the next governed slice may open minimal failure writer implementation. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -93,7 +95,6 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | P0/P1 and real P0-P10 runtime invocation implementation | The adapter has only a minimal candidate-only invocation boundary; real P0/P1 and P0-P10 execution remain unimplemented. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
 | Response writer broadening | The minimal explicit-destination response writer exists, but broader response artifact path generation, orchestration, overwrite behavior, and macro report unlock remain blocked. |
-| Blocking failure classification/input surface | No implemented classified blocking failure object boundary exists yet, so failure writer implementation would otherwise need to invent its own input classification. |
 | Blocking failure writer implementation | The failure writer contract exists, but failure artifact writing remains blocked. |
 | Terminal response state validation implementation | Future canonical runtime responses still need governed terminal state validation before any write. |
 | CLI or invocation boundary | No local command boundary has been defined for runtime adapter execution. |
@@ -133,9 +134,11 @@ Next possible openings were reassessed as follows:
 | Minimal terminal writer implementation gate | Complete in Phase R13. Decision: response writer first, then failure writer. |
 | Minimal response writer implementation | Complete in Phase R14 as explicit-destination local response artifact writing. |
 | Post-response-writer failure writer gate refresh | Complete in Phase R15. Decision: prepare blocking failure classification before failure writer implementation. |
-| Blocking failure classification preparation | Selected as the next possible governed opening. |
+| Blocking failure classification preparation | Complete. |
+| Minimal blocking failure classification implementation | Complete in Phase R17 as a local pre-writer classified blocking failure object boundary. |
+| Post-blocking-failure-classification failure writer gate refresh | Complete. Decision: minimal failure writer implementation may be opened in the next governed slice. |
 
-Response validation implementation is now minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, the minimal response writer slice is implemented, and the post-response-writer failure writer gate is refreshed. The next governed opening should prepare a classified blocking failure input boundary before any failure writer code is added.
+Response validation implementation is now minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, the minimal response writer slice is implemented, the minimal blocking failure classification boundary exists, and the post-blocking-failure-classification failure writer gate is refreshed. The next governed opening may target the minimal failure writer implementation slice.
 
 ## Phase R5 Implementation Status
 
@@ -271,7 +274,31 @@ Current failure writer gate decision:
 blocking_failure_classification_preparation_required_before_failure_writer
 ```
 
-The minimal response writer remains implemented for one explicit local response artifact only. Failure writer implementation remains closed because no implemented classified blocking failure object boundary exists yet. The next governed phase should prepare that classification/input surface before any failure artifact writer is implemented.
+At Phase R15, the minimal response writer remained implemented for one explicit local response artifact only, and failure writer implementation remained closed pending a classified blocking failure object boundary. Phase R17 has since implemented that boundary.
+
+## Phase R17 Blocking Failure Classification Implementation Status
+
+Current Phase R17 status:
+
+```text
+blocking_failure_classification_minimal_implementation_slice_complete
+```
+
+The minimal local blocking failure classification boundary is implemented and validated by a standalone helper. The implementation is limited to one local failure source object and one pre-writer classified blocking failure object.
+
+The implemented slice does not write failure artifacts, implement the failure writer, add CLI behavior, broaden response writer behavior, unlock macro reporting, or execute actual runtime handoff.
+
+## Post-Blocking-Failure-Classification Failure Writer Gate Status
+
+Current failure writer gate status:
+
+```text
+post_blocking_failure_classification_failure_writer_gate_refreshed
+```
+
+The failure writer input surface now exists. Failure writer implementation remains unimplemented in this phase, but the next governed phase may open the minimal failure writer implementation slice.
+
+Full response/failure terminal mutual exclusivity remains incomplete until the failure writer exists and is tested.
 
 ## What Must Remain Blocked
 
@@ -292,7 +319,7 @@ The current gate must continue to block:
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing;
-- failure writer implementation before blocking failure classification/input preparation;
+- failure writer implementation in this phase;
 - response writer broadening beyond the R14 minimal explicit-destination writer;
 - CLI command design;
 - artifact polling or watcher behavior;
@@ -355,6 +382,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Blocking Failure Classification Preparation Pass`.
+Implement a `Kernel-Side Failure Writer Minimal Implementation Slice`.
 
-That pass should define the smallest governed classified blocking failure input boundary for the future failure writer without adding failure writer code, failure artifact writing, CLI behavior, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should accept the existing local classified blocking failure object boundary and write at most one governed blocking failure artifact. It must preserve response/failure terminal mutual exclusivity and continue to block CLI behavior, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, and actual handoff execution.
