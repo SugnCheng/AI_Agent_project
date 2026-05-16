@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate as the current phase. This does not implement local invocation itself, validation helper implementation, CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate. R29 implements the minimal local invocation boundary. R30 refreshes the post-local-invocation implementation gate as the current phase. This does not implement CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, wrapper inclusion, production cross-project exchange, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -36,7 +36,9 @@ The future implementation order should be:
 12. Local invocation boundary validation plan.
 13. Local invocation boundary implementation gate.
 14. Local invocation minimal implementation.
-15. Runtime artifact retention and cleanup policy.
+15. Post-local-invocation implementation gate refresh.
+16. Local invocation milestone sync.
+17. Runtime artifact retention and cleanup policy.
 
 This order is intentionally narrow. It prevents writer behavior, CLI behavior, scheduler behavior, reporting behavior, and cleanup automation from arriving before the kernel can locally validate the inputs and outputs it owns.
 
@@ -543,8 +545,8 @@ Current status:
 local_invocation_implementation_gate_refreshed
 ```
 
-Minimal local invocation implementation may open next, but local invocation
-itself is not yet implemented.
+Minimal local invocation implementation gate is complete. R29 has since
+implemented the minimal local invocation slice.
 
 Must still not include:
 
@@ -562,8 +564,8 @@ Must still not include:
 
 Additional governed pass required:
 
-- local invocation minimal implementation before any local invocation code is
-  added beyond this gate.
+- post-local-invocation gate refresh before any milestone sync or CLI, queue,
+  scheduler, macro integration, production exchange, or handoff planning.
 
 ## Step 14: Local Invocation Minimal Implementation
 
@@ -586,8 +588,14 @@ Depends on:
 Current status:
 
 ```text
-local_invocation_minimal_implementation_next
+local_invocation_minimal_implementation_slice_complete
 ```
+
+The minimal local invocation boundary is implemented and validated by a
+standalone helper. It is limited to one explicit envelope path, one explicit
+output destination policy, one deterministic result object, exactly one
+terminal path, and one response artifact path or one failure artifact path,
+never both.
 
 Must still not include:
 
@@ -606,10 +614,92 @@ Must still not include:
 
 Additional governed pass required:
 
-- local invocation validation helper implementation after the minimal local
-  invocation slice exists, unless a separate gate chooses a different order.
+- post-local-invocation implementation gate refresh before milestone sync.
 
-## Step 15: Runtime Artifact Retention And Cleanup Policy
+## Step 15: Post-Local-Invocation Implementation Gate Refresh
+
+Purpose:
+
+- record that the minimal local invocation boundary exists;
+- distinguish minimal local invocation from CLI, queue worker, scheduler,
+  macro report unlock, actual handoff, production exchange, and full runtime
+  adapter readiness;
+- decide the next governed phase.
+
+Depends on:
+
+- local invocation minimal implementation;
+- standalone local invocation helper;
+- `KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md`.
+
+Current status:
+
+```text
+post_local_invocation_implementation_gate_refreshed
+```
+
+Must still not include:
+
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- artifact cleanup;
+- scheduler runtime;
+- live fetching;
+- report composition;
+- macro report unlock;
+- actual handoff;
+- wrapper inclusion;
+- production cross-project exchange;
+- full runtime orchestration.
+
+Additional governed pass required:
+
+- local invocation milestone sync before any CLI, queue, scheduler, macro
+  integration, production exchange, or handoff planning.
+
+## Step 16: Local Invocation Milestone Sync
+
+Purpose:
+
+- sync the completed local invocation milestone;
+- preserve the distinction between local invocation and production runtime
+  exchange;
+- keep CLI, queue, scheduler, macro reporting, and handoff behavior closed.
+
+Depends on:
+
+- post-local-invocation implementation gate refresh;
+- minimal local invocation implementation;
+- standalone local invocation helper.
+
+Current status:
+
+```text
+local_invocation_milestone_sync_next
+```
+
+Must still not include:
+
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- artifact cleanup;
+- scheduler runtime;
+- macro report unlock;
+- actual handoff;
+- wrapper inclusion;
+- production cross-project exchange;
+- full runtime orchestration.
+
+Additional governed pass required:
+
+- no CLI, queue, scheduler, macro integration, production exchange, or handoff
+  planning before this milestone sync is complete.
+
+## Step 17: Runtime Artifact Retention And Cleanup Policy
 
 Purpose:
 
@@ -652,15 +742,15 @@ No step in this sequence may silently introduce:
 - schema drift;
 - macro-side canonical kernel task object generation;
 - macro-side kernel response artifact writing;
+- production cross-project exchange;
 - hidden runtime handoff.
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Local Invocation Minimal Implementation Slice`.
+Perform a `local invocation milestone sync`.
 
-That pass may implement only the minimal explicit-input, explicit-output-policy
-local invocation slice after the refreshed implementation gate, without
-implementing validation helper code, CLI behavior, queue discovery, polling,
-retry, cleanup, scheduler behavior, live fetching, report composition, CI,
-package migration, external service calls, macro report unlock, actual handoff
-execution, wrapper inclusion, or full runtime orchestration.
+That pass should sync the completed minimal local invocation milestone without
+implementing CLI behavior, queue discovery, polling, retry, cleanup, scheduler
+behavior, live fetching, report composition, CI, package migration, external
+service calls, macro report unlock, actual handoff execution, wrapper
+inclusion, production cross-project exchange, or full runtime orchestration.
