@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. This does not open failure writer, CLI behavior, macro reporting, or actual handoff.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R15 refreshes the post-response-writer failure writer gate and selects blocking failure classification preparation before failure writer implementation. This does not open failure writer, CLI behavior, macro reporting, or actual handoff.
 
 ## Intended Implementation Order
 
@@ -226,7 +226,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a post-response-writer failure writer gate refresh before blocking failure writer implementation is opened.
+- the Phase R15 post-response-writer failure writer gate is refreshed; blocking failure classification preparation is now required before blocking failure writer implementation is opened.
 
 ## Step 6: Blocking Failure Writer Boundary
 
@@ -236,9 +236,16 @@ Purpose:
 - preserve governed failure stages;
 - ensure failures do not unlock downstream reporting.
 
+Current status:
+
+```text
+failure_writer_blocked_pending_blocking_failure_classification_preparation
+```
+
 Depends on:
 
 - runtime reader, intake mapping, invocation, response validation, and response writer failure points being explicitly classified;
+- a governed classified blocking failure input boundary prepared before writer implementation;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_WRITER_BOUNDARY_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
@@ -246,6 +253,7 @@ Depends on:
 
 Must still not include:
 
+- failure classification embedded inside writer code;
 - non-blocking failure artifacts;
 - partial canonical task object content in failure artifacts;
 - both response and failure artifacts for one invocation;
@@ -254,7 +262,8 @@ Must still not include:
 
 Additional governed pass required:
 
-- a post-response-writer gate before blocking failure writer implementation is opened.
+- a blocking failure classification preparation pass before blocking failure writer implementation is opened.
+- a separate failure writer implementation pass after the classified blocking failure input surface is governed.
 
 ## Step 7: Local Invocation Boundary
 
@@ -330,6 +339,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Post-Response-Writer Failure Writer Gate Refresh Pass`.
+Implement a `Kernel-Side Blocking Failure Classification Preparation Pass`.
 
-That pass should record the completed minimal response writer, keep failure writer implementation closed, reassess the missing classified blocking failure input surface, and select the next governed failure-writer preparation or implementation step without adding CLI behavior, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should define the smallest governed classified blocking failure input boundary for the future failure writer without adding failure writer code, failure artifact writing, CLI behavior, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
