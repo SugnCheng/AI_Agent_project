@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. This does not open CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. This does not open dry-run implementation, CLI behavior, queue discovery, polling, retry, cleanup, macro reporting, actual handoff, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -308,7 +308,7 @@ Purpose:
 Current status:
 
 ```text
-local_terminal_writer_dry_run_gate_closed
+local_terminal_writer_dry_run_gate_prepared
 ```
 
 Depends on:
@@ -329,7 +329,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a local terminal writer dry-run gate before local invocation or CLI behavior is proposed.
+- local terminal writer dry-run minimal implementation before local invocation or CLI behavior is proposed.
 
 ## Step 9: Local Invocation Boundary
 
@@ -405,6 +405,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
+Implement a `Kernel-Side Local Terminal Writer Dry Run Minimal Implementation Slice`.
 
-That pass should define how to exercise the existing minimal response writer and minimal failure writer locally without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should minimally exercise the existing response and failure writer paths locally without adding CLI behavior, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.

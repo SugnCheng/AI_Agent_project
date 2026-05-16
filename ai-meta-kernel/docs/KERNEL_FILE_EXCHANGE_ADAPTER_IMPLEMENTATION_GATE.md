@@ -11,17 +11,17 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-terminal_writers_milestone_sync_and_local_dry_run_gate_ready
+local_terminal_writer_dry_run_gate_prepared
 ```
 
-The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepares the local terminal writer dry-run gate without implementing dry-run orchestration. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
 The gate remains closed for actual runtime handoff because local terminal writer dry-run orchestration, terminal `TASK_OBJECT_SCHEMA` response validation, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-terminal_writers_milestone_sync_and_local_dry_run_gate_ready
+local_terminal_writer_dry_run_gate_prepared
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -67,6 +67,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Phase R17 blocking failure classification minimal implementation | `file_exchange_adapter_scaffold.py` now classifies one local blocking failure source object into one pre-writer classified blocking failure object; `validation/kernel_blocking_failure_classification_contract_checks.py` validates the standalone classification contract. |
 | Phase R19 failure writer minimal implementation | `file_exchange_adapter_scaffold.py` now writes one explicit local failure artifact from one R17 classified blocking failure object; `validation/kernel_failure_writer_contract_checks.py` validates the standalone failure writer contract. |
 | Terminal writers milestone sync | Minimal response writer and minimal failure writer both exist. Full end-to-end mutual exclusivity orchestration remains incomplete until a local terminal writer dry-run gate exists. |
+| R21 local terminal writer dry-run gate preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` prepares the future local dry-run gate. Dry-run implementation, CLI behavior, retry/polling/cleanup, macro report unlock, and actual handoff remain blocked. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -139,9 +140,10 @@ Next possible openings were reassessed as follows:
 | Minimal blocking failure classification implementation | Complete in Phase R17 as a local pre-writer classified blocking failure object boundary. |
 | Post-blocking-failure-classification failure writer gate refresh | Complete. |
 | Minimal failure writer implementation | Complete in Phase R19 as explicit-destination local failure artifact writing. |
-| Terminal writers milestone sync | Current pass. Decision: local terminal writer dry-run gate is the next governed opening. |
+| Terminal writers milestone sync | Complete. Decision: prepare local terminal writer dry-run gate. |
+| Local terminal writer dry-run gate preparation | Current R21 pass. Decision: minimal dry-run implementation may be opened in the next governed slice. |
 
-Response validation implementation is minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, the minimal response writer slice is implemented, the minimal blocking failure classification boundary exists, and the minimal failure writer slice is implemented. The next governed opening should define a local terminal writer dry-run gate while keeping actual handoff blocked.
+Response validation implementation is minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, the minimal response writer slice is implemented, the minimal blocking failure classification boundary exists, the minimal failure writer slice is implemented, and the local terminal writer dry-run gate is prepared. The next governed opening may implement the minimal local terminal writer dry-run slice while keeping actual handoff blocked.
 
 ## Phase R5 Implementation Status
 
@@ -323,6 +325,16 @@ terminal_writers_milestone_sync_and_local_dry_run_gate_ready
 
 The minimal response writer and minimal failure writer both exist. Full end-to-end response/failure mutual exclusivity orchestration remains incomplete until a local dry-run gate is governed and tested.
 
+## R21 Local Terminal Writer Dry-Run Gate Preparation Status
+
+Current R21 status:
+
+```text
+local_terminal_writer_dry_run_gate_prepared
+```
+
+The local terminal writer dry-run gate is prepared. This phase does not implement dry-run orchestration, write artifacts, add CLI behavior, unlock macro reporting, or execute actual handoff.
+
 ## What Must Remain Blocked
 
 The current gate must continue to block:
@@ -406,6 +418,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Local Terminal Writer Dry Run Gate`.
+Implement a `Kernel-Side Local Terminal Writer Dry Run Minimal Implementation Slice`.
 
-That pass should define how to exercise the existing minimal response writer and minimal failure writer in a local dry-run gate without adding CLI behavior, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, or actual handoff execution.
+That pass should minimally exercise the existing response and failure writer paths without adding CLI behavior, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, or actual handoff execution.
