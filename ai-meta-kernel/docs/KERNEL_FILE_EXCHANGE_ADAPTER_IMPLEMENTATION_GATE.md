@@ -4,24 +4,24 @@
 
 This note defines the implementation gate for beginning actual kernel-side file exchange adapter work in `ai-meta-kernel`.
 
-It is a developer-facing gate note only. It does not implement runtime handoff, runtime envelope reader code, intake mapping, kernel invocation, response writing, failure writing, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
+It is a developer-facing gate note only. It records the current opened local slices but does not implement runtime handoff, failure writing, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
 
 ## Gate Decision
 
 Current decision:
 
 ```text
-runtime_adapter_implementation_gate_partially_opened_through_local_response_validation
+runtime_adapter_implementation_gate_partially_opened_through_minimal_response_writer
 ```
 
-The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local candidate-response validation slice. First-slice adapter fixture validation, reader implementation governance, future writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local candidate-response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
-The gate remains closed for actual runtime handoff because terminal `TASK_OBJECT_SCHEMA` response validation, response writer, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
+The gate remains closed for actual runtime handoff because terminal `TASK_OBJECT_SCHEMA` response validation, failure writer, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-terminal_writer_implementation_gate_refreshed
+response_writer_minimal_implementation_slice_complete
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -62,6 +62,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Phase R11 post-response-validation writer gate | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_RESPONSE_VALIDATION_WRITER_GATE.md` records that local response validation is implemented while response/failure writers, CLI, macro reporting, and actual handoff remain closed. |
 | Phase R12 terminal writer preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md`, `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md`, and `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN.md` prepare response/failure writer implementation boundaries without implementation. |
 | Phase R13 terminal writer implementation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_GATE.md` selects response writer first, then failure writer, without implementing either writer. |
+| Phase R14 response writer minimal implementation | `file_exchange_adapter_scaffold.py` now writes one explicit local response artifact from one R10 validated pre-writer response object; `validation/kernel_response_writer_contract_checks.py` validates the standalone response writer contract. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -76,7 +77,7 @@ The following earlier prerequisites remain satisfied:
 | Macro envelope path | Macro agent can build and write governed kernel input envelope artifacts. |
 | Macro response read path | Macro agent can read and classify standard, restricted, blocked, and failure fixture states. |
 | Kernel adapter contract | Kernel-side adapter boundary, ownership, response/failure responsibilities, and drift rules are documented. |
-| Kernel scaffold boundary | Current scaffold keeps runtime invocation, response writing, and failure writing fail-closed while allowing context-only intake mapping. |
+| Kernel scaffold boundary | Current scaffold keeps failure writing fail-closed while allowing bounded reader, context-only intake mapping, candidate-only invocation, local response validation, and minimal explicit-destination response writing. |
 | Kernel validation surface | Static contract checks, file-exchange fixture checks, adapter scaffold checks, wrapper checks, and wrapper failure-path checks exist. |
 
 ## Unsatisfied Prerequisites
@@ -90,7 +91,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | Intake mapping broadening | The minimal context-only mapper exists, but mapping must not produce kernel conclusions or cross into runtime. |
 | P0/P1 and real P0-P10 runtime invocation implementation | The adapter has only a minimal candidate-only invocation boundary; real P0/P1 and P0-P10 execution remain unimplemented. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
-| Response writer implementation | The writer contract exists, but response artifact writing remains blocked. |
+| Response writer broadening | The minimal explicit-destination response writer exists, but broader response artifact path generation, orchestration, overwrite behavior, and macro report unlock remain blocked. |
 | Blocking failure writer implementation | The failure writer contract exists, but failure artifact writing remains blocked. |
 | Terminal response state validation implementation | Future canonical runtime responses still need governed terminal state validation before any write. |
 | CLI or invocation boundary | No local command boundary has been defined for runtime adapter execution. |
@@ -128,9 +129,10 @@ Next possible openings were reassessed as follows:
 | Post-response-validation writer gate | Complete in Phase R11; response/failure writers remain closed. |
 | Combined terminal writer preparation | Complete in Phase R12. |
 | Minimal terminal writer implementation gate | Complete in Phase R13. Decision: response writer first, then failure writer. |
-| Minimal response writer implementation | Selected as the next possible governed opening. |
+| Minimal response writer implementation | Complete in Phase R14 as explicit-destination local response artifact writing. |
+| Post-response-writer failure writer gate refresh | Selected as the next possible governed opening. |
 
-Response validation implementation is now minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, and the writer implementation strategy is selected. The next governed opening may implement only the minimal response writer slice.
+Response validation implementation is now minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, and the minimal response writer slice is implemented. The next governed opening should refresh the post-response-writer failure writer gate before any failure writer code is added.
 
 ## Phase R5 Implementation Status
 
@@ -212,7 +214,7 @@ post_response_validation_writer_gate_refreshed
 
 The post-response-validation writer gate is refreshed. The repository remains partially opened only for the minimal explicit-file reader, context-only mapper, candidate-only invocation, and local pre-writer response validation.
 
-Response writer implementation, failure writer implementation, CLI behavior, macro report unlock, and actual runtime handoff remain closed.
+Failure writer implementation, CLI behavior, macro report unlock, and actual runtime handoff remain closed. Response writer behavior exists only for the R14 minimal explicit-destination local artifact boundary.
 
 ## Phase R12 Terminal Writer Preparation Status
 
@@ -224,7 +226,7 @@ terminal_writer_implementation_preparation_baseline
 
 Terminal writer implementation preparation now exists. The future response writer and blocking failure writer boundaries are prepared together because one invocation must eventually produce exactly one terminal artifact: response artifact or blocking failure artifact, never both.
 
-The gate remains closed for writer implementation. Response artifact writing, failure artifact writing, CLI behavior, macro report unlock, and actual runtime handoff remain blocked.
+The gate remained closed for writer implementation in R12. Phase R14 has since opened only the minimal explicit-destination response writer. Failure artifact writing, CLI behavior, macro report unlock, and actual runtime handoff remain blocked.
 
 ## Phase R13 Terminal Writer Implementation Gate Status
 
@@ -241,6 +243,16 @@ response_writer_minimal_implementation_first_then_failure_writer
 ```
 
 The next implementation opening may only target the minimal response writer path. Failure writer implementation remains a later governed slice because the response writer has a current validated pre-writer response input, while blocking failure input classification is still only planned.
+
+## Phase R14 Response Writer Implementation Status
+
+Current Phase R14 status:
+
+```text
+response_writer_minimal_implementation_slice_complete
+```
+
+The minimal response writer is implemented and validated by a standalone helper. The implementation is limited to one R10 validated pre-writer response object and one explicit local destination path. It writes exactly one local kernel response artifact, rejects existing destinations, keeps failure writer blocked, does not unlock macro reporting, and does not add CLI behavior or actual handoff.
 
 ## What Must Remain Blocked
 
@@ -259,9 +271,9 @@ The current gate must continue to block:
 - treating Phase R13 writer implementation gate refresh as writer implementation authorization;
 - real P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
-- response artifact writing;
+- response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing;
-- response writer behavior;
+- response writer broadening beyond the R14 minimal explicit-destination writer;
 - CLI command design;
 - artifact polling or watcher behavior;
 - retry/backoff behavior;
@@ -307,7 +319,7 @@ This gate note must not silently introduce:
 - P0-P10 runtime execution;
 - canonical task object generation from envelopes;
 - treating Phase R5 context mapping as authorization for P0/P1 execution;
-- response artifact writing;
+- response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing;
 - live fetching;
 - uncontrolled open-web crawling;
@@ -323,6 +335,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Response Writer Minimal Implementation Slice`.
+Implement a `Kernel-Side Post-Response-Writer Failure Writer Gate Refresh Pass`.
 
-That pass may implement only the minimal response writer path from one local validated pre-writer response object to one written kernel response artifact. It must keep failure writer implementation, CLI, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, and actual handoff execution out of scope unless separately governed.
+That pass should record the completed minimal response writer, keep failure writer implementation closed, reassess the missing classified blocking failure input surface, and select the next governed failure-writer preparation or implementation step without adding CLI behavior, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, or actual handoff execution.

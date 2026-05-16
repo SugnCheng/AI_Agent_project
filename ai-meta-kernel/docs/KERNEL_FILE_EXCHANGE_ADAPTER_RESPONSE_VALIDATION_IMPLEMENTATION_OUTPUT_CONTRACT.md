@@ -36,7 +36,7 @@ The output contains:
 - `macro_report_unlock == False`;
 - `validation_stage == "candidate_response_validated_pre_writer"`.
 
-The validated output remains in memory or local return value scope. It must not be treated as a durable response artifact until the response writer boundary is separately implemented.
+The validated output remains local and pre-writer until it is passed to the R14 minimal response writer boundary. It must not be treated as a durable response artifact by response validation itself.
 
 If a future candidate response becomes canonical-task-object-shaped, a separate governed pass must define how `meta-layer/TASK_OBJECT_SCHEMA.json` validation applies before any writer can run.
 
@@ -44,7 +44,7 @@ If a future candidate response becomes canonical-task-object-shaped, a separate 
 
 The validation output must not be:
 
-- written response artifact;
+- written response artifact from the validation boundary itself;
 - written failure artifact;
 - response artifact path;
 - failure artifact path;
@@ -96,6 +96,10 @@ The following require a governed pass before implementation:
 - adding the standalone response validation helper to the main wrapper;
 - adding CLI, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, or external service calls.
 
+## Relationship To Phase R14 Response Writer
+
+Phase R14 implements a separate minimal response writer that may accept this validated output and write one explicit local response artifact. That writer boundary does not change the response validation output contract and does not authorize failure writing, CLI behavior, macro report unlock, or actual handoff.
+
 ## Explicit Non-Authorization
 
-This contract authorizes only the Phase R10 local response validation slice. It does not authorize response/failure writers, terminal artifact generation, CLI behavior, macro report unlock, or actual runtime handoff.
+This contract authorizes only the Phase R10 local response validation slice. It does not authorize response writer behavior from the validation boundary, failure writers, CLI behavior, macro report unlock, or actual runtime handoff.

@@ -4,7 +4,7 @@
 
 This note defines the intended future implementation order for the kernel-side file exchange adapter runtime path in `ai-meta-kernel`.
 
-It is a developer-facing sequencing note only. It does not add runtime code, modify kernel contracts, invoke kernel runtime, write response artifacts, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
+It is a developer-facing sequencing note only. It does not modify kernel contracts, invoke real P0-P10 runtime, write failure artifacts, add CLI behavior, add live fetching, add scheduler runtime, add report composition, add CI, add package migration, or call external services.
 
 ## Sequencing Decision
 
@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. This does not open response/failure writers, CLI behavior, macro reporting, or actual handoff.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. This does not open failure writer, CLI behavior, macro reporting, or actual handoff.
 
 ## Intended Implementation Order
 
@@ -203,12 +203,22 @@ Depends on:
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_BOUNDARY_PLAN.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md`;
 - `KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN.md`;
+- `validation/kernel_response_writer_contract_checks.py`;
 - governed artifact path and naming rules.
+
+Current status:
+
+```text
+minimal_response_writer_implemented_and_validated
+```
 
 Must still not include:
 
+- broadening response writing beyond one explicit local destination;
+- overwriting existing response artifacts;
 - writing invalid or partial task objects;
 - writing both response and failure artifacts for the same invocation;
+- failure artifact writing;
 - artifact polling or watcher behavior;
 - cleanup automation;
 - report composition;
@@ -216,7 +226,7 @@ Must still not include:
 
 Additional governed pass required:
 
-- a minimal response writer implementation pass before response artifacts can be written.
+- a post-response-writer failure writer gate refresh before blocking failure writer implementation is opened.
 
 ## Step 6: Blocking Failure Writer Boundary
 
@@ -320,6 +330,6 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Response Writer Minimal Implementation Slice`.
+Implement a `Kernel-Side Post-Response-Writer Failure Writer Gate Refresh Pass`.
 
-That pass may implement only the minimal response writer path from one local validated pre-writer response object to one written kernel response artifact. It must keep failure writer implementation, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, and actual handoff execution out of scope unless separately governed.
+That pass should record the completed minimal response writer, keep failure writer implementation closed, reassess the missing classified blocking failure input surface, and select the next governed failure-writer preparation or implementation step without adding CLI behavior, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual handoff execution.

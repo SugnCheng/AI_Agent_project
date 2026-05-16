@@ -2,9 +2,10 @@
 
 This module is intentionally narrow. It may read and validate one local kernel
 input envelope, produce one local candidate response from a validated intake
-context, and validate that candidate as local pre-writer output, but it does
-not execute the real P0-P10 runtime, generate canonical task objects from
-envelopes, or write response/failure artifacts.
+context, validate that candidate as local pre-writer output, and write one
+local response artifact from that validated output, but it does not execute the
+real P0-P10 runtime, generate canonical task objects from envelopes, write
+failure artifacts, or orchestrate handoff.
 """
 
 from __future__ import annotations
@@ -94,6 +95,28 @@ FORBIDDEN_RESPONSE_VALIDATION_FIELDS = {
     "cli_success_signal",
     "external_service_result",
 }
+
+VALIDATED_RESPONSE_REQUIRED_FIELDS = {
+    "validated_response_type",
+    "validated_response_state",
+    "source_candidate",
+    "response_writer_allowed",
+    "failure_writer_allowed",
+    "macro_report_unlock",
+    "validation_stage",
+}
+
+FORBIDDEN_RESPONSE_WRITER_INPUT_FIELDS = FORBIDDEN_RESPONSE_VALIDATION_FIELDS.union(
+    {
+        "artifact_type",
+        "artifact_state",
+        "artifact_path",
+        "terminal_artifact_written",
+        "response_writer_called",
+        "failure_writer_called",
+        "writer_stage",
+    }
+)
 
 
 class KernelFileExchangeAdapterScaffoldError(ValueError):
@@ -391,6 +414,53 @@ def validate_candidate_response(candidate: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def validate_response_writer_input(validated_response: dict[str, Any]) -> dict[str, Any]:
+    """Validate one local pre-writer response object for minimal response writing.
+
+    This accepts only the current R10 local validation output. The
+    `response_writer_allowed == False` marker is expected here because it means
+    the object has not already crossed a writer boundary; this R14 boundary is
+    the only place that may write the response artifact.
+    """
+
+    validated_response = _require_object(validated_response, "validated_response")
+
+    missing = sorted(VALIDATED_RESPONSE_REQUIRED_FIELDS.difference(validated_response))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"validated response missing required fields: {missing}"
+        )
+
+    expected_markers = {
+        "validated_response_type": "kernel_candidate_response_validation",
+        "validated_response_state": "validated_pre_writer_non_terminal",
+        "response_writer_allowed": False,
+        "failure_writer_allowed": False,
+        "macro_report_unlock": False,
+        "validation_stage": "candidate_response_validated_pre_writer",
+    }
+    for field, expected in expected_markers.items():
+        if validated_response.get(field) != expected:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"validated response {field} must be {expected!r}"
+            )
+
+    leaked_fields = sorted(FORBIDDEN_RESPONSE_WRITER_INPUT_FIELDS.intersection(validated_response))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "validated response must not contain writer or terminal fields: "
+            f"{leaked_fields}"
+        )
+
+    source_candidate = _require_object(
+        validated_response.get("source_candidate"),
+        "validated response source_candidate",
+    )
+    validate_candidate_response(source_candidate)
+
+    return validated_response
+
+
 def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:
     """Validate a provided kernel response object against TASK_OBJECT_SCHEMA.
 
@@ -439,17 +509,48 @@ def read_json_object(path: str | Path, label: str) -> dict[str, Any]:
     return _require_object(data, label)
 
 
-def write_response_artifact(task_object: dict[str, Any], destination: str | Path) -> None:
-    """Future response writer boundary.
+def write_response_artifact(task_object: dict[str, Any], destination: str | Path) -> dict[str, Any]:
+    """Write one local response artifact from one validated pre-writer response.
 
-    Response writing remains blocked until a governed implementation pass.
+    This is the minimal R14 response writer boundary. It writes exactly one
+    local JSON artifact to an explicit destination and stops before failure
+    writing, CLI behavior, macro report unlock, scheduler behavior, and handoff.
     """
 
-    validate_kernel_response(task_object)
-    Path(destination)
-    raise NotImplementedError(
-        "Response artifact writing is intentionally not implemented in this scaffold."
-    )
+    validated_response = validate_response_writer_input(task_object)
+    artifact_path = Path(destination)
+
+    if artifact_path.exists():
+        if artifact_path.is_dir():
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"response artifact destination is a directory: {artifact_path}"
+            )
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"response artifact destination already exists: {artifact_path}"
+        )
+
+    if not artifact_path.parent.is_dir():
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"response artifact destination parent does not exist: {artifact_path.parent}"
+        )
+
+    response_artifact = {
+        "artifact_type": "kernel_response",
+        "artifact_version": "0.1.0",
+        "artifact_state": "written_response_artifact",
+        "source_validated_response": deepcopy(validated_response),
+        "terminal_artifact_written": True,
+        "response_writer_called": True,
+        "failure_writer_called": False,
+        "macro_report_unlock": False,
+        "writer_stage": "response_writer_minimal_local_artifact",
+    }
+
+    with artifact_path.open("w", encoding="utf-8") as file:
+        json.dump(response_artifact, file, indent=2, sort_keys=True)
+        file.write("\n")
+
+    return response_artifact
 
 
 def write_failure_artifact(failure: dict[str, Any], destination: str | Path) -> None:

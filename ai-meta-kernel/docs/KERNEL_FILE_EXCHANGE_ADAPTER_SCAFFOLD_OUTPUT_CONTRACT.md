@@ -8,7 +8,7 @@ This document snapshots the current developer-facing behavior contract for:
 ai-meta-kernel/file_exchange_adapter_scaffold.py
 ```
 
-It fixes the scaffold function boundary, fail-closed behavior, placeholder rules, local-only guarantees, and drift rules. It does not implement actual kernel runtime handoff, file exchange runtime, response/failure artifact writing, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
+It fixes the scaffold function boundary, fail-closed behavior, placeholder rules, local-only guarantees, and drift rules. It does not implement actual kernel runtime handoff, file exchange runtime, failure artifact writing, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or changes to kernel contracts.
 
 ## Scope
 
@@ -38,7 +38,8 @@ The current scaffold exposes the following function boundary:
 | `invoke_kernel_runtime(kernel_intake)` | Verifies one context-only intake object, then returns candidate-only output. | Returns a pre-writer candidate response object. |
 | `validate_kernel_response(task_object)` | Validates a caller-provided object against `meta-layer/TASK_OBJECT_SCHEMA.json`. | Returns the validated `task_object`; raises `KernelFileExchangeAdapterScaffoldError` on missing `jsonschema`, invalid object shape, missing schema, invalid schema JSON, or schema validation failure. |
 | `read_json_object(path, label)` | Reads a local JSON object for scaffold validation boundaries. | Returns `dict`; raises `KernelFileExchangeAdapterScaffoldError` for missing file, invalid JSON, or non-object JSON. |
-| `write_response_artifact(task_object, destination)` | Validates a provided response object, then blocks before writing. | Raises `NotImplementedError`; must not write files. |
+| `validate_response_writer_input(validated_response)` | Validates the current R10 local pre-writer response object for the R14 minimal response writer boundary. | Returns the validated response object; raises `KernelFileExchangeAdapterScaffoldError` for malformed input, writer/terminal field leakage, failure-writer eligibility, or source-candidate drift. |
+| `write_response_artifact(task_object, destination)` | Writes one local kernel response artifact from one current R10 validated pre-writer response object to one explicit local destination. | Returns the written artifact object; raises `KernelFileExchangeAdapterScaffoldError` for malformed input, existing destination, missing destination parent, or unsafe writer markers. |
 | `write_failure_artifact(failure, destination)` | Verifies object-like failure input, then blocks before writing. | Raises `NotImplementedError`; must not write files. |
 
 The scaffold also defines:
@@ -96,25 +97,32 @@ The current rejected canonical top-level fields are:
 - `downstream_recommendation`
 - `handoff`
 
-## Current Blocked Runtime Behavior
+## Current Writer Behavior
 
-The following writer functions are intentionally blocked:
+The response writer is minimally implemented for the R14 local response artifact slice:
 
-- `write_response_artifact(task_object, destination)`
+- `write_response_artifact(task_object, destination)` accepts only the current R10 local validated pre-writer response object;
+- it writes exactly one local JSON response artifact to one explicit destination;
+- it rejects existing destination paths and missing destination parents;
+- it does not write failure artifacts;
+- it does not unlock macro-side reporting;
+- it does not add CLI, queue discovery, polling, retry, cleanup, scheduler, or handoff behavior.
+
+The following writer function remains intentionally blocked:
+
 - `write_failure_artifact(failure, destination)`
 
-Current rule:
+Current failure writer rule:
 
 ```text
-Writer functions must raise NotImplementedError until a governed implementation pass explicitly replaces the placeholder behavior. Runtime invocation remains candidate-only and pre-writer.
+Failure artifact writing must raise NotImplementedError until a governed implementation pass explicitly replaces the placeholder behavior. Runtime invocation remains candidate-only and pre-writer.
 ```
 
-They must not:
+Writer behavior must not:
 
 - return fabricated success;
 - invoke P0-P10;
 - generate canonical task objects from envelopes;
-- write response artifacts;
 - write failure artifacts;
 - unlock downstream reporting;
 - mutate envelope, response, failure, or runtime artifacts.
@@ -129,6 +137,7 @@ It may:
 - validate JSON object shape;
 - validate envelope guardrails;
 - validate a caller-provided kernel response object against `TASK_OBJECT_SCHEMA.json`.
+- write one explicit local response artifact from one locally validated pre-writer response object.
 
 It must not:
 
@@ -143,7 +152,7 @@ It must not:
 - generate macro-agent outputs;
 - modify kernel contracts;
 - modify macro-agent contracts;
-- write runtime artifacts.
+- write failure artifacts.
 
 ## Current Response Validation Boundary
 
@@ -181,7 +190,7 @@ The following changes require a governed pass before implementation:
 - allowing envelope intake to include canonical task object fields;
 - broadening `prepare_kernel_intake` beyond context-only `kernel_intake_context`;
 - broadening `invoke_kernel_runtime` beyond candidate-only output into real runtime invocation;
-- allowing response artifact writing;
+- broadening response artifact writing beyond the R14 minimal explicit-destination response writer;
 - allowing failure artifact writing;
 - changing response validation target away from `meta-layer/TASK_OBJECT_SCHEMA.json`;
 - suppressing schema validation errors;
@@ -204,7 +213,7 @@ The following remain explicitly absent:
 - actual P0-P10 invocation;
 - intake mapping beyond context-only `kernel_intake_context`;
 - canonical task object generation from envelope;
-- response artifact writing;
+- response artifact writing beyond one explicit local R14 response artifact;
 - failure artifact writing;
 - file exchange CLI;
 - runtime artifact directory scanning;

@@ -30,7 +30,7 @@ It uses only the committed static fixtures under:
 ai-meta-kernel/examples/file-exchange/
 ```
 
-This helper is standalone. It is not part of a kernel validation wrapper yet.
+This helper is directly runnable and is also included in the current kernel local validation wrapper.
 
 ## Current Execution Scope
 
@@ -42,7 +42,7 @@ The helper currently performs these checks:
 | 2 | Response validation boundary | `read_json_object` reads the governed response fixture and `validate_kernel_response` accepts it against `meta-layer/TASK_OBJECT_SCHEMA.json`. |
 | 3 | Kernel intake mapping boundary | `prepare_kernel_intake` returns a context-only `kernel_intake_context` and stops before runtime. |
 | 4 | Kernel runtime candidate boundary | `invoke_kernel_runtime` returns a candidate-only pre-writer object from validated intake. |
-| 5 | Response writer placeholder | `write_response_artifact` remains fail-closed with `NotImplementedError`. |
+| 5 | Response writer boundary | `write_response_artifact` rejects schema response fixture input, accepts the current R10 validated pre-writer response output, and exercises one mocked explicit local response artifact write. |
 | 6 | Failure writer placeholder | `write_failure_artifact` remains fail-closed with `NotImplementedError`. |
 
 The helper reads:
@@ -60,17 +60,17 @@ When all checks pass, the helper must print exactly:
 kernel-file-exchange-adapter-scaffold-checks-ok
 ```
 
-This success signal means only that the current scaffold boundary still matches the committed fixture expectations and blocked-boundary expectations.
+This success signal means only that the current scaffold boundary still matches the committed fixture expectations, the R14 minimal response writer sanity expectation, and blocked failure-writer expectations.
 
 It does not mean:
 
 - actual kernel runtime invocation exists;
 - P0-P10 is executable;
 - context-only kernel intake mapping exists, but P0/P1 execution does not;
-- response artifacts can be written;
+- response artifacts can be written outside the R14 minimal explicit-destination writer boundary;
 - failure artifacts can be written;
 - downstream reporting is unlocked;
-- a kernel validation wrapper exists.
+- the standalone response writer helper is included in the main wrapper.
 
 ## Expected Failure Behavior
 
@@ -79,7 +79,7 @@ If validation fails, the helper should:
 1. raise an error with a specific failure reason;
 2. exit non-zero;
 3. not print `kernel-file-exchange-adapter-scaffold-checks-ok`;
-4. not write, modify, delete, or discover runtime artifacts.
+4. not write, modify, delete, or discover runtime artifacts; the response writer sanity path uses a mocked file boundary for deterministic local validation.
 
 Typical failure categories:
 
@@ -90,7 +90,9 @@ Typical failure categories:
 - invalid response JSON;
 - response failing `validate_kernel_response`;
 - missing failure fixture;
-- writer boundary unexpectedly returning instead of raising `NotImplementedError`;
+- response writer accepting schema fixture input directly;
+- response writer failing to open exactly one explicit artifact destination from the current R10 validated response output;
+- failure writer unexpectedly returning instead of raising `NotImplementedError`;
 - runtime invocation returning anything other than candidate-only pre-writer output;
 - missing `jsonschema` dependency when response schema validation is required;
 - scaffold module import failure.
@@ -121,9 +123,9 @@ The following changes require a governed pass before implementation:
 - broadening the check beyond the committed static fixture set;
 - suppressing failure details;
 - allowing warnings to pass where errors are currently required;
-- allowing writer blocked boundaries to return successfully;
+- allowing failure writer blocked boundaries to return successfully;
 - broadening runtime invocation beyond candidate-only pre-writer output;
-- adding response artifact writing;
+- broadening response artifact writing beyond the R14 minimal explicit-destination response writer;
 - adding failure artifact writing;
 - broadening kernel intake mapping beyond context-only output;
 - adding real P0-P10 runtime invocation;
@@ -141,7 +143,7 @@ The helper must not silently introduce:
 - actual runtime handoff;
 - P0-P10 invocation;
 - canonical task object generation from envelope;
-- response artifact writing;
+- response artifact writing beyond one explicit local R14 response artifact;
 - failure artifact writing;
 - runtime artifact scanning;
 - artifact polling;

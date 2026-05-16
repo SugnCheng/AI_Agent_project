@@ -1,14 +1,16 @@
 """Local checks for the kernel file exchange adapter scaffold.
 
 This helper exercises only the current scaffold boundary against committed
-fixtures. It does not generate canonical task objects, write response/failure
-artifacts, fetch sources, compose reports, or run scheduler behavior.
+fixtures. It does not generate canonical task objects, write failure artifacts,
+fetch sources, compose reports, or run scheduler behavior.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 import sys
+from io import StringIO
+from unittest import mock
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +47,14 @@ def assert_raises_not_implemented(label: str, callback) -> None:
     raise AssertionError(f"{label} must remain fail-closed with NotImplementedError")
 
 
+def assert_raises_scaffold_error(label: str, callback) -> None:
+    try:
+        callback()
+    except scaffold.KernelFileExchangeAdapterScaffoldError:
+        return
+    raise AssertionError(f"{label} must fail closed with scaffold error")
+
+
 def check_envelope_boundary() -> dict:
     envelope = scaffold.read_envelope_artifact(ENVELOPE_FIXTURE)
     validated = scaffold.validate_envelope_intake(envelope)
@@ -74,10 +84,31 @@ def check_blocked_boundaries(envelope: dict, response: dict) -> None:
     if candidate.get("terminal_artifact_written") is not False:
         raise AssertionError("invoke_kernel_runtime must not write terminal artifacts")
 
-    assert_raises_not_implemented(
-        "write_response_artifact",
+    assert_raises_scaffold_error(
+        "write_response_artifact with schema response fixture",
         lambda: scaffold.write_response_artifact(response, "unused_kernel_response.json"),
     )
+
+    validated_response = scaffold.validate_candidate_response(candidate)
+    buffer = StringIO()
+    destination = Path("local") / "kernel_response.example.json"
+    with mock.patch.object(Path, "exists", return_value=False):
+        with mock.patch.object(Path, "is_dir", return_value=True):
+            with mock.patch.object(Path, "open", return_value=buffer) as mocked_open:
+                artifact = scaffold.write_response_artifact(validated_response, destination)
+
+    if mocked_open.call_count != 1:
+        raise AssertionError("write_response_artifact should open one requested response artifact")
+
+    if artifact.get("artifact_type") != "kernel_response":
+        raise AssertionError("write_response_artifact should mark kernel_response artifacts")
+
+    if artifact.get("failure_writer_called") is not False:
+        raise AssertionError("write_response_artifact must not call failure writer")
+
+    if artifact.get("macro_report_unlock") is not False:
+        raise AssertionError("write_response_artifact must not unlock macro reporting")
+
     assert_raises_not_implemented(
         "write_failure_artifact",
         lambda: scaffold.write_failure_artifact(failure, "unused_kernel_failure.json"),

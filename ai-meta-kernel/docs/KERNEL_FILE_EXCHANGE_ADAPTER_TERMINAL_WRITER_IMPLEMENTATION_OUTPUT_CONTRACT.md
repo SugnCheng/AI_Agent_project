@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This document snapshots the output contract for a future minimal terminal writer implementation slice.
+This document snapshots the output contract for terminal writer implementation slices.
 
-It is a preparation contract only. It does not authorize writer code, response artifact writing, failure artifact writing, CLI behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
+It records that the minimal response writer is implemented in Phase R14. It does not authorize failure writer code, failure artifact writing, CLI behavior, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
 ## Contract Decision
 
@@ -21,24 +21,35 @@ Future terminal writers may output exactly one terminal artifact for one invocat
 
 They must never output both for the same invocation.
 
-## Future Response Writer Output
+Current Phase R14 response writer status:
 
-The future response writer may output:
+```text
+response_writer_minimal_implementation_slice_complete
+```
+
+## Current Minimal Response Writer Output
+
+The current R14 minimal response writer may output:
 
 ```text
 one_written_kernel_response_artifact
 ```
 
-Only after a validated pre-writer response input is accepted by a governed writer implementation boundary.
+Only after the current R10 validated pre-writer response input is accepted by the R14 writer boundary.
 
-The future response artifact must:
+The current response artifact must:
 
 - be produced by `ai-meta-kernel`;
 - be a JSON object;
-- use governed response artifact naming;
-- preserve canonical response fields;
-- pass required pre-write validation;
-- not be written if failure writer output has already been selected for the same invocation.
+- declare `artifact_type == "kernel_response"`;
+- declare `artifact_state == "written_response_artifact"`;
+- preserve the source validated response under a governed source field;
+- declare `terminal_artifact_written == true`;
+- declare `response_writer_called == true`;
+- declare `failure_writer_called == false`;
+- declare `macro_report_unlock == false`;
+- use an explicit local destination that does not already exist;
+- not write or prepare a failure artifact.
 
 ## Future Failure Writer Output
 
@@ -63,7 +74,7 @@ The future failure artifact must:
 
 ## Prohibited Outputs
 
-Future terminal writer output must not include:
+Terminal writer output must not include:
 
 - both response and failure artifacts for one invocation;
 - report eligibility signal;
@@ -80,7 +91,9 @@ Future terminal writer output must not include:
 
 Invalid writer input must fail closed.
 
-Future writer implementation must not repair invalid response objects, synthesize missing failure fields, infer terminal artifact names from ambiguous context, or silently skip mutual-exclusivity checks.
+The current response writer must not repair invalid validated response objects, synthesize missing kernel conclusions, infer terminal artifact names from ambiguous context, overwrite existing destination paths, or silently skip failure-writer closure checks.
+
+Future failure writer implementation must not synthesize missing failure fields, infer terminal artifact names from ambiguous context, or silently skip mutual-exclusivity checks.
 
 If neither terminal artifact can be safely written, that fatal local condition must remain explicit until a separately governed fatal-error policy exists.
 
@@ -114,9 +127,10 @@ The following require a governed pass before implementation:
 - allowing both artifacts for one invocation;
 - allowing non-blocking failure artifacts;
 - allowing macro report unlock from writer output;
-- adding writer code;
+- broadening response writer code beyond the R14 minimal explicit-destination writer;
+- adding failure writer code;
 - adding CLI, queue discovery, polling, retry, cleanup, scheduler behavior, live fetching, report composition, CI, package migration, or external service calls.
 
 ## Explicit Non-Authorization
 
-This contract authorizes no code implementation in Phase R12. It prepares only the future terminal writer output boundary for a later governed implementation slice.
+This contract records the R14 minimal response writer output only. It does not authorize failure writer implementation, response writer broadening, CLI behavior, macro report unlock, or actual runtime handoff.

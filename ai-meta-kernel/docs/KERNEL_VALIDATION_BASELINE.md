@@ -4,7 +4,7 @@
 
 This document refreshes the current kernel-side validation baseline for `ai-meta-kernel`.
 
-It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the post-response-validation writer gate, the Phase R12 terminal writer preparation surface, the Phase R13 terminal writer implementation gate, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
+It records the current standalone validation helpers, the implemented local validation wrapper, the wrapper failure-path helper, the first-slice adapter fixture validation surface, the runtime envelope reader output contract surface and helper, the Phase R2 minimal runtime reader implementation surface, the Phase R5 minimal intake mapping implementation surface, the Phase R8 minimal runtime invocation implementation surface, the Phase R10 minimal response validation implementation surface, the Phase R14 minimal response writer implementation surface, the post-response-validation writer gate, the Phase R12 terminal writer preparation surface, the Phase R13 terminal writer implementation gate, the post-reader handoff gate, the post-intake mapping runtime invocation gate, the runtime reader wrapper inclusion gate and reassessment, the writer-boundary planning and output contract surfaces, the intake-mapping planning/output contract surfaces, what success-path and failure-path validation mean, what they do not mean, and which runtime behaviors remain explicitly blocked.
 
 This is a baseline note only. It does not add runtime code, live fetching, scheduler runtime, report composition, CI, package migration, external service calls, or actual runtime handoff.
 
@@ -24,11 +24,12 @@ The current kernel-side standalone helpers are:
 | --- | --- | --- | --- |
 | `validation/static_meta_layer_contract_checks.py` | Checks static core Meta-Layer contract artifacts, including master spec, runtime pipeline, handoff contract, and task object schema. | `kernel-static-meta-layer-contract-checks-ok` | `docs/KERNEL_STATIC_META_LAYER_CONTRACT_CHECK_OUTPUT_CONTRACT.md` |
 | `validation/kernel_file_exchange_fixture_checks.py` | Checks the governed static `daily_us_core` file-exchange envelope, response, and failure fixtures. | `kernel-file-exchange-fixture-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_FIXTURE_VALIDATION_OUTPUT_CONTRACT.md` |
-| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Checks the current file-exchange adapter scaffold boundary and confirms blocked placeholder functions remain fail-closed. | `kernel-file-exchange-adapter-scaffold-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` |
+| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Checks the current file-exchange adapter scaffold boundary, including the R14 minimal response writer sanity check and fail-closed failure writer placeholder. | `kernel-file-exchange-adapter-scaffold-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_SCAFFOLD_CHECK_OUTPUT_CONTRACT.md` |
 | `validation/kernel_runtime_envelope_reader_contract_checks.py` | Checks the runtime envelope reader contract surface against the current minimal reader and envelope guardrails without broadening reader behavior. | `kernel-runtime-envelope-reader-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ENVELOPE_READER_OUTPUT_CONTRACT.md` |
 | `validation/kernel_intake_mapping_contract_checks.py` | Checks the minimal context-only envelope-to-intake mapper without P0/P1 execution, runtime invocation, or artifact writing. | `kernel-intake-mapping-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_INTAKE_MAPPING_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
 | `validation/kernel_runtime_invocation_contract_checks.py` | Checks the minimal candidate-only runtime invocation boundary without response validation, writers, CLI, macro reporting, or actual handoff. | `kernel-runtime-invocation-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_INVOCATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
 | `validation/kernel_response_validation_contract_checks.py` | Checks the minimal local candidate-response validation boundary without terminal schema validation, writers, CLI, macro reporting, or actual handoff. | `kernel-response-validation-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RESPONSE_VALIDATION_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
+| `validation/kernel_response_writer_contract_checks.py` | Checks the minimal explicit-destination response writer boundary without failure writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-response-writer-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` |
 
 These helpers remain canonical standalone checks.
 
@@ -69,7 +70,7 @@ Current coverage is provided by:
 | Helper | First-slice coverage |
 | --- | --- |
 | `validation/kernel_file_exchange_fixture_checks.py` | Validates fixture existence, JSON object shape, governed `daily_us_core` values, response schema validity, blocking failure shape, and forbidden canonical task object leakage in envelope/failure fixtures. |
-| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures, confirms `prepare_kernel_intake` returns context-only intake, and confirms `invoke_kernel_runtime`, `write_response_artifact`, and `write_failure_artifact` remain fail-closed. |
+| `validation/kernel_file_exchange_adapter_scaffold_checks.py` | Exercises the scaffold against the static fixtures, confirms `prepare_kernel_intake` returns context-only intake, confirms `invoke_kernel_runtime` remains candidate-only, checks the R14 minimal response writer path, and confirms `write_failure_artifact` remains fail-closed. |
 
 This surface is local-only and deterministic. It does not scan runtime artifact directories, discover live work, mutate fixtures, generate artifacts, or call runtime code.
 
@@ -331,19 +332,20 @@ docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_VALIDATION_PLAN
 
 At the current stage, these documents mean:
 
-- future response writer and blocking failure writer implementation boundaries are prepared together;
+- response writer and blocking failure writer implementation boundaries were prepared together;
 - mutual exclusivity is fixed as one invocation producing exactly one terminal artifact;
-- future response writer input is one validated pre-writer response object;
+- current minimal response writer input is one validated pre-writer response object;
 - future failure writer input is one classified blocking failure object;
 - destination, naming, pre-write validation, and stop-before-orchestration expectations are documented;
-- response/failure writer implementation remains blocked;
-- terminal artifact writing remains blocked;
+- response writer implementation is now open only for the R14 minimal explicit-destination artifact writer;
+- failure writer implementation remains blocked;
+- failure terminal artifact writing remains blocked;
 - no wrapper behavior changed;
-- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, or response validation helper coverage.
+- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, or response writer helper coverage.
 
 At the current stage, these documents do not mean:
 
-- response artifact writing exists;
+- response artifact writing exists outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing exists;
 - CLI behavior exists;
 - macro-side report unlock exists;
@@ -373,20 +375,72 @@ response_writer_minimal_implementation_first_then_failure_writer
 At the current stage, this gate means:
 
 - terminal writer implementation strategy is selected;
-- response writer should be implemented first because a local validated pre-writer response input already exists;
+- response writer has since been implemented first in Phase R14 because a local validated pre-writer response input already exists;
 - failure writer should remain a later governed slice because blocking failure input classification is not yet implemented;
-- no writer code has been added;
-- response writer remains unimplemented;
+- no failure writer code has been added;
+- response writer exists only as the R14 minimal explicit-destination writer;
 - failure writer remains unimplemented;
-- terminal artifact writing remains blocked;
+- terminal failure artifact writing remains blocked;
 - standalone helpers remain outside the main wrapper.
 
 At the current stage, this gate does not mean:
 
-- response artifacts may be written;
+- response artifacts may be written outside the R14 minimal explicit-destination writer boundary;
 - failure artifacts may be written;
 - macro-side reporting may unlock;
 - CLI behavior or actual runtime handoff is open.
+
+## Current Minimal Response Writer Surface
+
+The current Phase R14 status is:
+
+```text
+response_writer_minimal_implementation_slice_complete
+```
+
+The minimal response writer is implemented in:
+
+```text
+file_exchange_adapter_scaffold.py
+```
+
+The focused standalone helper is:
+
+```text
+validation/kernel_response_writer_contract_checks.py
+```
+
+Current helper success signal:
+
+```text
+kernel-response-writer-contract-checks-ok
+```
+
+The implemented response writer surface covers:
+
+- one local validated pre-writer response object input from the current R10 response validation boundary;
+- one explicit local destination path;
+- rejection of non-object and malformed validated response input;
+- rejection of existing destination paths;
+- rejection of destination directories as file paths;
+- rejection of missing destination parents;
+- writing exactly one local JSON response artifact;
+- `artifact_type == "kernel_response"`;
+- `artifact_state == "written_response_artifact"`;
+- `terminal_artifact_written == true`;
+- `response_writer_called == true`;
+- `failure_writer_called == false`;
+- `macro_report_unlock == false`;
+- no failure writer call;
+- no wrapper inclusion for the standalone response writer helper.
+
+At the current stage, this does not mean:
+
+- failure writer implementation exists;
+- failure artifacts can be written;
+- response writer overwrite policy exists;
+- response writer destination inference, queue discovery, polling, retry, cleanup, CLI, macro report unlock, or actual handoff exists;
+- full response/failure mutual exclusivity is complete, because the failure writer boundary remains unimplemented.
 
 ## Current Intake-Mapping Planning And Output Contract Surface
 
@@ -568,16 +622,16 @@ At the current stage, these documents mean:
 - the current R8 candidate is not treated as terminal `TASK_OBJECT_SCHEMA` output;
 - future canonical-task-object-shaped candidates still require a separate governed pass;
 - validation failure must remain local and explicit;
-- response/failure writers remain separate future boundaries;
+- response writer is now implemented only as the R14 minimal explicit-destination boundary, while failure writer remains a separate future boundary;
 - minimal reader, context-only mapper, and candidate-only invocation remain implemented;
 - `validation/kernel_response_validation_contract_checks.py` validates the response validation boundary as a standalone helper;
 - no wrapper behavior changed;
-- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, or response validation helper coverage.
+- `kernel-local-validation-checks-ok` still does not include standalone reader, intake mapping, invocation, response validation, or response writer helper coverage.
 
 At the current stage, these documents do not mean:
 
 - terminal `TASK_OBJECT_SCHEMA` response validation exists for the current non-canonical candidate;
-- response artifact writing exists;
+- response artifact writing exists outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing exists;
 - CLI behavior exists;
 - macro-side report unlock exists;
@@ -601,7 +655,7 @@ At the current stage, this gate means:
 
 - minimal local response validation is baseline-reviewed;
 - validated response output remains local, pre-writer, and non-terminal;
-- response writer implementation remains blocked;
+- response writer implementation has since opened only for the R14 minimal explicit-destination writer boundary;
 - failure writer implementation remains blocked;
 - CLI behavior remains blocked;
 - macro report unlock remains blocked;
@@ -610,10 +664,10 @@ At the current stage, this gate means:
 
 At the current stage, this gate does not mean:
 
-- a local validated response may be written as an artifact;
+- a local validated response may be written outside the R14 minimal explicit-destination writer boundary;
 - failure artifacts may be emitted on validation failure;
 - terminal `TASK_OBJECT_SCHEMA` validation exists for the current non-canonical candidate;
-- standalone reader, intake, invocation, or response validation helpers are included in the main wrapper.
+- standalone reader, intake, invocation, response validation, or response writer helpers are included in the main wrapper.
 
 ## Current Local Validation Wrapper
 
@@ -756,7 +810,7 @@ A successful local wrapper run means:
 - the intake mapping minimal implementation baseline exists, while P0/P1 and P0-P10 runtime remain closed;
 - the post-intake mapping runtime invocation gate is refreshed;
 - the Phase R8 minimal runtime invocation surface exists and is validated by a standalone helper;
-- the Phase R10 response validation surface validates the current candidate locally while terminal writer behavior remains closed;
+- the Phase R10 response validation surface validates the current candidate locally and the Phase R14 response writer surface writes one explicit local response artifact;
 - the runtime reader wrapper inclusion gate is documented and keeps the reader helper standalone;
 - the TASK 114 runtime reader wrapper inclusion reassessment keeps the reader helper standalone for the next milestone;
 - all three helpers passed in the governed order;
@@ -764,9 +818,9 @@ A successful local wrapper run means:
 
 It is the current success-path local validation baseline signal only.
 
-It does not exercise wrapper child-failure paths, missing-helper paths, the standalone runtime envelope reader contract helper, the standalone intake mapping contract helper, or the standalone runtime invocation contract helper. Those surfaces are covered separately by their focused helpers.
+It does not exercise wrapper child-failure paths, missing-helper paths, the standalone runtime envelope reader contract helper, the standalone intake mapping contract helper, the standalone runtime invocation contract helper, the standalone response validation helper, or the standalone response writer helper. Those surfaces are covered separately by their focused helpers.
 
-In particular, `kernel-local-validation-checks-ok` does not include `validation/kernel_runtime_envelope_reader_contract_checks.py`, `validation/kernel_intake_mapping_contract_checks.py`, or `validation/kernel_runtime_invocation_contract_checks.py` at the current milestone. Those helpers remain separately runnable and report `kernel-runtime-envelope-reader-contract-checks-ok`, `kernel-intake-mapping-contract-checks-ok`, and `kernel-runtime-invocation-contract-checks-ok` when their standalone contract checks pass.
+In particular, `kernel-local-validation-checks-ok` does not include `validation/kernel_runtime_envelope_reader_contract_checks.py`, `validation/kernel_intake_mapping_contract_checks.py`, `validation/kernel_runtime_invocation_contract_checks.py`, `validation/kernel_response_validation_contract_checks.py`, or `validation/kernel_response_writer_contract_checks.py` at the current milestone. Those helpers remain separately runnable and report `kernel-runtime-envelope-reader-contract-checks-ok`, `kernel-intake-mapping-contract-checks-ok`, `kernel-runtime-invocation-contract-checks-ok`, `kernel-response-validation-contract-checks-ok`, and `kernel-response-writer-contract-checks-ok` when their standalone contract checks pass.
 
 ## What Failure-Path Validation Means
 
@@ -791,8 +845,8 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - real P0-P10 runtime execution exists;
 - canonical task object generation exists;
 - file-exchange runtime intake exists;
-- runtime artifact reads beyond the explicit-file reader or writes exist;
-- response artifact writing exists;
+- runtime artifact reads beyond the explicit-file reader or writes outside the R14 response writer exist;
+- response artifact writing exists outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing exists;
 - downstream macro reporting is unlocked;
 - live fetching or scheduler runtime works;
@@ -802,11 +856,12 @@ A successful success-path wrapper run or failure-path helper run does not mean:
 - writer-boundary planning has opened response or failure artifact writing;
 - intake-mapping planning has opened P0/P1 intake construction or runtime invocation.
 - runtime envelope reader planning has opened runtime artifact queue discovery, runtime directory scanning, or reader expansion beyond the explicit-file implementation.
-- the post-reader handoff gate has opened intake mapping implementation, runtime invocation, response/failure writers, CLI, or actual handoff.
-- the intake mapping minimal implementation baseline has opened P0/P1 execution, P0-P10 runtime invocation, response/failure writers, CLI, or actual handoff.
-- the post-intake mapping runtime invocation gate has opened P0/P1 execution, P0-P10 runtime invocation implementation, response/failure writers, CLI, or actual handoff.
-- the minimal runtime invocation surface has opened response validation, response/failure writers, CLI, macro reporting, or actual handoff.
-- the response validation surface has implemented terminal schema validation, response/failure writers, CLI, macro reporting, or actual handoff.
+- the post-reader handoff gate has opened runtime invocation, failure writers, CLI, or actual handoff.
+- the intake mapping minimal implementation baseline has opened P0/P1 execution, P0-P10 runtime invocation, failure writers, CLI, or actual handoff.
+- the post-intake mapping runtime invocation gate has opened P0/P1 execution, P0-P10 runtime invocation implementation, failure writers, CLI, or actual handoff.
+- the minimal runtime invocation surface has opened terminal response validation, failure writers, CLI, macro reporting, or actual handoff.
+- the response validation surface has implemented terminal schema validation, failure writers, CLI, macro reporting, or actual handoff.
+- the response writer surface has implemented failure writers, CLI, macro reporting, or actual handoff.
 
 ## Explicitly Blocked Runtime Behaviors
 
@@ -816,9 +871,9 @@ The current validation baseline must not silently introduce:
 - real P0-P10 runtime invocation;
 - canonical task object generation from envelopes;
 - P0/P1 intake preparation beyond context-only mapping;
-- response artifact writing;
+- response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing;
-- runtime artifact reads beyond the explicit-file reader or writes;
+- runtime artifact reads beyond the explicit-file reader or writes outside the R14 response writer;
 - runtime artifact polling;
 - retry/backoff behavior;
 - artifact cleanup automation;
@@ -889,7 +944,7 @@ The Phase R2 runtime reader implementation surface also must not silently introd
 - changes to `validation/run_all_kernel_local_checks.py`;
 - wrapper inclusion for the standalone reader helper;
 - implementation tests or committed failing fixtures;
-- intake mapping, runtime invocation, response/failure writers, CLI, or actual handoff.
+- intake mapping, runtime invocation, failure writers, response writer broadening, CLI, or actual handoff.
 
 The post-reader handoff gate also must not silently introduce:
 
@@ -897,7 +952,7 @@ The post-reader handoff gate also must not silently introduce:
 - P0/P1 execution;
 - P0-P10 runtime invocation;
 - response validation as runtime behavior;
-- response artifact writing;
+- response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing;
 - wrapper inclusion for the standalone reader helper;
 - CLI behavior;
@@ -906,9 +961,9 @@ The post-reader handoff gate also must not silently introduce:
 
 The writer-boundary planning and output contract surfaces also must not silently introduce:
 
-- response writer implementation;
+- response writer broadening beyond the R14 minimal explicit-destination writer;
 - failure writer implementation;
-- response artifact emission;
+- response artifact emission outside the R14 minimal explicit-destination writer boundary;
 - failure artifact emission;
 - writing both response and failure artifacts for one invocation;
 - writing failure artifacts with `blocking == false`;
@@ -983,6 +1038,18 @@ The Phase R10 response validation surface also must not silently introduce:
 - treating local validation as response writer authorization;
 - treating local validation as actual runtime handoff.
 
+The Phase R14 response writer surface also must not silently introduce:
+
+- failure writer implementation;
+- failure artifact writing;
+- overwriting existing response artifacts;
+- destination inference;
+- terminal `TASK_OBJECT_SCHEMA` validation for the current non-canonical candidate;
+- CLI behavior;
+- macro-side report unlock;
+- wrapper inclusion for standalone helpers;
+- actual runtime handoff.
+
 ## Changes Requiring A Governed Pass
 
 The following changes require a governed pass before implementation:
@@ -1034,7 +1101,8 @@ The following changes require a governed pass before implementation:
 - changing response or failure artifact naming semantics;
 - changing writer mutual exclusivity rules;
 - changing writer pre-write validation order;
-- adding response or failure writer implementation;
+- broadening response writer implementation beyond the R14 minimal explicit-destination writer;
+- adding failure writer implementation;
 - changing the intake-mapping planning decision;
 - changing the intake-mapping output contract decision;
 - changing the Phase R5 intake mapping minimal implementation decision;
@@ -1050,6 +1118,9 @@ The following changes require a governed pass before implementation:
 - changing the Phase R10 response validation implementation decision;
 - treating local response validation as terminal writer authorization;
 - changing the current response validation input or validated output boundary;
+- changing the Phase R14 response writer implementation decision;
+- changing the response writer helper path or success signal;
+- adding the response writer helper to the local wrapper;
 - changing allowed envelope inputs for intake mapping;
 - changing acceptable intake-context output fields;
 - allowing canonical task object fields in mapping output;
@@ -1064,13 +1135,13 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_response_writer_minimal_implementation_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a post-response-validation writer gate that keeps response and failure writers closed, Phase R12 terminal writer preparation that keeps writer implementation blocked, a Phase R13 terminal writer implementation gate that selects response writer first, then failure writer, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps terminal invocation and writers closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a bounded Phase R14 minimal response writer implementation with a standalone local helper, a post-response-validation writer gate, Phase R12 terminal writer preparation, a Phase R13 terminal writer implementation gate that selects response writer first, then failure writer, a post-reader handoff gate that keeps actual handoff closed, a post-intake mapping runtime invocation gate that keeps terminal invocation and failure writers closed, a governed wrapper inclusion gate and TASK 114 reassessment that keep the reader helper outside the main wrapper for the next milestone, governed writer-boundary planning/output contracts, and governed intake-mapping planning/output contracts while preserving individually reviewable helper contracts.
 
 ## Recommended Next Phase
 
-Implement a `Kernel-Side Response Writer Minimal Implementation Slice`.
+Implement a `Kernel-Side Post-Response-Writer Failure Writer Gate Refresh Pass`.
 
-That pass may implement only the minimal response writer path from one local validated pre-writer response object to one written kernel response artifact. It must keep failure writer implementation, CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, and actual kernel runtime handoff out of scope unless separately governed.
+That pass should record the completed minimal response writer, keep failure writer implementation closed, reassess the missing classified blocking failure input surface, and select the next governed failure-writer preparation or implementation step without adding CLI, scheduler behavior, live fetching, report composition, CI, package migration, external service calls, macro report unlock, or actual kernel runtime handoff.
