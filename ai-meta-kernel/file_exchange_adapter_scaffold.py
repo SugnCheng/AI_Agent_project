@@ -118,6 +118,33 @@ FORBIDDEN_RESPONSE_WRITER_INPUT_FIELDS = FORBIDDEN_RESPONSE_VALIDATION_FIELDS.un
     }
 )
 
+BLOCKING_FAILURE_SOURCE_REQUIRED_FIELDS = {
+    "source_boundary",
+    "failure_stage",
+    "failure_code",
+    "failure_message",
+}
+
+ALLOWED_BLOCKING_FAILURE_STAGES = {
+    "reader",
+    "envelope_validation",
+    "intake_mapping",
+    "runtime_invocation",
+    "response_validation",
+    "response_writer",
+}
+
+FORBIDDEN_BLOCKING_FAILURE_SOURCE_FIELDS = {
+    "failure_artifact_path",
+    "response_artifact_path",
+    "cli_success_signal",
+    "report_eligibility",
+    "macro_report_eligibility",
+    "downstream_reporting_allowed",
+    "actual_handoff",
+    "handoff_marker",
+}
+
 
 class KernelFileExchangeAdapterScaffoldError(ValueError):
     """Raised when scaffold boundary validation fails."""
@@ -459,6 +486,88 @@ def validate_response_writer_input(validated_response: dict[str, Any]) -> dict[s
     validate_candidate_response(source_candidate)
 
     return validated_response
+
+
+def classify_blocking_failure(failure_source: dict[str, Any]) -> dict[str, Any]:
+    """Classify one local blocking failure source before failure writing.
+
+    This boundary produces a pre-writer classified failure object only. It does
+    not write failure artifacts, call terminal writers, unlock reporting, emit
+    CLI signals, or execute handoff.
+    """
+
+    failure_source = _require_object(failure_source, "failure_source")
+
+    if failure_source.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid blocking failure classification input"
+        )
+
+    if failure_source.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure artifacts are not valid blocking failure classification input"
+        )
+
+    missing = sorted(BLOCKING_FAILURE_SOURCE_REQUIRED_FIELDS.difference(failure_source))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"failure source missing required fields: {missing}"
+        )
+
+    if failure_source.get("failure_stage") not in ALLOWED_BLOCKING_FAILURE_STAGES:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"unknown blocking failure stage: {failure_source.get('failure_stage')!r}"
+        )
+
+    for field in (
+        "source_boundary",
+        "failure_stage",
+        "failure_code",
+        "failure_message",
+    ):
+        if not isinstance(failure_source.get(field), str) or not failure_source[field].strip():
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"failure source {field} must be a non-empty string"
+            )
+
+    true_terminal_markers = [
+        field
+        for field in (
+            "terminal_artifact_written",
+            "response_artifact_written",
+            "failure_artifact_written",
+            "macro_report_unlock",
+        )
+        if failure_source.get(field) is True
+    ]
+    if true_terminal_markers:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure source must remain pre-writer and locked: "
+            f"{sorted(true_terminal_markers)}"
+        )
+
+    leaked_fields = sorted(FORBIDDEN_BLOCKING_FAILURE_SOURCE_FIELDS.intersection(failure_source))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "failure source must not contain terminal, reporting, CLI, or handoff fields: "
+            f"{leaked_fields}"
+        )
+
+    return {
+        "failure_type": "kernel_blocking_failure",
+        "classified_failure_type": "kernel_blocking_failure",
+        "classified_failure_state": "classified_blocking_failure_pre_writer",
+        "failure_stage": failure_source["failure_stage"],
+        "failure_code": failure_source["failure_code"],
+        "failure_message": failure_source["failure_message"],
+        "source_boundary": failure_source["source_boundary"],
+        "is_blocking": True,
+        "terminal_artifact_written": False,
+        "response_artifact_written": False,
+        "failure_artifact_written": False,
+        "macro_report_unlock": False,
+        "classification_stage": "blocking_failure_classified_pre_writer",
+    }
 
 
 def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:

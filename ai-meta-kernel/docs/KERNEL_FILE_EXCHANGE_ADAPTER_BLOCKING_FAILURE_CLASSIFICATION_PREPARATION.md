@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This note defines the smallest preparation boundary for future blocking failure classification before failure writer implementation.
+This note defines the smallest preparation boundary for blocking failure classification before failure writer implementation.
 
-It is documentation only. It does not add code, implement failure classification, implement the failure writer, write artifacts, update validation baselines, unlock macro reporting, or execute handoff.
+It does not implement the failure writer, write artifacts, update validation baselines, unlock macro reporting, or execute handoff.
 
 ## Current Decision
 
@@ -69,6 +69,30 @@ The future classified blocking failure object should include governed fields equ
 - `macro_report_unlock`.
 
 These fields are preparation targets only. This pass does not implement their validation or construction.
+
+## Minimal Implementation Slice Status
+
+Current implementation state:
+
+```text
+blocking_failure_classification_minimal_implementation_slice_complete
+```
+
+The minimal local classifier now accepts one governed failure source object and returns one classified blocking failure object at the pre-writer boundary. It covers reader, envelope validation, intake mapping, runtime invocation, response validation, and response writer failure stages.
+
+The classifier remains local-only and non-terminal. It does not write failure artifacts, call the failure writer, add CLI behavior, unlock macro reporting, or perform actual handoff.
+
+Standalone validation helper:
+
+```text
+validation/kernel_blocking_failure_classification_contract_checks.py
+```
+
+Success signal:
+
+```text
+kernel-blocking-failure-classification-contract-checks-ok
+```
 
 ## Explicitly Blocked Behaviors
 
