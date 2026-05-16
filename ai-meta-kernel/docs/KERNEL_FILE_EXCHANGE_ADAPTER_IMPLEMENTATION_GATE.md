@@ -11,17 +11,17 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
+local_invocation_boundary_preparation_baseline
 ```
 
-The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepared the local terminal writer dry-run gate. R22 implemented the minimal local terminal writer dry-run boundary without real artifact writing. R23 refreshed the post-dry-run gate. R24 syncs the terminal writer dry-run milestone and marks the local invocation boundary as ready for preparation only. Local invocation remains unimplemented, CLI remains blocked, macro report unlock remains blocked, actual handoff remains blocked, and full runtime orchestration remains closed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
+The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepared the local terminal writer dry-run gate. R22 implemented the minimal local terminal writer dry-run boundary without real artifact writing. R23 refreshed the post-dry-run gate. R24 syncs the terminal writer dry-run milestone and marks the local invocation boundary as ready for preparation only. R25 prepares the local invocation boundary, intended inputs, intended outputs, stop conditions, and validation themes without implementing local invocation. Local invocation remains unimplemented, CLI remains blocked, queue discovery remains blocked, polling remains blocked, retry/backoff remains blocked, cleanup remains blocked, macro report unlock remains blocked, actual handoff remains blocked, and full runtime orchestration remains closed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
 
 The gate remains closed for actual runtime handoff because the local invocation boundary, terminal `TASK_OBJECT_SCHEMA` response validation, CLI boundary, operator review checkpoint, and artifact retention policy remain unimplemented.
 
 Current implementation baseline:
 
 ```text
-terminal_writer_dry_run_milestone_synced_local_invocation_boundary_ready
+local_invocation_boundary_preparation_baseline
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -71,6 +71,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | R22 local terminal writer dry-run minimal implementation | `file_exchange_adapter_scaffold.py` now exposes a minimal local dry-run boundary; `validation/kernel_terminal_writer_dry_run_contract_checks.py` validates the standalone dry-run contract. The dry-run returns response and failure artifact candidates, validates mutual exclusivity intent, and does not write real artifacts. |
 | R23 post-local-terminal-writer-dry-run gate refresh | `KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` records that the dry-run boundary exists while local invocation, CLI, macro report unlock, actual handoff, and full runtime orchestration remain closed. |
 | R24 terminal writer dry-run milestone sync | Terminal writer local surfaces are dry-run testable. The next governed phase may prepare the local invocation boundary, but local invocation, CLI, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, and full runtime orchestration remain closed. |
+| R25 local invocation boundary preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_PLAN.md` prepares the future local invocation boundary as one explicit envelope input, one deterministic adapter run, exactly one terminal response or failure path, and no CLI, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, or scheduler/reporting behavior. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -100,7 +101,7 @@ The following prerequisites remain unsatisfied before actual runtime adapter imp
 | P0/P1 and real P0-P10 runtime invocation implementation | The adapter has only a minimal candidate-only invocation boundary; real P0/P1 and P0-P10 execution remain unimplemented. |
 | Kernel-owned task object production path | Canonical task object construction remains unimplemented for file-exchange runtime handoff. |
 | Response writer broadening | The minimal explicit-destination response writer exists, but broader response artifact path generation, orchestration, overwrite behavior, and macro report unlock remain blocked. |
-| Local invocation boundary | Minimal response/failure writers and the dry-run boundary exist, but no governed local invocation boundary exists for a full adapter run. |
+| Local invocation boundary | Minimal response/failure writers and the dry-run boundary exist, and the local invocation boundary is now prepared, but no output contract or implementation exists for a full adapter run. |
 | Terminal response state validation implementation | Future canonical runtime responses still need governed terminal state validation before any write. |
 | CLI or invocation boundary | No local command boundary has been defined for runtime adapter execution. |
 | Operator review checkpoint | Restricted and blocked outputs still need a defined review surface before reporting unlocks. |
@@ -147,7 +148,8 @@ Next possible openings were reassessed as follows:
 | Local terminal writer dry-run gate preparation | Complete in R21. Decision: minimal dry-run implementation may be opened in the next governed slice. |
 | Local terminal writer dry-run minimal implementation | Complete in R22 as a local pre-orchestration dry-run boundary. |
 | Post-local-terminal-writer-dry-run gate refresh | Complete in R23. Decision: perform terminal writer dry-run milestone sync before any local invocation or CLI planning. |
-| Terminal writer dry-run milestone sync | Current R24 pass. Decision: prepare the local invocation boundary next while keeping invocation and CLI behavior unimplemented. |
+| Terminal writer dry-run milestone sync | Complete in R24. Decision: prepare the local invocation boundary next while keeping invocation and CLI behavior unimplemented. |
+| Local invocation boundary preparation | Current R25 pass. Decision: prepare the boundary, inputs, outputs, stop conditions, and validation themes while keeping local invocation implementation, CLI, queue discovery, polling, retry, cleanup, macro report unlock, and actual handoff closed. |
 
 Response validation implementation is minimally complete for the current R8 candidate contract, the post-response-validation writer gate is refreshed, terminal writer implementation preparation exists, the writer implementation strategy is selected, the minimal response writer slice is implemented, the minimal blocking failure classification boundary exists, the minimal failure writer slice is implemented, the local terminal writer dry-run gate was prepared, the minimal local terminal writer dry-run slice is implemented, the post-dry-run gate is refreshed, and the terminal writer dry-run milestone is synced. The next governed opening should prepare the local invocation boundary without implementing CLI, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, or full runtime orchestration.
 
@@ -373,6 +375,23 @@ The terminal writer dry-run milestone is synced. The current kernel-side chain n
 
 This status makes local invocation boundary preparation the next governed phase. It does not implement local invocation, CLI behavior, queue discovery, polling, retry, cleanup, macro report unlock, actual handoff, or full runtime orchestration.
 
+## R25 Local Invocation Boundary Preparation Status
+
+Current R25 status:
+
+```text
+local_invocation_boundary_preparation_baseline
+```
+
+The local invocation boundary is now prepared as a future kernel-side local run
+surface. The intended future boundary starts from one explicit local envelope
+input, performs one deterministic adapter run, selects exactly one terminal
+path, and ends with one response artifact or one blocking failure artifact.
+
+This status does not implement local invocation, add CLI behavior, discover
+queues, poll, retry, clean up artifacts, unlock macro reporting, execute actual
+handoff, or add scheduler/reporting behavior.
+
 ## What Must Remain Blocked
 
 The current gate must continue to block:
@@ -393,6 +412,7 @@ The current gate must continue to block:
 - response artifact writing outside the R14 minimal explicit-destination writer boundary;
 - failure artifact writing outside the R19 minimal explicit-destination failure writer boundary;
 - treating the terminal writer dry-run as local invocation, CLI readiness, or actual handoff readiness;
+- treating the local invocation boundary preparation baseline as local invocation implementation, CLI readiness, or actual handoff readiness;
 - treating the minimal failure writer as actual runtime handoff;
 - response writer broadening beyond the R14 minimal explicit-destination writer;
 - CLI command design;
@@ -425,7 +445,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 6. The future P0/P1 or P0-P10 invocation entrypoint is defined as kernel-owned behavior.
 7. Response state validation is governed before any response artifact writer is implemented.
 8. Local terminal writer dry-run milestone sync is completed before local invocation or CLI planning.
-9. The CLI or local invocation boundary is defined without scheduler, CI, live fetching, or reporting behavior.
+9. The local invocation boundary output contract is defined without scheduler, CI, live fetching, reporting behavior, macro report unlock, or actual handoff.
 10. Restricted, blocked, failed, missing, and ambiguous states remain blocking or review-gated before reporting.
 11. Runtime artifact retention, fixture promotion, and cleanup rules are decided before generated artifacts are treated as durable fixtures.
 
@@ -458,4 +478,6 @@ This gate note must not silently introduce:
 
 Perform a `Kernel-Side Local Invocation Boundary Preparation Pass`.
 
-That pass should prepare a local invocation boundary without implementing CLI behavior, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, actual handoff execution, or full runtime orchestration.
+Perform a `Kernel-Side Local Invocation Boundary Output Contract Pass`.
+
+That pass should define the local invocation result object and terminal path output semantics without implementing local invocation code, CLI behavior, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, actual handoff execution, or full runtime orchestration.
