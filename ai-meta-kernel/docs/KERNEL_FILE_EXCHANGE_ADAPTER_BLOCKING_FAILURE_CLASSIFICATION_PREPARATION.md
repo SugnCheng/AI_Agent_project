@@ -110,7 +110,9 @@ This preparation pass keeps the following blocked:
 Recommended next phase:
 
 ```text
-Blocking Failure Classification Minimal Implementation Slice
+Post-Blocking-Failure-Classification Failure Writer Gate Refresh Pass
 ```
 
-That phase should implement the smallest local classified blocking failure object boundary and stop before failure artifact writing, CLI behavior, retry / polling / cleanup, macro report unlock, and actual handoff.
+That phase should refresh the failure writer gate now that the minimal local classified blocking failure object boundary exists.
+
+The failure writer remains blocked until a separate governed failure writer phase explicitly authorizes failure artifact writing. CLI behavior, retry / polling / cleanup, macro report unlock, and actual handoff also remain blocked.
