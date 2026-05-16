@@ -4,7 +4,9 @@
 
 This note refreshes the failure writer gate after the minimal blocking failure classification implementation slice.
 
-It is a developer-facing gate note only. It does not implement the failure writer, write failure artifacts, broaden response writer behavior, add CLI behavior, unlock macro reporting, or execute actual runtime handoff.
+This note began as the R18 gate context for deciding whether the minimal failure writer slice could open. It now also records the R19 completed minimal failure writer implementation status.
+
+It does not broaden response writer behavior, add CLI behavior, unlock macro reporting, or execute actual runtime handoff.
 
 ## Gate Decision
 
@@ -38,24 +40,22 @@ R17 did not unlock:
 
 The failure writer input surface now exists as a local classified blocking failure object boundary.
 
-Failure writer implementation may be opened in the next governed slice because the writer no longer needs to invent failure classification semantics.
+In the original R18 gate context, failure writer implementation could be opened because the writer no longer needed to invent failure classification semantics.
 
-The response writer already exists for one explicit local response artifact, but full response/failure terminal mutual exclusivity remains incomplete until the failure writer exists and is tested against the classified blocking failure input boundary.
+After R19, the minimal response writer exists for one explicit local response artifact and the minimal failure writer exists for one explicit local kernel exchange failure artifact. Full end-to-end response/failure mutual exclusivity orchestration remains incomplete.
 
 ## Recommended Next Phase
 
 Recommended next phase:
 
 ```text
-Failure Writer Minimal Implementation Slice
+Terminal Writers Milestone Sync And Local Dry Run Gate
 ```
 
 ## Explicitly Blocked Behaviors
 
 This gate keeps the following blocked:
 
-- failure writer implementation in this phase;
-- failure artifact writing in this phase;
 - non-blocking failure artifacts;
 - full terminal response/failure mutual exclusivity completion claims;
 - response writer broadening beyond the R14 explicit-destination writer;
