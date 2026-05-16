@@ -145,9 +145,43 @@ FORBIDDEN_BLOCKING_FAILURE_SOURCE_FIELDS = {
     "handoff_marker",
 }
 
+CLASSIFIED_FAILURE_REQUIRED_FIELDS = {
+    "failure_type",
+    "classified_failure_type",
+    "classified_failure_state",
+    "failure_stage",
+    "failure_code",
+    "failure_message",
+    "source_boundary",
+    "is_blocking",
+    "terminal_artifact_written",
+    "response_artifact_written",
+    "failure_artifact_written",
+    "macro_report_unlock",
+    "classification_stage",
+}
+
+FORBIDDEN_FAILURE_WRITER_INPUT_FIELDS = FORBIDDEN_BLOCKING_FAILURE_SOURCE_FIELDS.union(
+    {
+        "artifact_type",
+        "artifact_state",
+        "artifact_path",
+        "response_writer_called",
+        "failure_writer_called",
+        "writer_stage",
+    }
+)
+
 
 class KernelFileExchangeAdapterScaffoldError(ValueError):
     """Raised when scaffold boundary validation fails."""
+
+
+class KernelFileExchangeAdapterScaffoldNotImplementedError(
+    KernelFileExchangeAdapterScaffoldError,
+    NotImplementedError,
+):
+    """Raised for legacy blocked-boundary inputs that still fail closed."""
 
 
 def _require_object(value: Any, label: str) -> dict[str, Any]:
@@ -570,6 +604,70 @@ def classify_blocking_failure(failure_source: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def validate_failure_writer_input(classified_failure: dict[str, Any]) -> dict[str, Any]:
+    """Validate one classified blocking failure object for minimal writing."""
+
+    classified_failure = _require_object(classified_failure, "classified_failure")
+
+    if classified_failure.get("artifact_type") == "kernel_response":
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response artifacts are not valid failure writer input"
+        )
+
+    if classified_failure.get("artifact_type") == "kernel_exchange_failure":
+        raise KernelFileExchangeAdapterScaffoldNotImplementedError(
+            "failure artifacts are not valid failure writer input"
+        )
+
+    missing = sorted(CLASSIFIED_FAILURE_REQUIRED_FIELDS.difference(classified_failure))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"classified failure missing required fields: {missing}"
+        )
+
+    expected_markers = {
+        "failure_type": "kernel_blocking_failure",
+        "classified_failure_type": "kernel_blocking_failure",
+        "classified_failure_state": "classified_blocking_failure_pre_writer",
+        "is_blocking": True,
+        "terminal_artifact_written": False,
+        "response_artifact_written": False,
+        "failure_artifact_written": False,
+        "macro_report_unlock": False,
+        "classification_stage": "blocking_failure_classified_pre_writer",
+    }
+    for field, expected in expected_markers.items():
+        if classified_failure.get(field) != expected:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"classified failure {field} must be {expected!r}"
+            )
+
+    if classified_failure.get("failure_stage") not in ALLOWED_BLOCKING_FAILURE_STAGES:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"unknown blocking failure stage: {classified_failure.get('failure_stage')!r}"
+        )
+
+    for field in (
+        "failure_stage",
+        "failure_code",
+        "failure_message",
+        "source_boundary",
+    ):
+        if not isinstance(classified_failure.get(field), str) or not classified_failure[field].strip():
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"classified failure {field} must be a non-empty string"
+            )
+
+    leaked_fields = sorted(FORBIDDEN_FAILURE_WRITER_INPUT_FIELDS.intersection(classified_failure))
+    if leaked_fields:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "classified failure must not contain artifact, writer, reporting, CLI, or handoff fields: "
+            f"{leaked_fields}"
+        )
+
+    return classified_failure
+
+
 def validate_kernel_response(task_object: dict[str, Any]) -> dict[str, Any]:
     """Validate a provided kernel response object against TASK_OBJECT_SCHEMA.
 
@@ -662,14 +760,41 @@ def write_response_artifact(task_object: dict[str, Any], destination: str | Path
     return response_artifact
 
 
-def write_failure_artifact(failure: dict[str, Any], destination: str | Path) -> None:
-    """Future blocking failure writer boundary.
+def write_failure_artifact(failure: dict[str, Any], destination: str | Path) -> dict[str, Any]:
+    """Write one local failure artifact from one classified blocking failure."""
 
-    Failure writing remains blocked until a governed implementation pass.
-    """
+    classified_failure = validate_failure_writer_input(failure)
+    artifact_path = Path(destination)
 
-    _require_object(failure, "failure")
-    Path(destination)
-    raise NotImplementedError(
-        "Failure artifact writing is intentionally not implemented in this scaffold."
-    )
+    if artifact_path.exists():
+        if artifact_path.is_dir():
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"failure artifact destination is a directory: {artifact_path}"
+            )
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"failure artifact destination already exists: {artifact_path}"
+        )
+
+    if not artifact_path.parent.is_dir():
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"failure artifact destination parent does not exist: {artifact_path.parent}"
+        )
+
+    failure_artifact = {
+        "artifact_type": "kernel_exchange_failure",
+        "artifact_version": "0.1.0",
+        "artifact_state": "written_failure_artifact",
+        "blocking": True,
+        "source_classified_failure": deepcopy(classified_failure),
+        "terminal_artifact_written": True,
+        "response_writer_called": False,
+        "failure_writer_called": True,
+        "macro_report_unlock": False,
+        "writer_stage": "failure_writer_minimal_local_artifact",
+    }
+
+    with artifact_path.open("w", encoding="utf-8") as file:
+        json.dump(failure_artifact, file, indent=2, sort_keys=True)
+        file.write("\n")
+
+    return failure_artifact

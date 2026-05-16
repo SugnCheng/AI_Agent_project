@@ -65,3 +65,27 @@ This gate keeps the following blocked:
 - actual runtime handoff;
 - wrapper inclusion for standalone helpers;
 - treating standalone helper success signals as part of `kernel-local-validation-checks-ok`.
+
+## Minimal Failure Writer Implementation Slice Status
+
+Current implementation state:
+
+```text
+failure_writer_minimal_implementation_slice_complete
+```
+
+The minimal local failure writer now accepts one R17 classified blocking failure object and writes one explicit local kernel exchange failure artifact.
+
+The implementation remains bounded to the local writer boundary. It does not broaden response writer behavior, add CLI behavior, perform queue discovery, retry, polling, or cleanup, unlock macro reporting, claim full end-to-end orchestration, or execute actual handoff.
+
+Standalone validation helper:
+
+```text
+validation/kernel_failure_writer_contract_checks.py
+```
+
+Success signal:
+
+```text
+kernel-failure-writer-contract-checks-ok
+```
