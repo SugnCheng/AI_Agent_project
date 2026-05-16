@@ -341,7 +341,7 @@ The current gate must continue to block:
 - real P0-P10 runtime invocation;
 - kernel-owned canonical task object generation from envelope evidence;
 - response artifact writing outside the R14 minimal explicit-destination writer boundary;
-- failure artifact writing;
+- failure artifact writing outside the R19 minimal explicit-destination failure writer boundary;
 - terminal writer dry-run orchestration in this phase;
 - treating the minimal failure writer as actual runtime handoff;
 - response writer broadening beyond the R14 minimal explicit-destination writer;
@@ -391,7 +391,7 @@ This gate note must not silently introduce:
 - canonical task object generation from envelopes;
 - treating Phase R5 context mapping as authorization for P0/P1 execution;
 - response artifact writing outside the R14 minimal explicit-destination writer boundary;
-- failure artifact writing;
+- failure artifact writing outside the R19 minimal explicit-destination failure writer boundary;
 - live fetching;
 - uncontrolled open-web crawling;
 - scheduler runtime;
