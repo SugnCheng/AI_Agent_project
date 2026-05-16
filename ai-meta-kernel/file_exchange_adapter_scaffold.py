@@ -199,6 +199,64 @@ FORBIDDEN_TERMINAL_DRY_RUN_TRUE_FIELDS = {
     "failure_writer_called",
 }
 
+OUTPUT_DESTINATION_POLICY_REQUIRED_FIELDS = {
+    "response_artifact_path",
+    "failure_artifact_path",
+}
+
+OUTPUT_DESTINATION_POLICY_ALLOWED_FIELDS = OUTPUT_DESTINATION_POLICY_REQUIRED_FIELDS.union(
+    {
+        "macro_report_unlock",
+        "actual_handoff_executed",
+        "cli_behavior_added",
+    }
+)
+
+FORBIDDEN_OUTPUT_DESTINATION_POLICY_FIELDS = {
+    "queue",
+    "queue_dir",
+    "queue_path",
+    "queue_directory",
+    "queue_discovery",
+    "scheduler",
+    "scheduler_input",
+    "scheduler_result",
+    "polling",
+    "polling_behavior",
+    "watcher",
+    "watcher_behavior",
+    "retry",
+    "retry_behavior",
+    "backoff",
+    "backoff_behavior",
+    "cleanup",
+    "cleanup_behavior",
+    "macro_report_eligibility",
+    "report_eligibility",
+    "downstream_reporting_allowed",
+    "actual_handoff",
+    "handoff_marker",
+    "cli_success_signal",
+    "external_service_input",
+    "external_service_result",
+}
+
+LOCAL_INVOCATION_RESULT_FIELDS = {
+    "invocation_type",
+    "invocation_state",
+    "invocation_stage",
+    "source_envelope_path",
+    "selected_terminal_path",
+    "response_artifact_path",
+    "failure_artifact_path",
+    "terminal_artifact_written",
+    "response_writer_called",
+    "failure_writer_called",
+    "macro_report_unlock",
+    "actual_handoff_executed",
+    "cli_behavior_added",
+}
+
 
 class KernelFileExchangeAdapterScaffoldError(ValueError):
     """Raised when scaffold boundary validation fails."""
@@ -215,6 +273,130 @@ def _require_object(value: Any, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise KernelFileExchangeAdapterScaffoldError(f"{label} must be a JSON object")
     return value
+
+
+def _require_explicit_local_path(value: Any, label: str) -> Path:
+    if not isinstance(value, (str, Path)):
+        raise KernelFileExchangeAdapterScaffoldError(f"{label} must be an explicit local path")
+
+    path_text = str(value)
+    if not path_text.strip():
+        raise KernelFileExchangeAdapterScaffoldError(f"{label} must be a non-empty path")
+
+    if any(marker in path_text for marker in ("*", "?")):
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"{label} must not contain discovery or glob markers"
+        )
+
+    return Path(value)
+
+
+def _validate_output_destination_policy(policy: dict[str, Any]) -> dict[str, Path]:
+    policy = _require_object(policy, "output_destination_policy")
+
+    missing = sorted(OUTPUT_DESTINATION_POLICY_REQUIRED_FIELDS.difference(policy))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"output destination policy missing required fields: {missing}"
+        )
+
+    unknown = sorted(set(policy).difference(OUTPUT_DESTINATION_POLICY_ALLOWED_FIELDS))
+    if unknown:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"output destination policy contains unsupported fields: {unknown}"
+        )
+
+    forbidden = sorted(
+        {
+            key
+            for key, _ in _iter_nested_items(policy)
+            if key in FORBIDDEN_OUTPUT_DESTINATION_POLICY_FIELDS
+        }
+    )
+    if forbidden:
+        raise KernelFileExchangeAdapterScaffoldError(
+            "output destination policy must not contain queue, scheduler, polling, "
+            f"retry, cleanup, reporting, CLI, handoff, or external service fields: {forbidden}"
+        )
+
+    for locked_field in (
+        "macro_report_unlock",
+        "actual_handoff_executed",
+        "cli_behavior_added",
+    ):
+        if policy.get(locked_field) is True:
+            raise KernelFileExchangeAdapterScaffoldError(
+                f"output destination policy {locked_field} must not be true"
+            )
+
+    response_path = _require_explicit_local_path(
+        policy["response_artifact_path"],
+        "response_artifact_path",
+    )
+    failure_path = _require_explicit_local_path(
+        policy["failure_artifact_path"],
+        "failure_artifact_path",
+    )
+
+    if response_path == failure_path or response_path.resolve() == failure_path.resolve():
+        raise KernelFileExchangeAdapterScaffoldError(
+            "response and failure artifact destinations must be distinct"
+        )
+
+    return {
+        "response_artifact_path": response_path,
+        "failure_artifact_path": failure_path,
+    }
+
+
+def _blocking_failure_source(
+    *,
+    source_boundary: str,
+    failure_stage: str,
+    failure_code: str,
+    failure_message: str,
+) -> dict[str, Any]:
+    return {
+        "source_boundary": source_boundary,
+        "failure_stage": failure_stage,
+        "failure_code": failure_code,
+        "failure_message": failure_message,
+    }
+
+
+def _local_invocation_result(
+    *,
+    source_envelope_path: Path,
+    selected_terminal_path: str,
+    response_artifact_path: Path | None,
+    failure_artifact_path: Path | None,
+    terminal_artifact_written: bool,
+    response_writer_called: bool,
+    failure_writer_called: bool,
+) -> dict[str, Any]:
+    result = {
+        "invocation_type": "kernel_local_invocation",
+        "invocation_state": "completed_terminal_artifact_written",
+        "invocation_stage": "local_invocation_minimal_kernel_boundary",
+        "source_envelope_path": str(source_envelope_path),
+        "selected_terminal_path": selected_terminal_path,
+        "response_artifact_path": str(response_artifact_path) if response_artifact_path is not None else None,
+        "failure_artifact_path": str(failure_artifact_path) if failure_artifact_path is not None else None,
+        "terminal_artifact_written": terminal_artifact_written,
+        "response_writer_called": response_writer_called,
+        "failure_writer_called": failure_writer_called,
+        "macro_report_unlock": False,
+        "actual_handoff_executed": False,
+        "cli_behavior_added": False,
+    }
+
+    missing = sorted(LOCAL_INVOCATION_RESULT_FIELDS.difference(result))
+    if missing:
+        raise KernelFileExchangeAdapterScaffoldError(
+            f"local invocation result missing fields: {missing}"
+        )
+
+    return result
 
 
 def read_envelope_artifact(path: str | Path) -> dict[str, Any]:
@@ -945,3 +1127,119 @@ def write_failure_artifact(failure: dict[str, Any], destination: str | Path) -> 
         file.write("\n")
 
     return failure_artifact
+
+
+def invoke_local_adapter(
+    envelope_path: str | Path,
+    output_destination_policy: dict[str, Any],
+) -> dict[str, Any]:
+    """Run one explicit local envelope through the minimal adapter boundaries.
+
+    This is a bounded local composition of existing scaffold boundaries. It
+    reads one explicit envelope, prepares intake context, produces a
+    candidate-only response, validates that response, selects exactly one
+    terminal path, and writes either one response artifact or one failure
+    artifact. It does not discover queues, poll, retry, clean up artifacts,
+    add CLI behavior, unlock macro reporting, or execute handoff.
+    """
+
+    source_path = _require_explicit_local_path(envelope_path, "envelope_path")
+    destinations = _validate_output_destination_policy(output_destination_policy)
+
+    def write_blocking_failure(
+        *,
+        source_boundary: str,
+        failure_stage: str,
+        failure_code: str,
+        failure_message: str,
+    ) -> dict[str, Any]:
+        failure_source = _blocking_failure_source(
+            source_boundary=source_boundary,
+            failure_stage=failure_stage,
+            failure_code=failure_code,
+            failure_message=failure_message,
+        )
+        classified = classify_blocking_failure(failure_source)
+        write_failure_artifact(classified, destinations["failure_artifact_path"])
+        return _local_invocation_result(
+            source_envelope_path=source_path,
+            selected_terminal_path="failure",
+            response_artifact_path=None,
+            failure_artifact_path=destinations["failure_artifact_path"],
+            terminal_artifact_written=True,
+            response_writer_called=False,
+            failure_writer_called=True,
+        )
+
+    try:
+        envelope = read_envelope_artifact(source_path)
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="reader_boundary",
+            failure_stage="reader",
+            failure_code="reader_failed",
+            failure_message=str(exc),
+        )
+
+    try:
+        validated_envelope = validate_envelope_intake(envelope)
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="envelope_validation_boundary",
+            failure_stage="envelope_validation",
+            failure_code="envelope_validation_failed",
+            failure_message=str(exc),
+        )
+
+    try:
+        intake = prepare_kernel_intake(validated_envelope)
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="intake_mapping_boundary",
+            failure_stage="intake_mapping",
+            failure_code="intake_mapping_failed",
+            failure_message=str(exc),
+        )
+
+    try:
+        candidate = invoke_kernel_runtime(intake)
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="runtime_invocation_boundary",
+            failure_stage="runtime_invocation",
+            failure_code="runtime_invocation_failed",
+            failure_message=str(exc),
+        )
+
+    try:
+        validated_response = validate_candidate_response(candidate)
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="response_validation_boundary",
+            failure_stage="response_validation",
+            failure_code="response_validation_failed",
+            failure_message=str(exc),
+        )
+
+    try:
+        write_response_artifact(
+            validated_response,
+            destinations["response_artifact_path"],
+        )
+    except KernelFileExchangeAdapterScaffoldError as exc:
+        return write_blocking_failure(
+            source_boundary="response_writer_boundary",
+            failure_stage="response_writer",
+            failure_code="response_writer_failed",
+            failure_message=str(exc),
+        )
+
+    return _local_invocation_result(
+        source_envelope_path=source_path,
+        selected_terminal_path="response",
+        response_artifact_path=destinations["response_artifact_path"],
+        failure_artifact_path=None,
+        terminal_artifact_written=True,
+        response_writer_called=True,
+        failure_writer_called=False,
+    )

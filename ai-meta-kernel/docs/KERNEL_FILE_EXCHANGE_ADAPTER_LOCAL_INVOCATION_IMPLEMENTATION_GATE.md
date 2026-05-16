@@ -17,11 +17,11 @@ full runtime orchestration.
 Current gate decision:
 
 ```text
-local_invocation_implementation_gate_refreshed
+local_invocation_minimal_implementation_slice_complete
 ```
 
-The minimal local invocation implementation slice may be opened next, but only
-under the bounded shape defined by this gate.
+The minimal local invocation implementation slice now exists under the bounded
+shape defined by this gate.
 
 ## Prerequisites Now In Place
 
@@ -51,6 +51,19 @@ cleanup, macro report unlock, or actual handoff.
 
 Any future helper must remain standalone unless wrapper inclusion is separately
 governed.
+
+## Completed Minimal Slice
+
+The kernel-side scaffold now includes a bounded `invoke_local_adapter(...)`
+composition boundary. It accepts one explicit local envelope path and one
+explicit output destination policy, composes the existing local reader,
+intake mapper, candidate-only invocation, response validation, response writer,
+blocking failure classification, and failure writer surfaces, and writes exactly
+one terminal artifact.
+
+The standalone validation helper is
+`validation/kernel_local_invocation_contract_checks.py`. It is intentionally
+not included in `validation/run_all_kernel_local_checks.py`.
 
 ## Allowed Next Implementation Shape
 
