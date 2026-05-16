@@ -476,8 +476,6 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Local Invocation Boundary Preparation Pass`.
-
 Perform a `Kernel-Side Local Invocation Boundary Output Contract Pass`.
 
 That pass should define the local invocation result object and terminal path output semantics without implementing local invocation code, CLI behavior, queue discovery, polling, retry, cleanup, wrapper inclusion, scheduler behavior, live fetching, report composition, package migration, external service calls, macro report unlock, actual handoff execution, or full runtime orchestration.
