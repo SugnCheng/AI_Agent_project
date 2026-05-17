@@ -57,6 +57,20 @@ The next implementation slice may include only:
 - no CLI behavior;
 - success signal may be `kernel-runtime-artifact-policy-contract-checks-ok`.
 
+## Minimal Validation Helper Status
+
+The minimal standalone policy validation helper now exists at:
+
+```text
+ai-meta-kernel/validation/kernel_runtime_artifact_policy_contract_checks.py
+```
+
+The helper validates local policy object semantics only. It remains outside
+`run_all_kernel_local_checks.py` and does not delete artifacts, create
+artifacts, promote fixtures, mutate filesystem state, add cleanup automation,
+add CLI behavior, unlock macro reporting, execute actual handoff, or modify the
+main wrapper.
+
 ## Blocked Behaviors
 
 The following remain blocked:
@@ -84,5 +98,5 @@ The following remain blocked:
 Recommended next phase:
 
 ```text
-Runtime Artifact Retention And Cleanup Policy Minimal Validation Helper Slice
+Post-Runtime-Artifact-Policy-Validation-Helper Gate Refresh Pass
 ```
