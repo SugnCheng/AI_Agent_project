@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate. R29 implements the minimal local invocation boundary. R30 refreshes the post-local-invocation implementation gate. The local invocation milestone is now synced, runtime artifact retention and cleanup policy preparation exists, runtime artifact retention and cleanup policy output contract exists, runtime artifact retention and cleanup policy validation plan exists, runtime artifact retention and cleanup policy implementation gate is complete, R36 runtime artifact retention and cleanup policy minimal validation helper is complete, R37 post-helper gate refresh is complete, R38 runtime artifact policy milestone sync is current, R39 cleanup automation boundary preparation exists, R40 cleanup automation boundary output contract exists, R41 cleanup automation boundary validation plan exists, R42 cleanup automation boundary implementation gate is complete, and R43 cleanup automation boundary minimal validation helper is current. The next sequence item is post-cleanup-boundary-validation-helper gate refresh. This does not implement CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, fixture promotion automation, macro reporting, actual handoff, wrapper inclusion, production cross-project exchange, or full terminal writer orchestration.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate. R29 implements the minimal local invocation boundary. R30 refreshes the post-local-invocation implementation gate. The local invocation milestone is now synced, runtime artifact retention and cleanup policy preparation exists, runtime artifact retention and cleanup policy output contract exists, runtime artifact retention and cleanup policy validation plan exists, runtime artifact retention and cleanup policy implementation gate is complete, R36 runtime artifact retention and cleanup policy minimal validation helper is complete, R37 post-helper gate refresh is complete, R38 runtime artifact policy milestone sync is current, R39 cleanup automation boundary preparation exists, R40 cleanup automation boundary output contract exists, R41 cleanup automation boundary validation plan exists, R42 cleanup automation boundary implementation gate is complete, R43 cleanup automation boundary minimal validation helper is complete, and R44 post-cleanup-boundary-validation-helper gate refresh is current. The next sequence item is cleanup boundary compact milestone sync. This does not implement CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, fixture promotion automation, macro reporting, actual handoff, wrapper inclusion, production cross-project exchange, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -51,7 +51,8 @@ The future implementation order should be:
 27. Cleanup automation boundary implementation gate.
 28. Cleanup automation boundary minimal validation helper.
 29. Post-cleanup-boundary-validation-helper gate refresh.
-30. Runtime artifact retention and cleanup policy.
+30. Cleanup boundary compact milestone sync.
+31. Runtime artifact retention and cleanup policy.
 
 This order is intentionally narrow. It prevents writer behavior, CLI behavior, scheduler behavior, reporting behavior, and cleanup automation from arriving before the kernel can locally validate the inputs and outputs it owns.
 
@@ -1316,8 +1317,11 @@ Depends on:
 Current status:
 
 ```text
-post_cleanup_boundary_validation_helper_gate_next
+post_cleanup_boundary_validation_helper_gate_refreshed
 ```
+
+Post-cleanup-boundary-validation-helper gate refresh is documented in
+`KERNEL_FILE_EXCHANGE_ADAPTER_POST_CLEANUP_BOUNDARY_VALIDATION_HELPER_GATE.md`.
 
 Must still not include:
 
@@ -1340,11 +1344,58 @@ Must still not include:
 
 Additional governed pass required:
 
-- post-helper gate refresh before cleanup automation, deletion behavior,
-  fixture promotion automation, wrapper inclusion, or production cross-project
-  exchange is considered.
+- cleanup boundary compact milestone sync before cleanup automation, deletion
+  behavior, fixture promotion automation, wrapper inclusion, or production
+  cross-project exchange is considered.
 
-## Step 30: Runtime Artifact Retention And Cleanup Policy
+## Step 30: Cleanup Boundary Compact Milestone Sync
+
+Purpose:
+
+- sync the completed cleanup-boundary validation helper milestone;
+- preserve the distinction between cleanup-boundary validation and cleanup
+  automation;
+- keep deletion behavior, filesystem mutation, fixture promotion automation,
+  CLI, queue behavior, macro report unlock, actual handoff, wrapper inclusion,
+  and production exchange closed.
+
+Depends on:
+
+- post-cleanup-boundary-validation-helper gate refresh;
+- minimal standalone cleanup-boundary validation helper.
+
+Current status:
+
+```text
+cleanup_boundary_compact_milestone_sync_next
+```
+
+Must still not include:
+
+- cleanup automation;
+- artifact deletion implementation;
+- filesystem mutation;
+- fixture promotion automation;
+- fixture promotion without review;
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- scheduler runtime;
+- macro report unlock;
+- actual handoff;
+- wrapper inclusion;
+- production cross-project exchange;
+- full runtime orchestration.
+
+Additional governed pass required:
+
+- cleanup boundary compact milestone sync before cleanup implementation
+  planning, deletion behavior, fixture promotion automation, CLI behavior,
+  queue behavior, wrapper inclusion, production cross-project exchange, or
+  actual handoff is considered.
+
+## Step 31: Runtime Artifact Retention And Cleanup Policy
 
 Purpose:
 
@@ -1404,10 +1455,11 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Post-Cleanup-Boundary-Validation-Helper Gate Refresh Pass`.
+Perform a `Cleanup Boundary Compact Milestone Sync Pass`.
 
-That pass should refresh the gate after the standalone helper slice. Cleanup
-automation, artifact deletion, filesystem mutation, fixture promotion
-automation, CLI behavior, queue discovery, polling, retry, scheduler behavior,
-macro report unlock, actual handoff execution, wrapper inclusion, production
-cross-project exchange, and full runtime orchestration remain blocked.
+That pass should sync the completed cleanup-boundary validation helper
+milestone before cleanup implementation planning. Cleanup automation, artifact
+deletion, filesystem mutation, fixture promotion automation, CLI behavior,
+queue discovery, polling, retry, scheduler behavior, macro report unlock,
+actual handoff execution, wrapper inclusion, production cross-project
+exchange, and full runtime orchestration remain blocked.
