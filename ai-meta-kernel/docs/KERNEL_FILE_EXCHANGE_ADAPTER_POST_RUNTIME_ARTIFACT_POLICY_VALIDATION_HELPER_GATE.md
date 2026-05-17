@@ -96,3 +96,17 @@ Recommended next phase:
 ```text
 Runtime Artifact Policy Milestone Sync Pass
 ```
+
+## R38 Milestone Sync Note
+
+R38 completes the recommended milestone sync and records:
+
+```text
+runtime_artifact_policy_milestone_synced_cleanup_boundary_ready
+```
+
+This does not revert the R36 helper completion or the R37 post-helper gate
+refresh. Cleanup automation, artifact deletion, filesystem mutation, fixture
+promotion automation, CLI, queue behavior, macro report unlock, actual
+handoff, wrapper inclusion, production cross-project exchange, and full runtime
+orchestration remain blocked.

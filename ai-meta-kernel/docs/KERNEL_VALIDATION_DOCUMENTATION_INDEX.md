@@ -33,6 +33,7 @@ These documents describe the individually runnable validation helpers. Use them 
 | `validation/kernel_failure_writer_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_TERMINAL_WRITER_IMPLEMENTATION_OUTPUT_CONTRACT.md` | Standalone failure writer helper for the minimal explicit-destination kernel exchange failure artifact writer. Success signal: `kernel-failure-writer-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_terminal_writer_dry_run_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` | Standalone terminal writer dry-run helper for response/failure artifact candidates and mutual exclusivity intent. Success signal: `kernel-terminal-writer-dry-run-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_local_invocation_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_OUTPUT_CONTRACT.md` | Standalone local invocation helper for explicit envelope input, explicit output destination policy, one terminal path, and locked macro/handoff/CLI markers. Success signal: `kernel-local-invocation-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
+| `validation/kernel_runtime_artifact_policy_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_OUTPUT_CONTRACT.md` | Standalone runtime artifact policy helper for in-memory policy object semantics, locked markers, and wrapper exclusion. Success signal: `kernel-runtime-artifact-policy-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 
 ## Wrapper Contracts
 
@@ -152,8 +153,8 @@ milestone sync and before any runtime artifact retention or cleanup policy work.
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_VALIDATION_PLAN.md` | R27 validation plan for result shape, terminal path selection, failure routing, fail-closed policy rejection, locked downstream markers, and standalone helper stance. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R28/R29 implementation gate and completed minimal local invocation slice status. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R30 post-local-invocation gate refresh. It records that minimal local invocation exists but CLI, queue, scheduler, macro unlock, actual handoff, wrapper inclusion, production exchange, and full orchestration remain blocked. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current milestone sync and next phase: runtime artifact retention and cleanup policy preparation. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current implementation order, with local invocation milestone sync complete and runtime artifact retention/cleanup policy preparation next. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current runtime artifact policy milestone sync and next phase: cleanup automation boundary preparation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current implementation order, with R36 helper complete, R37 gate complete, R38 milestone sync current, and cleanup automation boundary preparation next. |
 
 | Helper | Success signal | Current status |
 | --- | --- | --- |
@@ -162,6 +163,25 @@ milestone sync and before any runtime artifact retention or cleanup policy work.
 This surface does not imply CLI, queue worker behavior, scheduler runtime,
 macro report unlock, actual handoff, production cross-project exchange, or
 full runtime orchestration.
+
+## Runtime Artifact Policy Validation And Milestone
+
+These documents describe the R36 standalone runtime artifact policy helper, R37
+post-helper gate, and R38 milestone sync. Use them after local invocation
+milestone sync and before any cleanup automation boundary planning.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_OUTPUT_CONTRACT.md` | Policy object field and decision contract validated by the standalone helper. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_VALIDATION_PLAN.md` | Validation themes for artifact categories, decisions, locked markers, and wrapper stance. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_IMPLEMENTATION_GATE.md` | R35 implementation gate and R36 helper completion status. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RUNTIME_ARTIFACT_POLICY_VALIDATION_HELPER_GATE.md` | R37 post-helper gate and R38 milestone sync note. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current R38 status: `runtime_artifact_policy_milestone_synced_cleanup_boundary_ready`; next phase is cleanup automation boundary preparation. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current sequence with R36 helper complete, R37 gate complete, R38 milestone sync current, and cleanup automation boundary preparation next. |
+
+| Helper | Success signal | Current status |
+| --- | --- | --- |
+| `validation/kernel_runtime_artifact_policy_contract_checks.py` | `kernel-runtime-artifact-policy-contract-checks-ok` | Standalone helper for in-memory runtime artifact policy object validation. It is intentionally outside `validation/run_all_kernel_local_checks.py`. |
 
 ## Baseline, Reassessment, And Planning Notes
 
@@ -235,12 +255,14 @@ For current local validation behavior:
 20. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` when checking the R23 post-dry-run gate.
 21. Read the local invocation boundary plan, output contract, validation plan, implementation gate, and post-local-invocation gate when checking the R25-R30 local invocation chain.
 22. Run or inspect `validation/kernel_local_invocation_contract_checks.py` when debugging the standalone local invocation helper. It is not part of the main wrapper.
-23. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current local invocation milestone sync and why runtime artifact retention and cleanup policy preparation is next.
-24. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is runtime artifact retention and cleanup policy preparation.
-25. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
-26. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
-27. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
-28. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the standalone helper set, wrapper meaning, minimal local invocation implementation, post-local-invocation gate, and local invocation milestone sync.
+23. Read the runtime artifact policy validation and milestone documents when checking R36-R38 status and why cleanup automation boundary preparation is next.
+24. Run or inspect `validation/kernel_runtime_artifact_policy_contract_checks.py` when debugging the standalone runtime artifact policy helper. It is not part of the main wrapper.
+25. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current runtime artifact policy milestone sync and why cleanup automation boundary preparation is next.
+26. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is cleanup automation boundary preparation.
+27. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
+28. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
+29. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
+30. Read `docs/KERNEL_VALIDATION_BASELINE.md` for the current milestone snapshot that records the standalone helper set, wrapper meaning, minimal local invocation implementation, runtime artifact policy helper, and R38 milestone sync.
 29. Read `docs/KERNEL_VALIDATION_WRAPPER_SCAFFOLD_OUTPUT_CONTRACT.md`.
 30. Read `docs/KERNEL_VALIDATION_WRAPPER_FAILURE_PATH_OUTPUT_CONTRACT.md`.
 31. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_FIRST_SLICE_VALIDATION_OUTPUT_CONTRACT.md` when checking first-slice adapter fixture validation.
@@ -431,7 +453,21 @@ kernel-local-invocation-contract-checks-ok
 
 This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
 
-The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, or local invocation helper coverage at the current milestone.
+Run the standalone runtime artifact policy contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_runtime_artifact_policy_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-runtime-artifact-policy-contract-checks-ok
+```
+
+This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
+
+The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, local invocation, or runtime artifact policy helper coverage at the current milestone.
 
 ## Explicit Non-Goals
 
@@ -484,11 +520,11 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Runtime Artifact Retention And Cleanup Policy Preparation Pass`.
+Perform a `Kernel-Side Cleanup Automation Boundary Preparation Pass`.
 
-That pass should prepare generated runtime artifact retention, review, fixture
-promotion, and cleanup policy without implementing cleanup automation, CLI
-behavior, queue discovery, polling, retry, scheduler behavior, live fetching,
-report composition, CI, package migration, external service calls, macro report
-unlock, actual handoff execution, production cross-project exchange, or full
-runtime orchestration.
+That pass should prepare cleanup automation boundaries without implementing
+cleanup automation, artifact deletion, filesystem mutation, fixture promotion
+automation, CLI behavior, queue discovery, polling, retry, scheduler behavior,
+live fetching, report composition, CI, package migration, external service
+calls, macro report unlock, actual handoff execution, wrapper inclusion,
+production cross-project exchange, or full runtime orchestration.
