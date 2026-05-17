@@ -16,7 +16,7 @@ implement_runtime_adapter_in_governed_pre_runtime_to_writer_order
 
 The adapter should advance only through small governed passes. Each step must preserve the current kernel ownership boundary: the macro agent may provide evidence/context envelopes, but `ai-meta-kernel` owns intake interpretation, runtime reasoning, canonical task object production, response validation, and terminal artifact writing.
 
-Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate. R29 implements the minimal local invocation boundary. R30 refreshes the post-local-invocation implementation gate. The local invocation milestone is now synced, runtime artifact retention and cleanup policy preparation exists, runtime artifact retention and cleanup policy output contract exists, and runtime artifact retention and cleanup policy validation plan is current. The next sequence item is runtime artifact retention and cleanup policy implementation gate. This does not implement validation helper code, CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, fixture promotion automation, macro reporting, actual handoff, wrapper inclusion, production cross-project exchange, or full terminal writer orchestration.
+Phase R2 has implemented the first minimal reader slice for one explicit local input path. Phase R5 has implemented the minimal context-only envelope-to-intake mapping slice. Phase R6 refreshes the runtime invocation gate after that mapping slice. Phase R7 prepared the future runtime invocation implementation boundary. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R9 prepared the response validation boundary. Phase R10 implements the minimal local candidate-response validation slice. Phase R11 refreshes the writer gate after local response validation. Phase R12 prepares terminal writer implementation boundaries. Phase R13 selects response writer first, then failure writer. Phase R14 implements the minimal explicit-destination response writer. Phase R17 implements blocking failure classification. Phase R19 implements the minimal explicit-destination failure writer. R21 prepares the local terminal writer dry-run gate. R22 implements the minimal local terminal writer dry-run boundary. R23 refreshes the post-dry-run gate. R24 syncs the terminal writer dry-run milestone. R25 prepares the local invocation boundary. R26 defines the local invocation output contract. R27 defines the local invocation validation plan. R28 refreshes the local invocation implementation gate. R29 implements the minimal local invocation boundary. R30 refreshes the post-local-invocation implementation gate. The local invocation milestone is now synced, runtime artifact retention and cleanup policy preparation exists, runtime artifact retention and cleanup policy output contract exists, runtime artifact retention and cleanup policy validation plan exists, and runtime artifact retention and cleanup policy implementation gate is current. The next sequence item is runtime artifact retention and cleanup policy minimal validation helper. This does not implement validation helper code, CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, fixture promotion automation, macro reporting, actual handoff, wrapper inclusion, production cross-project exchange, or full terminal writer orchestration.
 
 ## Intended Implementation Order
 
@@ -42,7 +42,8 @@ The future implementation order should be:
 18. Runtime artifact retention and cleanup policy output contract.
 19. Runtime artifact retention and cleanup policy validation plan.
 20. Runtime artifact retention and cleanup policy implementation gate.
-21. Runtime artifact retention and cleanup policy.
+21. Runtime artifact retention and cleanup policy minimal validation helper.
+22. Runtime artifact retention and cleanup policy.
 
 This order is intentionally narrow. It prevents writer behavior, CLI behavior, scheduler behavior, reporting behavior, and cleanup automation from arriving before the kernel can locally validate the inputs and outputs it owns.
 
@@ -863,8 +864,11 @@ Depends on:
 Current status:
 
 ```text
-runtime_artifact_retention_cleanup_policy_implementation_gate_next
+runtime_artifact_retention_cleanup_policy_implementation_gate_refreshed
 ```
+
+The implementation gate is refreshed. The minimal policy validation helper may
+open next, but the helper itself is not yet implemented.
 
 Must still not include:
 
@@ -883,11 +887,58 @@ Must still not include:
 
 Additional governed pass required:
 
-- runtime artifact retention and cleanup policy decision before cleanup
-  implementation, deletion behavior, or fixture promotion automation is
-  considered.
+- runtime artifact retention and cleanup policy minimal validation helper
+  before any broader policy implementation, cleanup implementation, deletion
+  behavior, or fixture promotion automation is considered.
 
-## Step 21: Runtime Artifact Retention And Cleanup Policy
+## Step 21: Runtime Artifact Retention And Cleanup Policy Minimal Validation Helper
+
+Purpose:
+
+- validate one policy object input deterministically and locally;
+- prove the R33 output contract and R34 validation themes through a standalone
+  helper;
+- keep cleanup automation, artifact deletion, fixture promotion automation,
+  macro report unlock, actual handoff, CLI behavior, and wrapper inclusion
+  closed.
+
+Depends on:
+
+- runtime artifact retention and cleanup policy implementation gate;
+- runtime artifact retention and cleanup policy output contract;
+- runtime artifact retention and cleanup policy validation plan.
+
+Current status:
+
+```text
+runtime_artifact_retention_cleanup_policy_minimal_validation_helper_next
+```
+
+Must still not include:
+
+- cleanup implementation;
+- artifact deletion implementation;
+- fixture promotion automation;
+- fixture promotion without review;
+- CLI behavior;
+- queue discovery;
+- polling or watcher behavior;
+- retry/backoff behavior;
+- cleanup side effects;
+- scheduler runtime;
+- macro report unlock;
+- actual handoff;
+- wrapper inclusion;
+- production cross-project exchange;
+- full runtime orchestration.
+
+Additional governed pass required:
+
+- a post-helper gate or policy decision pass before cleanup implementation,
+  deletion behavior, fixture promotion automation, wrapper inclusion, or
+  production cross-project exchange is considered.
+
+## Step 22: Runtime Artifact Retention And Cleanup Policy
 
 Purpose:
 
@@ -947,12 +998,13 @@ No step in this sequence may silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `runtime artifact retention and cleanup policy implementation gate`.
+Perform a `runtime artifact retention and cleanup policy minimal validation helper`.
 
-That pass should decide whether any minimal policy implementation slice may
-open without implementing validation helper code, cleanup automation, artifact
-deletion, fixture promotion automation, CLI behavior, queue discovery,
-polling, retry, scheduler behavior, live fetching, report composition, CI,
-package migration, external service calls, macro report unlock, actual handoff
-execution, wrapper inclusion, production cross-project exchange, or full
-runtime orchestration.
+That slice should implement only a standalone deterministic policy-object
+validation helper with one policy object input and success signal
+`kernel-runtime-artifact-policy-contract-checks-ok`, without cleanup
+automation, artifact deletion, fixture promotion automation, CLI behavior,
+queue discovery, polling, retry, scheduler behavior, live fetching, report
+composition, CI, package migration, external service calls, macro report
+unlock, actual handoff execution, wrapper inclusion, production cross-project
+exchange, or full runtime orchestration.
