@@ -11,7 +11,7 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-runtime_artifact_retention_cleanup_policy_output_contract_baseline
+runtime_artifact_retention_cleanup_policy_validation_plan_baseline
 ```
 
 The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepared the local terminal writer dry-run gate. R22 implemented the minimal local terminal writer dry-run boundary without real artifact writing. R23 refreshed the post-dry-run gate. R24 syncs the terminal writer dry-run milestone and marks the local invocation boundary as ready for preparation only. R25 prepares the local invocation boundary, intended inputs, intended outputs, stop conditions, and validation themes without implementing local invocation. R26 defines the local invocation boundary output contract, future result object shape, terminal path semantics, and failure routing expectations without implementing local invocation. R27 defines the local invocation boundary validation plan without implementing local invocation or helper code. R28 refreshed the local invocation implementation gate and authorized only a bounded minimal local invocation implementation slice. At that point, CLI remained blocked, queue discovery remained blocked, polling remained blocked, retry/backoff remained blocked, cleanup remained blocked, macro report unlock remained blocked, actual handoff remained blocked, wrapper inclusion remained blocked, and full runtime orchestration remained closed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
@@ -51,6 +51,15 @@ behavior, queue discovery, polling, retry, scheduler behavior, macro report
 unlock, actual handoff, wrapper inclusion, production cross-project exchange,
 or full runtime orchestration.
 
+R34 defines the runtime artifact retention and cleanup policy validation plan.
+It records how future validation should prove policy object shape, artifact
+category semantics, retention decision semantics, promotion decision semantics,
+cleanup decision semantics, fail-closed markers, and wrapper stance without
+implementing validation helper code, cleanup automation, artifact deletion,
+fixture promotion automation, CLI behavior, queue discovery, polling, retry,
+scheduler behavior, macro report unlock, actual handoff, wrapper inclusion,
+production cross-project exchange, or full runtime orchestration.
+
 The gate remains closed for actual runtime handoff because CLI, queue worker,
 scheduler, terminal `TASK_OBJECT_SCHEMA` response validation, operator review
 checkpoint, production cross-project exchange, and artifact retention policy
@@ -59,7 +68,7 @@ readiness remain unimplemented.
 Current implementation baseline:
 
 ```text
-runtime_artifact_retention_cleanup_policy_output_contract_baseline
+runtime_artifact_retention_cleanup_policy_validation_plan_baseline
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -118,6 +127,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | Local invocation milestone sync | Current status: the minimal local invocation milestone is synced and the next governed phase is runtime artifact retention and cleanup policy preparation. This does not implement cleanup automation. |
 | R32 runtime artifact retention / cleanup policy preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_PLAN.md` prepares artifact category, retention, cleanup, and fixture promotion principles without implementing cleanup automation, artifact deletion, fixture promotion automation, CLI, queue discovery, polling, retry, scheduler behavior, macro report unlock, actual handoff, or production cross-project exchange. |
 | R33 runtime artifact retention / cleanup policy output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_OUTPUT_CONTRACT.md` defines the future policy output object, artifact category semantics, retention decision semantics, promotion decision semantics, cleanup decision semantics, strict locked markers, and validation themes without implementing cleanup automation, artifact deletion, fixture promotion automation, CLI, queue discovery, polling, retry, scheduler behavior, macro report unlock, actual handoff, or production cross-project exchange. |
+| R34 runtime artifact retention / cleanup policy validation plan | `KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_VALIDATION_PLAN.md` defines future validation coverage for policy object shape, artifact category semantics, retention decisions, promotion decisions, cleanup decisions, fail-closed downstream markers, and wrapper stance without implementing validation helper code, cleanup automation, artifact deletion, fixture promotion automation, CLI, queue discovery, polling, retry, scheduler behavior, macro report unlock, actual handoff, or wrapper inclusion. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -558,6 +568,26 @@ promotion automation, CLI behavior, queue discovery, polling, retry, scheduler
 behavior, macro report unlock, actual handoff, production cross-project
 exchange, or full runtime orchestration.
 
+## R34 Runtime Artifact Retention / Cleanup Policy Validation Plan Status
+
+Current R34 status:
+
+```text
+runtime_artifact_retention_cleanup_policy_validation_plan_baseline
+```
+
+Runtime artifact retention and cleanup policy validation plan now exists. The
+plan defines future validation coverage for policy object shape, valid artifact
+categories, retention decisions, promotion decisions, cleanup decisions,
+commit eligibility markers, cleanup-blocked markers, downstream locked
+markers, fail-closed rejection cases, and wrapper stance.
+
+This status does not implement validation helper code, cleanup automation,
+artifact deletion, fixture promotion automation, CLI behavior, queue discovery,
+polling, retry, scheduler behavior, macro report unlock, actual handoff,
+wrapper inclusion, production cross-project exchange, or full runtime
+orchestration.
+
 ## R33 Runtime Artifact Retention / Cleanup Policy Output Contract Status
 
 Current R33 status:
@@ -625,6 +655,7 @@ The current gate must continue to block:
 - artifact cleanup automation;
 - artifact deletion implementation;
 - fixture promotion automation;
+- validation helper implementation;
 - multi-profile runtime expansion;
 - live fetching;
 - scheduler runtime;
@@ -656,6 +687,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 11. Runtime artifact retention, fixture promotion, and cleanup rules are decided before generated artifacts are treated as durable fixtures.
 12. Runtime artifact retention and cleanup policy output contract exists before cleanup automation, deletion behavior, or fixture promotion automation is considered.
 13. Runtime artifact retention and cleanup policy validation plan exists before any validation helper or automation is considered.
+14. Runtime artifact retention and cleanup policy implementation gate exists before validation helper implementation, cleanup automation, deletion behavior, or fixture promotion automation is considered.
 
 ## Explicit Non-Goals
 
@@ -684,12 +716,12 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Runtime Artifact Retention And Cleanup Policy Validation Plan Pass`.
+Perform a `Kernel-Side Runtime Artifact Retention And Cleanup Policy Implementation Gate Pass`.
 
-That pass should define validation coverage for generated runtime artifact
-retention, review, fixture promotion, and cleanup policy outputs without
-implementing cleanup automation, artifact deletion, fixture promotion
-automation, validation helper code, CLI behavior, queue discovery, polling,
-retry, scheduler behavior, live fetching, report composition, package
-migration, external service calls, macro report unlock, actual handoff
-execution, production cross-project exchange, or full runtime orchestration.
+That pass should decide whether any minimal policy implementation slice may
+open without implementing validation helper code, cleanup automation, artifact
+deletion, fixture promotion automation, CLI behavior, queue discovery,
+polling, retry, scheduler behavior, live fetching, report composition,
+package migration, external service calls, macro report unlock, actual
+handoff execution, wrapper inclusion, production cross-project exchange, or
+full runtime orchestration.
