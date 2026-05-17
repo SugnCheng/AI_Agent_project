@@ -35,12 +35,13 @@ The current kernel-side standalone helpers are:
 | `validation/kernel_terminal_writer_dry_run_contract_checks.py` | Checks the minimal local terminal writer dry-run boundary, artifact candidates, and mutual exclusivity intent without real artifact writing, CLI, macro reporting, wrapper inclusion, or actual handoff. | `kernel-terminal-writer-dry-run-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` |
 | `validation/kernel_local_invocation_contract_checks.py` | Checks the minimal local invocation boundary, explicit envelope input, explicit output destination policy, one terminal path, fail-closed policy rejection, and locked macro/handoff/CLI markers. | `kernel-local-invocation-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_OUTPUT_CONTRACT.md` |
 | `validation/kernel_runtime_artifact_policy_contract_checks.py` | Checks in-memory runtime artifact policy object semantics, required fields, decisions, fail-closed locked markers, and wrapper exclusion without artifact mutation. | `kernel-runtime-artifact-policy-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_OUTPUT_CONTRACT.md` |
+| `validation/kernel_cleanup_boundary_contract_checks.py` | Checks in-memory cleanup-boundary decision object semantics, cleanup eligibility, cleanup decisions, artifact categories, locked markers, fail-closed behavior, and wrapper exclusion without cleanup automation or artifact mutation. | `kernel-cleanup-boundary-contract-checks-ok` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_OUTPUT_CONTRACT.md` |
 
 These helpers remain canonical standalone checks.
 
 They may be run individually for focused debugging even though a wrapper now exists.
 
-The standalone runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, local invocation, and runtime artifact policy helpers remain outside `validation/run_all_kernel_local_checks.py` unless a later governed wrapper pass explicitly changes that contract.
+The standalone runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, local invocation, runtime artifact policy, and cleanup-boundary helpers remain outside `validation/run_all_kernel_local_checks.py` unless a later governed wrapper pass explicitly changes that contract.
 
 The wrapper final success signal `kernel-local-validation-checks-ok` still does not include these standalone helper success signals:
 
@@ -53,7 +54,8 @@ The wrapper final success signal `kernel-local-validation-checks-ok` still does 
 - `kernel-failure-writer-contract-checks-ok`;
 - `kernel-terminal-writer-dry-run-contract-checks-ok`;
 - `kernel-local-invocation-contract-checks-ok`;
-- `kernel-runtime-artifact-policy-contract-checks-ok`.
+- `kernel-runtime-artifact-policy-contract-checks-ok`;
+- `kernel-cleanup-boundary-contract-checks-ok`.
 
 `kernel-local-validation-checks-ok` still means only the governed wrapper
 checks listed in `validation/run_all_kernel_local_checks.py` passed. It must
@@ -1147,6 +1149,52 @@ At the current stage, this surface does not mean:
 - production cross-project exchange exists;
 - full runtime orchestration is complete.
 
+## Current Cleanup Boundary Validation Surface
+
+The current R45 cleanup-boundary milestone status is:
+
+```text
+cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready
+```
+
+The focused standalone helper is:
+
+```text
+validation/kernel_cleanup_boundary_contract_checks.py
+```
+
+Current helper success signal:
+
+```text
+kernel-cleanup-boundary-contract-checks-ok
+```
+
+At the current stage, this surface means:
+
+- R39 cleanup automation boundary plan exists;
+- R40 cleanup automation boundary output contract exists;
+- R41 cleanup automation boundary validation plan exists;
+- R42 cleanup automation boundary implementation gate exists;
+- R43 minimal standalone cleanup-boundary validation helper exists;
+- R44 post-helper gate is refreshed;
+- the kernel can validate in-memory cleanup-boundary decision objects;
+- the helper verifies it remains outside
+  `validation/run_all_kernel_local_checks.py`;
+- `kernel-local-validation-checks-ok` does not silently include this helper.
+
+At the current stage, this surface does not mean:
+
+- cleanup automation exists;
+- artifact deletion exists;
+- filesystem mutation exists;
+- fixture promotion automation exists;
+- CLI, queue discovery, polling, retry, or scheduler behavior exists;
+- macro report unlock exists;
+- actual handoff exists;
+- wrapper inclusion exists;
+- production cross-project exchange exists;
+- full runtime orchestration is complete.
+
 ## Explicitly Blocked Runtime Behaviors
 
 The current validation baseline must not silently introduce:
@@ -1475,16 +1523,16 @@ The following changes require a governed pass before implementation:
 The current baseline is:
 
 ```text
-standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_response_writer_minimal_implementation_plus_blocking_failure_classification_minimal_implementation_plus_failure_writer_minimal_implementation_plus_terminal_writer_dry_run_minimal_implementation_plus_post_dry_run_gate_refreshed_plus_terminal_writer_dry_run_milestone_synced_plus_local_invocation_minimal_implementation_plus_post_local_invocation_gate_refreshed_plus_local_invocation_milestone_synced_runtime_artifact_policy_ready_plus_runtime_artifact_policy_validation_helper_plus_post_runtime_artifact_policy_validation_helper_gate_refreshed_plus_runtime_artifact_policy_milestone_synced_cleanup_boundary_ready_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
+standalone_helpers_plus_local_wrapper_plus_wrapper_failure_path_helper_plus_first_slice_adapter_fixture_coverage_plus_runtime_reader_contract_and_standalone_helper_plus_runtime_reader_minimal_implementation_plus_intake_mapping_minimal_implementation_plus_runtime_invocation_minimal_candidate_response_plus_response_validation_minimal_local_validation_plus_response_writer_minimal_implementation_plus_blocking_failure_classification_minimal_implementation_plus_failure_writer_minimal_implementation_plus_terminal_writer_dry_run_minimal_implementation_plus_post_dry_run_gate_refreshed_plus_terminal_writer_dry_run_milestone_synced_plus_local_invocation_minimal_implementation_plus_post_local_invocation_gate_refreshed_plus_local_invocation_milestone_synced_runtime_artifact_policy_ready_plus_runtime_artifact_policy_validation_helper_plus_post_runtime_artifact_policy_validation_helper_gate_refreshed_plus_runtime_artifact_policy_milestone_synced_cleanup_boundary_ready_plus_cleanup_boundary_validation_helper_plus_post_cleanup_boundary_validation_helper_gate_refreshed_plus_cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready_plus_post_response_validation_writer_gate_plus_terminal_writer_preparation_plus_terminal_writer_implementation_gate_plus_post_reader_handoff_gate_plus_post_intake_mapping_runtime_invocation_gate_plus_wrapper_inclusion_gate_and_reassessment_plus_writer_boundary_contracts_plus_intake_mapping_contracts
 ```
 
-The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a bounded Phase R14 minimal response writer implementation with a standalone local helper, a bounded Phase R17 blocking failure classification implementation with a standalone local helper, a bounded Phase R19 minimal failure writer implementation with a standalone local helper, a bounded R22 minimal local terminal writer dry-run implementation with a standalone local helper, a bounded minimal local invocation implementation with a standalone local helper, and a bounded runtime artifact policy validation helper with standalone coverage. The runtime artifact policy milestone is synced and cleanup automation boundary preparation is the next governed phase, while CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, scheduler runtime, macro report unlock, production cross-project exchange, full runtime orchestration, wrapper inclusion, and actual handoff remain blocked. The governed wrapper inclusion gate and TASK 114 reassessment still keep standalone helpers outside the main wrapper unless a later governed wrapper pass changes that contract.
+The kernel now has a usable local success-path validation entrypoint, a focused wrapper failure-path helper, an explicit helper-free first-slice adapter fixture validation coverage decision, a governed runtime envelope reader output contract with a standalone local helper, a bounded Phase R2 minimal runtime reader implementation, a bounded Phase R5 context-only intake mapping implementation with a standalone local helper, a bounded Phase R8 candidate-only runtime invocation implementation with a standalone local helper, a bounded Phase R10 local candidate-response validation implementation with a standalone local helper, a bounded Phase R14 minimal response writer implementation with a standalone local helper, a bounded Phase R17 blocking failure classification implementation with a standalone local helper, a bounded Phase R19 minimal failure writer implementation with a standalone local helper, a bounded R22 minimal local terminal writer dry-run implementation with a standalone local helper, a bounded minimal local invocation implementation with a standalone local helper, a bounded runtime artifact policy validation helper with standalone coverage, and a bounded cleanup-boundary validation helper with standalone coverage. The cleanup-boundary milestone is synced and cleanup implementation planning boundary is the next governed phase, while CLI behavior, queue discovery, polling, retry, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, scheduler runtime, macro report unlock, production cross-project exchange, full runtime orchestration, wrapper inclusion, and actual handoff remain blocked. The governed wrapper inclusion gate and TASK 114 reassessment still keep standalone helpers outside the main wrapper unless a later governed wrapper pass changes that contract.
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Cleanup Automation Boundary Preparation Pass`.
+Perform a `Kernel-Side Cleanup Implementation Planning Boundary Pass`.
 
-That pass should prepare cleanup automation boundaries without implementing
+That pass should plan cleanup implementation boundaries without implementing
 cleanup automation, artifact deletion, filesystem mutation, fixture promotion
 automation, CLI behavior, queue discovery, polling, retry, scheduler behavior,
 live fetching, report composition, CI, package migration, external service

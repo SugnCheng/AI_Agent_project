@@ -34,6 +34,7 @@ These documents describe the individually runnable validation helpers. Use them 
 | `validation/kernel_terminal_writer_dry_run_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` | Standalone terminal writer dry-run helper for response/failure artifact candidates and mutual exclusivity intent. Success signal: `kernel-terminal-writer-dry-run-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_local_invocation_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_OUTPUT_CONTRACT.md` | Standalone local invocation helper for explicit envelope input, explicit output destination policy, one terminal path, and locked macro/handoff/CLI markers. Success signal: `kernel-local-invocation-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 | `validation/kernel_runtime_artifact_policy_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_OUTPUT_CONTRACT.md` | Standalone runtime artifact policy helper for in-memory policy object semantics, locked markers, and wrapper exclusion. Success signal: `kernel-runtime-artifact-policy-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
+| `validation/kernel_cleanup_boundary_contract_checks.py` | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_OUTPUT_CONTRACT.md` | Standalone cleanup-boundary helper for in-memory cleanup decision object semantics, locked markers, fail-closed behavior, and wrapper exclusion. Success signal: `kernel-cleanup-boundary-contract-checks-ok`. It is not currently included in `validation/run_all_kernel_local_checks.py`. |
 
 ## Wrapper Contracts
 
@@ -153,8 +154,8 @@ milestone sync and before any runtime artifact retention or cleanup policy work.
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_BOUNDARY_VALIDATION_PLAN.md` | R27 validation plan for result shape, terminal path selection, failure routing, fail-closed policy rejection, locked downstream markers, and standalone helper stance. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R28/R29 implementation gate and completed minimal local invocation slice status. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_INVOCATION_IMPLEMENTATION_GATE.md` | R30 post-local-invocation gate refresh. It records that minimal local invocation exists but CLI, queue, scheduler, macro unlock, actual handoff, wrapper inclusion, production exchange, and full orchestration remain blocked. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current runtime artifact policy milestone sync and next phase: cleanup automation boundary preparation. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current implementation order, with R36 helper complete, R37 gate complete, R38 milestone sync current, and cleanup automation boundary preparation next. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current cleanup-boundary milestone sync and next phase: cleanup implementation planning boundary. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current implementation order, with R39-R44 cleanup-boundary delta synced and cleanup implementation planning boundary next. |
 
 | Helper | Success signal | Current status |
 | --- | --- | --- |
@@ -176,12 +177,33 @@ milestone sync and before any cleanup automation boundary planning.
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_VALIDATION_PLAN.md` | Validation themes for artifact categories, decisions, locked markers, and wrapper stance. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_RUNTIME_ARTIFACT_RETENTION_AND_CLEANUP_POLICY_IMPLEMENTATION_GATE.md` | R35 implementation gate and R36 helper completion status. |
 | `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_RUNTIME_ARTIFACT_POLICY_VALIDATION_HELPER_GATE.md` | R37 post-helper gate and R38 milestone sync note. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current R38 status: `runtime_artifact_policy_milestone_synced_cleanup_boundary_ready`; next phase is cleanup automation boundary preparation. |
-| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current sequence with R36 helper complete, R37 gate complete, R38 milestone sync current, and cleanup automation boundary preparation next. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | Current R45 status: `cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready`; next phase is cleanup implementation planning boundary. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current sequence with cleanup-boundary helper and post-helper gate complete, R45 milestone sync current, and cleanup implementation planning boundary next. |
 
 | Helper | Success signal | Current status |
 | --- | --- | --- |
 | `validation/kernel_runtime_artifact_policy_contract_checks.py` | `kernel-runtime-artifact-policy-contract-checks-ok` | Standalone helper for in-memory runtime artifact policy object validation. It is intentionally outside `validation/run_all_kernel_local_checks.py`. |
+
+## Cleanup Boundary Validation And Milestone
+
+These documents describe the R39-R45 cleanup-boundary milestone. Use them after
+runtime artifact policy milestone sync and before any cleanup implementation
+planning. They do not imply cleanup automation exists.
+
+| Document | What it is for |
+| --- | --- |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_PLAN.md` | R39 cleanup automation boundary plan: future purpose, explicit inputs, output surface, blocked behaviors, and validation themes. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_OUTPUT_CONTRACT.md` | R40 cleanup decision object contract, eligibility semantics, deletion-blocked markers, and exclusions. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_VALIDATION_PLAN.md` | R41 validation plan for cleanup decision shape, eligibility/decision values, artifact-category rules, locked markers, wrapper stance, and fail-closed behavior. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_IMPLEMENTATION_GATE.md` | R42 implementation gate authorizing only a minimal standalone cleanup-boundary validation helper next. |
+| `validation/kernel_cleanup_boundary_contract_checks.py` | R43 standalone helper for in-memory cleanup decision object validation. Success signal: `kernel-cleanup-boundary-contract-checks-ok`; not included in `validation/run_all_kernel_local_checks.py`. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_CLEANUP_BOUNDARY_VALIDATION_HELPER_GATE.md` | R44 post-helper gate refresh. Cleanup automation, deletion, filesystem mutation, fixture promotion automation, CLI, queue, scheduler, macro unlock, actual handoff, wrapper inclusion, and production exchange remain blocked. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` | R45 cleanup boundary compact milestone sync status: `cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready`. |
+| `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` | Current sequence with cleanup-boundary helper and post-helper gate complete, cleanup boundary compact milestone sync current, and cleanup implementation planning boundary next. |
+
+| Helper | Success signal | Current status |
+| --- | --- | --- |
+| `validation/kernel_cleanup_boundary_contract_checks.py` | `kernel-cleanup-boundary-contract-checks-ok` | Standalone helper for in-memory cleanup-boundary decision object validation. It is intentionally outside `validation/run_all_kernel_local_checks.py`. |
 
 ## Baseline, Reassessment, And Planning Notes
 
@@ -255,10 +277,12 @@ For current local validation behavior:
 20. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_POST_LOCAL_TERMINAL_WRITER_DRY_RUN_GATE.md` when checking the R23 post-dry-run gate.
 21. Read the local invocation boundary plan, output contract, validation plan, implementation gate, and post-local-invocation gate when checking the R25-R30 local invocation chain.
 22. Run or inspect `validation/kernel_local_invocation_contract_checks.py` when debugging the standalone local invocation helper. It is not part of the main wrapper.
-23. Read the runtime artifact policy validation and milestone documents when checking R36-R38 status and why cleanup automation boundary preparation is next.
+23. Read the runtime artifact policy validation and milestone documents when checking R36-R38 status and why cleanup-boundary governance exists.
 24. Run or inspect `validation/kernel_runtime_artifact_policy_contract_checks.py` when debugging the standalone runtime artifact policy helper. It is not part of the main wrapper.
-25. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current runtime artifact policy milestone sync and why cleanup automation boundary preparation is next.
-26. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is cleanup automation boundary preparation.
+25. Read the cleanup-boundary validation and milestone documents when checking R39-R45 status and why cleanup implementation planning boundary is next.
+26. Run or inspect `validation/kernel_cleanup_boundary_contract_checks.py` when debugging the standalone cleanup-boundary helper. It is not part of the main wrapper.
+27. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_GATE.md` when checking the current cleanup-boundary milestone sync and why cleanup implementation planning boundary is next.
+28. Read `docs/KERNEL_FILE_EXCHANGE_ADAPTER_IMPLEMENTATION_SEQUENCE.md` when checking that the next sequence item is cleanup implementation planning boundary.
 27. Run or inspect `validation/kernel_runtime_envelope_reader_contract_checks.py` when debugging the standalone reader helper. It is not part of the main wrapper.
 28. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_GATE.md` when checking why the reader helper remains standalone and what future wrapper inclusion would require.
 29. Read `docs/KERNEL_VALIDATION_WRAPPER_RUNTIME_READER_HELPER_INCLUSION_REASSESSMENT.md` when checking the TASK 114 next-milestone decision to keep the reader helper outside the main wrapper.
@@ -467,7 +491,21 @@ kernel-runtime-artifact-policy-contract-checks-ok
 
 This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
 
-The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, local invocation, or runtime artifact policy helper coverage at the current milestone.
+Run the standalone cleanup-boundary contract helper from the repository root:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE='1'; python 'ai-meta-kernel\validation\kernel_cleanup_boundary_contract_checks.py'
+```
+
+Expected final success signal:
+
+```text
+kernel-cleanup-boundary-contract-checks-ok
+```
+
+This helper is intentionally not included in `validation/run_all_kernel_local_checks.py`.
+
+The wrapper final success signal `kernel-local-validation-checks-ok` does not include runtime reader, intake mapping, runtime invocation, response validation, response writer, blocking failure classification, failure writer, terminal writer dry-run, local invocation, runtime artifact policy, or cleanup-boundary helper coverage at the current milestone.
 
 ## Explicit Non-Goals
 
@@ -520,9 +558,9 @@ This documentation index must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Cleanup Automation Boundary Preparation Pass`.
+Perform a `Kernel-Side Cleanup Implementation Planning Boundary Pass`.
 
-That pass should prepare cleanup automation boundaries without implementing
+That pass should plan cleanup implementation boundaries without implementing
 cleanup automation, artifact deletion, filesystem mutation, fixture promotion
 automation, CLI behavior, queue discovery, polling, retry, scheduler behavior,
 live fetching, report composition, CI, package migration, external service

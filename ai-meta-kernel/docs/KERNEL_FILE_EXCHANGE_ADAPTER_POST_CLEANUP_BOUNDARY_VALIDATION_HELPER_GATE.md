@@ -52,8 +52,8 @@ post_cleanup_boundary_validation_helper_gate_refreshed
 - cleanup-boundary validation helper is implementation-complete for the bounded
   standalone slice;
 - next step should not be cleanup automation or CLI;
-- next step should be compact milestone sync before any cleanup implementation
-  planning.
+- R45 compact milestone sync records this helper milestone before any cleanup
+  implementation planning.
 
 ## Explicit Blocked Behaviors
 

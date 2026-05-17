@@ -16,12 +16,12 @@ This document does not add runtime behavior, live fetching, scheduler runtime, r
 Current cross-project status:
 
 ```text
-runtime_artifact_policy_milestone_synced_cleanup_boundary_ready
+cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready
 ```
 
 The macro side can prepare and write governed local kernel input envelope artifacts. The kernel side has validated contracts, fixture checks, adapter scaffold checks, wrapper checks, wrapper failure-path checks, first-slice adapter fixture validation governance, runtime reader output-contract governance, standalone runtime reader helper coverage, Phase R2 minimal runtime reader implementation, Phase R5 minimal context-only intake mapping implementation, Phase R8 minimal candidate-only runtime invocation implementation, Phase R10 minimal local response validation implementation, Phase R11 post-response-validation writer gate governance, Phase R12 terminal writer preparation, Phase R13 terminal writer implementation gate governance, Phase R14 minimal response writer implementation, Phase R17 minimal blocking failure classification implementation, Phase R19 minimal failure writer implementation, R22 minimal local terminal writer dry-run implementation, R23 post-dry-run gate refresh, R24 terminal writer dry-run milestone sync, R25-R28 local invocation boundary planning/output/validation/gate governance, R29 minimal local invocation implementation, R30 post-local-invocation gate refresh, local invocation milestone sync, R36 standalone runtime artifact policy validation helper coverage, R37 post-helper gate refresh, R38 runtime artifact policy milestone sync, post-reader handoff gate governance, post-intake mapping runtime invocation gate governance, wrapper inclusion governance, writer-boundary governance, and intake-mapping governance.
 
-The kernel side can now run one bounded local invocation from one explicit local envelope path and one explicit output destination policy. That invocation may produce one response artifact path or one failure artifact path, never both, and returns a local invocation result object. The kernel can also validate runtime artifact policy objects through the standalone helper `ai-meta-kernel/validation/kernel_runtime_artifact_policy_contract_checks.py`, which reports `kernel-runtime-artifact-policy-contract-checks-ok` and remains outside the main wrapper. Generated artifacts remain local by default. This remains kernel-side local only. It does not implement CLI, queue discovery, polling, retry, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, scheduler behavior, macro report unlock, production cross-project exchange, or actual handoff.
+The kernel side can now run one bounded local invocation from one explicit local envelope path and one explicit output destination policy. That invocation may produce one response artifact path or one failure artifact path, never both, and returns a local invocation result object. The kernel can also validate runtime artifact policy objects through the standalone helper `ai-meta-kernel/validation/kernel_runtime_artifact_policy_contract_checks.py`, which reports `kernel-runtime-artifact-policy-contract-checks-ok` and remains outside the main wrapper. The kernel can validate cleanup-boundary decision objects through the standalone helper `ai-meta-kernel/validation/kernel_cleanup_boundary_contract_checks.py`, which reports `kernel-cleanup-boundary-contract-checks-ok` and remains outside the main wrapper. Generated artifacts remain local by default. This remains kernel-side local only. It does not implement CLI, queue discovery, polling, retry, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, scheduler behavior, macro report unlock, production cross-project exchange, or actual handoff.
 
 ## Macro-Side Readiness
 
@@ -93,6 +93,13 @@ Already in place:
 - R36 standalone runtime artifact policy validation helper coverage;
 - R37 post-runtime-artifact-policy-validation-helper gate refresh;
 - R38 runtime artifact policy milestone sync;
+- R39 cleanup automation boundary plan;
+- R40 cleanup automation boundary output contract;
+- R41 cleanup automation boundary validation plan;
+- R42 cleanup automation boundary implementation gate;
+- R43 minimal standalone cleanup-boundary validation helper coverage;
+- R44 post-cleanup-boundary-validation-helper gate refresh;
+- R45 cleanup boundary compact milestone sync;
 - runtime reader wrapper inclusion gate and TASK 114 reassessment;
 - validation baseline and documentation index updates reflecting that the reader helper remains standalone;
 - writer-boundary plan and output contract for future response/failure writers;
@@ -138,7 +145,13 @@ Current terminal writer availability, dry-run testability, and minimal local inv
 The current runtime-adapter governance status is:
 
 ```text
-first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_minimal_blocking_failure_classification_plus_minimal_failure_writer_plus_minimal_terminal_writer_dry_run_plus_terminal_writer_dry_run_milestone_sync_plus_minimal_local_invocation_implementation_plus_post_local_invocation_gate_refresh_plus_local_invocation_milestone_synced_plus_runtime_artifact_policy_helper_plus_post_helper_gate_refreshed_plus_runtime_artifact_policy_milestone_synced_cleanup_boundary_ready_plus_handoff_unimplemented
+first_slice_fixture_validation_plus_minimal_runtime_reader_implementation_plus_minimal_intake_mapping_implementation_plus_minimal_runtime_invocation_candidate_response_plus_minimal_local_response_validation_plus_minimal_response_writer_plus_minimal_blocking_failure_classification_plus_minimal_failure_writer_plus_minimal_terminal_writer_dry_run_plus_terminal_writer_dry_run_milestone_sync_plus_minimal_local_invocation_implementation_plus_post_local_invocation_gate_refresh_plus_local_invocation_milestone_synced_plus_runtime_artifact_policy_helper_plus_post_helper_gate_refreshed_plus_runtime_artifact_policy_milestone_synced_cleanup_boundary_ready_plus_cleanup_boundary_helper_plus_post_helper_gate_refreshed_plus_cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready_plus_handoff_unimplemented
+```
+
+Current cleanup boundary milestone status:
+
+```text
+cleanup_boundary_milestone_synced_cleanup_implementation_planning_ready
 ```
 
 Current runtime artifact policy milestone status:
@@ -156,7 +169,25 @@ local_invocation_milestone_synced_runtime_artifact_policy_ready
 Recommended next kernel-side phase:
 
 ```text
-Kernel-Side Cleanup Automation Boundary Preparation Pass
+Kernel-Side Cleanup Implementation Planning Boundary Pass
+```
+
+Current cleanup-boundary helper status:
+
+```text
+cleanup_automation_boundary_minimal_validation_helper_complete
+```
+
+Current cleanup-boundary helper success signal:
+
+```text
+kernel-cleanup-boundary-contract-checks-ok
+```
+
+Current post-cleanup-boundary-validation-helper gate status:
+
+```text
+post_cleanup_boundary_validation_helper_gate_refreshed
 ```
 
 Current runtime artifact policy helper status:
@@ -304,7 +335,9 @@ Current writer-boundary governance status:
 - R29 minimal local invocation can produce exactly one terminal artifact path: response or blocking failure;
 - standalone local invocation helper `ai-meta-kernel/validation/kernel_local_invocation_contract_checks.py` reports `kernel-local-invocation-contract-checks-ok`;
 - standalone runtime artifact policy helper `ai-meta-kernel/validation/kernel_runtime_artifact_policy_contract_checks.py` reports `kernel-runtime-artifact-policy-contract-checks-ok`;
+- standalone cleanup-boundary helper `ai-meta-kernel/validation/kernel_cleanup_boundary_contract_checks.py` reports `kernel-cleanup-boundary-contract-checks-ok`;
 - generated runtime artifacts remain local by default and are not commit-allowed by default;
+- cleanup automation, artifact deletion, filesystem mutation, and fixture promotion automation remain absent;
 - dry-run mutual-exclusivity intent is validated locally with artifact candidates only;
 - terminal writer availability, dry-run testability, and minimal local invocation do not equal CLI, macro report unlock, actual handoff, production exchange, or orchestration readiness.
 
@@ -397,6 +430,7 @@ Current kernel-side validation surfaces:
 - `ai-meta-kernel/validation/kernel_blocking_failure_classification_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_failure_writer_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_terminal_writer_dry_run_contract_checks.py`
+- `ai-meta-kernel/validation/kernel_cleanup_boundary_contract_checks.py`
 - `ai-meta-kernel/validation/kernel_validation_wrapper_failure_path_checks.py`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_BASELINE.md`
 - `ai-meta-kernel/docs/KERNEL_VALIDATION_DOCUMENTATION_INDEX.md`
@@ -421,8 +455,9 @@ Before actual runtime handoff, the following gaps remain:
 13. Preserve restricted and blocked response semantics before macro-side reporting.
 14. Define the operator review checkpoint for restricted and blocked outputs.
 15. Decide runtime artifact retention, fixture promotion, and cleanup policy.
-16. Prepare cleanup automation boundaries without implementing cleanup automation, artifact deletion, filesystem mutation, or fixture promotion automation.
-17. Keep the bounded local invocation and runtime artifact policy validation surfaces separate from CLI, queue worker, scheduler, macro reporting, production exchange, wrapper inclusion, and actual handoff behavior.
+16. Keep cleanup-boundary validation separate from cleanup automation, artifact deletion, filesystem mutation, and fixture promotion automation.
+17. Plan cleanup implementation boundaries without implementing cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI, queue, scheduler, macro unlock, actual handoff, wrapper inclusion, or production exchange.
+18. Keep the bounded local invocation, runtime artifact policy validation, and cleanup-boundary validation surfaces separate from CLI, queue worker, scheduler, macro reporting, production exchange, wrapper inclusion, and actual handoff behavior.
 
 ## Explicitly Blocked Behaviors
 
@@ -454,6 +489,7 @@ The current cross-project baseline must not silently introduce:
 - treating terminal writer dry-run milestone sync as local invocation or orchestration readiness;
 - treating minimal local invocation as CLI behavior, queue worker behavior, scheduler runtime, macro report unlock, actual handoff, wrapper inclusion, production cross-project exchange, or full runtime orchestration;
 - treating standalone runtime artifact policy validation as cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI behavior, queue behavior, macro report unlock, actual handoff, wrapper inclusion, production cross-project exchange, or full runtime orchestration;
+- treating standalone cleanup-boundary validation as cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI behavior, queue behavior, scheduler behavior, macro report unlock, actual handoff, wrapper inclusion, production cross-project exchange, or full runtime orchestration;
 - kernel-side runtime reader expansion beyond one explicit local file;
 - treating Phase R2 minimal reader implementation as intake mapping or runtime handoff;
 - treating the post-reader handoff gate as actual handoff authorization;
@@ -471,9 +507,9 @@ The current cross-project baseline must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Cleanup Automation Boundary Preparation Pass`.
+Perform a `Kernel-Side Cleanup Implementation Planning Boundary Pass`.
 
-That pass should prepare cleanup automation boundaries without adding cleanup
+That pass should plan cleanup implementation boundaries without adding cleanup
 automation, artifact deletion, filesystem mutation, fixture promotion
 automation, wrapper inclusion, CLI, queue discovery, polling, retry, CI,
 scheduler behavior, live fetching, report composition, package migration,
