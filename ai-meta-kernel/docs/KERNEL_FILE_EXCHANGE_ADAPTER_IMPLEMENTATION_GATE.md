@@ -11,7 +11,7 @@ It is a developer-facing gate note only. It records the current opened local sli
 Current decision:
 
 ```text
-cleanup_automation_boundary_validation_plan_baseline
+cleanup_automation_boundary_implementation_gate_refreshed
 ```
 
 The Phase R2 minimal explicit-file runtime reader slice is implemented. Phase R5 implements the minimal context-only envelope-to-intake mapping slice. Phase R8 implements the minimal candidate-only runtime invocation slice. Phase R10 implements the minimal local pre-writer response validation slice. Phase R14 implements the minimal explicit-destination response writer slice. Phase R17 implements the minimal local blocking failure classification boundary. Phase R19 implements the minimal explicit-destination failure writer slice. R21 prepared the local terminal writer dry-run gate. R22 implemented the minimal local terminal writer dry-run boundary without real artifact writing. R23 refreshed the post-dry-run gate. R24 syncs the terminal writer dry-run milestone and marks the local invocation boundary as ready for preparation only. R25 prepares the local invocation boundary, intended inputs, intended outputs, stop conditions, and validation themes without implementing local invocation. R26 defines the local invocation boundary output contract, future result object shape, terminal path semantics, and failure routing expectations without implementing local invocation. R27 defines the local invocation boundary validation plan without implementing local invocation or helper code. R28 refreshed the local invocation implementation gate and authorized only a bounded minimal local invocation implementation slice. At that point, CLI remained blocked, queue discovery remained blocked, polling remained blocked, retry/backoff remained blocked, cleanup remained blocked, macro report unlock remained blocked, actual handoff remained blocked, wrapper inclusion remained blocked, and full runtime orchestration remained closed. First-slice adapter fixture validation, reader implementation governance, writer boundaries, and intake mapping boundaries remain documented and discoverable.
@@ -124,6 +124,15 @@ queue discovery, polling, retry, scheduler behavior, macro report unlock,
 actual handoff, wrapper inclusion, production cross-project exchange, or full
 runtime orchestration.
 
+R42 refreshes the cleanup automation boundary implementation gate in
+`KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_IMPLEMENTATION_GATE.md`.
+It records that a minimal standalone cleanup-boundary validation helper may
+open next. Validation helper implementation, cleanup automation, artifact
+deletion, filesystem mutation, fixture promotion automation, CLI behavior,
+queue discovery, polling, retry, scheduler behavior, macro report unlock,
+actual handoff, wrapper inclusion, production cross-project exchange, and full
+runtime orchestration remain blocked in this phase.
+
 The gate remains closed for actual runtime handoff because CLI, queue worker,
 scheduler, terminal `TASK_OBJECT_SCHEMA` response validation, operator review
 checkpoint, production cross-project exchange, and artifact retention policy
@@ -132,7 +141,7 @@ readiness remain unimplemented.
 Current implementation baseline:
 
 ```text
-cleanup_automation_boundary_validation_plan_baseline
+cleanup_automation_boundary_implementation_gate_refreshed
 ```
 
 Current post-intake mapping runtime invocation gate:
@@ -199,6 +208,7 @@ The following prerequisites are now satisfied because of the recent governance w
 | R39 cleanup automation boundary preparation | `KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_PLAN.md` records the cleanup automation boundary preparation baseline without implementing cleanup automation, deletion, filesystem mutation, fixture promotion automation, CLI, queue behavior, macro report unlock, actual handoff, wrapper inclusion, or production exchange. |
 | R40 cleanup automation boundary output contract | `KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_OUTPUT_CONTRACT.md` defines the cleanup decision object, cleanup eligibility semantics, deletion-blocked markers, downstream locked behavior, and future validation themes without implementing cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI, queue behavior, macro report unlock, actual handoff, wrapper inclusion, or production exchange. |
 | R41 cleanup automation boundary validation plan | `KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_VALIDATION_PLAN.md` defines future validation coverage for cleanup decision object shape, cleanup eligibility and decision semantics, artifact-category safety rules, locked markers, wrapper stance, and fail-closed behavior without implementing validation helper code, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI, queue behavior, macro report unlock, actual handoff, wrapper inclusion, or production exchange. |
+| R42 cleanup automation boundary implementation gate | `KERNEL_FILE_EXCHANGE_ADAPTER_CLEANUP_AUTOMATION_BOUNDARY_IMPLEMENTATION_GATE.md` records that a minimal standalone cleanup-boundary validation helper may open next, while validation helper implementation, cleanup automation, artifact deletion, filesystem mutation, fixture promotion automation, CLI, queue behavior, macro report unlock, actual handoff, wrapper inclusion, and production exchange remain blocked in this phase. |
 | Cross-project status refresh | `CROSS_PROJECT_INTEGRATION_STATUS.md` now reflects first-slice fixture validation governance, runtime reader governance, intake-mapping implementation status, post-intake mapping runtime invocation gate status, and writer-boundary governance. |
 
 ## Existing Satisfied Prerequisites
@@ -843,6 +853,7 @@ Actual runtime adapter implementation should not begin until all of the followin
 16. Cleanup automation boundary preparation exists before cleanup automation boundary output contract work is considered.
 17. Cleanup automation boundary output contract exists before cleanup automation boundary validation planning is considered.
 18. Cleanup automation boundary validation plan exists before cleanup automation boundary implementation gate work is considered.
+19. Cleanup automation boundary implementation gate is refreshed before a minimal standalone cleanup-boundary validation helper slice is considered.
 
 ## Explicit Non-Goals
 
@@ -871,10 +882,10 @@ This gate note must not silently introduce:
 
 ## Recommended Next Phase
 
-Perform a `Kernel-Side Cleanup Automation Boundary Implementation Gate Pass`.
+Perform a `Kernel-Side Cleanup Automation Boundary Minimal Validation Helper Slice`.
 
-That pass should decide only whether a later standalone validation helper
-slice may open. Validation helper implementation, cleanup automation, artifact
+That pass may implement only a minimal standalone cleanup-boundary validation
+helper for one in-memory cleanup decision object. Cleanup automation, artifact
 deletion, filesystem mutation, fixture promotion automation, CLI behavior,
 queue discovery, polling, retry, scheduler behavior, macro report unlock,
 actual handoff execution, wrapper inclusion, production cross-project
